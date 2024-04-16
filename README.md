@@ -1,4 +1,4 @@
-# ROSA STS Cluster Automation
+# ROSA HCP Cluster Automation
 
 ## Pre-Requisites
 
@@ -21,16 +21,28 @@
 - Additional Security Groups to apply to the cluster nodes (Master, Infra, Worker) tagged with `cluster_name`)
 - ROSA OCM Token
 - Cluster Name
+- A HashiCorp Vault instance
 - Vault Token or AppRole with permission to:
   - Add a PKI engine Role
   - Request TLS certificates
   - Create KeyVault secrets
   - Retrieve/Read KV secrets
 - Vault Paths for retrieving the following:
-  - Identity Provider Details. Look at the [idp-name.tf](./rosa-sts/) files for examples. 4 examples are provided.
+  
+  - Identity Provider Details. Look at the [idp-idp_name.tf](./rosa-classic/) files for a guide.
+    
+    For example: GitLab IDP credentials are stored at vault path `kvv2/identity-providers/dev/gitlab` and the the secret data below.
+    ```json
+      {
+        "client_id": "<value>",
+        "client_secret": "<value>",
+        "gitlab_url": "https://gitlab.consulting.redhat.com/"
+      }
+    ```
+
   - ACMHUB cluster credentials (api_url, username, password)
 
-    For example:
+    For example: ACMHUB cluster credentials are stored at vault path `kvv2/acmhub/dev/<cluster-name>` and the secret data below.
     ```json
       {
         "api_url": "https://api.example.p1.openshiftapps.com:6443",
@@ -38,17 +50,19 @@
         "username": "<value>"
       }
     ```
+
   - OCM Token
   
-    For example:
+    For example: The OCM token is stored at vault path `kvv2/rosa/ocm-token` and the secret data below.
     ```json
       {
         "ocm_token": "<value>"
       }
     ```
+
   - Github/GitLab Authentication Token
   
-    For Example:
+    For Example: The Git token is stored at vault path `kvv2/git/github/pat` and the secret data below.
     ```json
       {
         "git_token": "<value>"
@@ -79,25 +93,28 @@ These are the [variables](./tfvars-prep/variables.tf) that change based on user 
 
 ## Terraform Modules
 
-Listed in their order of precedence, they work together to provision a rosa-sts (classic) cluster, make necessary configurations and then register the cluster to ACM for day-2 configurations and management.
+Listed in their order of precedence, they work together to provision a ROSA cluster, make necessary configurations and then register the cluster to ACM for day-2 configurations and management.
 
 - [tfstate-config](./tfstate-config/): Create an S3 bucket for remote state storage.
-- [account-setup](./account-setup/): Create necessary AWS resources such as VPC, Subnets, NAT Gateways, Account Roles. Security Groups...
+- [account-setup](./account-setup/): Create necessary AWS resources such as VPC, Subnets, NAT Gateways, Account Roles. Security Groups..etc. This module is optional if you choose to implement account setup through other means.
 - [tfvars-prep](./tfvars-prep/): Combine admin, user inputs, and dynamic variables into a master tfvars file. All subsequent modules will use the master tfvars file.
 - [git-tfvars-file](./git-tfvars-file/): Commit the master tfvars file to GitHub. Feel free to change the repo location to GitLab, BitBucket...etc.
-- [rosa-sts](./rosa-sts/): Creates the rosa-sts (classic) cluster, deploys two identity providers (GitHub, GitLab), and then writes the cluster-admin credentials to Vault.
-- [kube-config](./kube-config/): Create two `kubeconfig` files. One for the rosa-sts (classic) cluster and another for the ACMHUB cluster.
+- [rosa-sts](./rosa-sts/): Creates the ROSA cluster, deploys two identity providers (GitHub, GitLab), and then writes the cluster-admin credentials to Vault.
+- [kube-config](./kube-config/): Create two `kubeconfig` files. One for the ROSA cluster and another for the ACMHUB cluster.
 - [custom-ingress](./custom-ingress/): Deploys an additional IngressController.
 - [vault-k8s-auth](./vault-k8s-auth/): Deploy the vault-kubernetes-authentication backend for apps running on the cluster to be able to read Vault secrets.
-- [acmhub-registration](./acmhub-registration/): Registers the rosa-sts (classic) cluster to  ACMHUB.
+- [acmhub-registration](./acmhub-registration/): Registers the ROSA cluster to  ACMHUB.
 
 ## Implementation
 
 ### Cluster Build
 
-1. Set the [admin](./tfvars//admin//admin.tfvars) variables. These are the variables that are common across all business units. Hence, setting them once should suffice.
-2. Set the user-inputs variables. These change for each new cluster, or distinct business unit, or if you need to update existing clusters.
+1. Have an OpenShift cluster with [ACM Deployed](https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.10/html-single/install/index#installing-while-connected-online). We'll use this as the HUB cluster.
+2. A Vault instance. In this guide, [Vault is deployed](./.ci/vault-deploy.sh) in the same OpenShift cluster where ACM is running. The root token can be found in the **vault-init** `Secret` in the **vault** `Namespace`.
+3. Set the [admin](./tfvars//admin//admin.tfvars) variables. These are the variables that are common across all business units. Hence, setting them once should suffice.
+4. Set the user-inputs variables. These change for each new cluster, or distinct business unit, or if you need to update existing clusters.
 
+    
     ```sh
     export AWS_ACCESS_KEY_ID='<value>'
     export AWS_SECRET_ACCESS_KEY='<value'
@@ -122,7 +139,7 @@ Listed in their order of precedence, they work together to provision a rosa-sts 
     export TF_LOG="info" # debug|info|trace
     ```
 
-3. Now run the [pipeline script](.ci/pipeline-create.sh)
+5. Now run the [pipeline script](.ci/pipeline-create.sh)
 
     From the root directory, run the script. We could translate this shell script into a proper CICD process such as Jenkins, GitHub Actions, Tekton..etc; with sensitive variables read from Vault, or some secret engine. 
     
