@@ -1,4 +1,4 @@
-# ROSA HCP Cluster Automation
+# ROSA HCP cluster automation
 
 ## Pre-Requisites
 
