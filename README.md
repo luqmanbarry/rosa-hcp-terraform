@@ -42,7 +42,7 @@
 
   - ACMHUB cluster credentials (api_url, username, password)
 
-    For example: ACMHUB cluster credentials are stored at vault path `kvv2/acmhub/dev/<cluster-name>` and the secret data below.
+    For example: ACMHUB cluster credentials are stored at vault path `kvv2/acmhub/<env>/<cluster-name>` and the secret data below.
     ```json
       {
         "api_url": "https://api.example.p1.openshiftapps.com:6443",
@@ -69,12 +69,13 @@
       }
     ```
 
-### Programs
-- GoLang - 1.20.x or greater
-- Terraform 1.5.x or greater
-- Openshift Client - 4.12 or greater
-- rosa cli - latest
-- 
+### Software Packages
+- [GoLang](https://go.dev/doc/install) - 1.20.x or greater
+- [Terraform](https://developer.hashicorp.com/terraform/install#linux) 1.5.x or greater
+- [Openshift Client](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest)
+- [rosa cli](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/rosa/latest/)
+- [AWS CLI v2.x](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+
 ## Execution Flow
 ![Rosa STS Stages](.assets/rosa-sts-modules.png)
 
