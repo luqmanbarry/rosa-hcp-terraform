@@ -1,0 +1,8 @@
+.terraform
+.terraform.lock.hcl
+*.plan
+*outputs.txt
+*.backup
+*.tfstate
+vault-
+ignore-vars.sh

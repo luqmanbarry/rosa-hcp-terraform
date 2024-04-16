@@ -1,0 +1,15 @@
+{
+  "spec": {
+    "namespaceSelector": {
+      "matchExpressions": [
+        {
+          "key": "ingress-role",
+          "operator": "NotIn",
+          "values": [
+            "shard1"
+          ]
+        }
+      ]
+    }
+  }
+}
