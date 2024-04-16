@@ -75,6 +75,7 @@
 - [Openshift Client](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest)
 - [rosa cli](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/rosa/latest/)
 - [AWS CLI v2.x](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+- [jq](https://jqlang.github.io/jq/download/)
 
 ## Execution Flow
 ![Rosa STS Stages](.assets/rosa-sts-modules.png)
