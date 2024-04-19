@@ -19,9 +19,13 @@ locals {
   # CALCULATED VARS
   vpc_id                                           = data.aws_vpc.get_vpc.id
   vpc_cidr_block                                   = data.aws_vpc.get_vpc.cidr_block
-  private_subnet_ids                               = sort(toset(data.aws_subnets.get_private_subnet_ids.ids))
-  public_subnet_ids                                = sort(toset(data.aws_subnets.get_public_subnet_ids.ids))
-  availability_zones                               = sort(toset([ for az in data.aws_subnet.get_availability_zones : az.availability_zone ]))
+  # private_subnet_ids                               = sort(toset(data.aws_subnets.get_private_subnet_ids.ids))
+  # public_subnet_ids                                = sort(toset(data.aws_subnets.get_public_subnet_ids.ids))
+  private_subnet_ids                               = sort(toset([ for rt in data.aws_route_table.subnets_route_tables : rt.subnet_id if length( trimspace( join("", rt.routes.*.gateway_id ) ) ) == 0 ]))
+  public_subnet_ids                                = sort(toset([ for rt in data.aws_route_table.subnets_route_tables : rt.subnet_id if length( trimspace( join("", rt.routes.*.gateway_id ) ) ) > 0 ]))
+  
+  private_availability_zones                       = sort(toset([ for az in data.aws_subnet.get_private_availability_zones : az.availability_zone ]))
+  public_availability_zones                        = sort(toset([ for az in data.aws_subnet.get_public_availability_zones : az.availability_zone ]))
   hosted_zone_id                                   = data.aws_route53_zone.hosted_zone.id
   base_dns_domain                                  = data.aws_route53_zone.hosted_zone.name
   non_default_security_groups                      = sort(toset([ for sg in data.aws_security_group.aws_additional_security_groups : sg.id if strcontains(sg.name, "default") == false ]))
@@ -87,7 +91,7 @@ locals {
       format("private_subnet_ids=%v", toset(local.private_subnet_ids)),
       format("public_subnet_cidrs=%v", toset(var.public_subnet_cidrs)),
       format("public_subnet_ids=%v", toset(local.public_subnet_ids)),
-      format("availability_zones=%v", toset(local.availability_zones)),
+      format("availability_zones=%v", toset(length(local.private_availability_zones) > 0 ? local.private_availability_zones : local.public_availability_zones)),
       format("hosted_zone_id=%q", local.hosted_zone_id),
       format("base_dns_domain=%q", local.base_dns_domain),
       format("aws_additional_compute_security_group_ids=%v", local.aws_additional_compute_security_group_ids),
@@ -95,6 +99,7 @@ locals {
       format("aws_additional_infra_security_group_ids=%v", toset(local.aws_additional_infra_security_group_ids)),
       format("acmhub_cluster_env=%q", local.acmhub_cluster_env),
       format("admin_creds_vault_secret_name_prefix=%q", local.admin_creds_vault_secret_name_prefix),
+      format("admin_creds_save_to_vault=%s", var.admin_creds_save_to_vault),
       format("ldap_vault_secret_name=%q", local.ldap_vault_secret_name),
       format("github_idp_vault_secret_name=%q", local.github_idp_vault_secret_name),
       format("gitlab_idp_vault_secret_name=%q", local.gitlab_idp_vault_secret_name),

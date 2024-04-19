@@ -4,27 +4,41 @@ data "aws_vpc" "get_vpc" {
 }
 
 ## AWS: Private Subnets
-data "aws_subnets" "get_private_subnet_ids" {
-  tags = local.tags_query
+# data "aws_subnets" "get_private_subnet_ids" {
+#   tags = local.tags_query
 
-  filter {
-    name   = "tag:Name"
-    values = ["*private*"]
-  }
+#   filter {
+#     name   = "tag:Name"
+#     values = ["*private*"]
+#   }
+# }
+
+# data "aws_subnets" "get_public_subnet_ids" {
+#   tags = local.tags_query
+
+#   filter {
+#     name   = "tag:Name"
+#     values = ["*public*"]
+#   }
+# }
+
+data "aws_subnets" "get_subnet_ids" {
+  tags = local.tags_query
 }
 
-data "aws_subnets" "get_public_subnet_ids" {
-  tags = local.tags_query
-
-  filter {
-    name   = "tag:Name"
-    values = ["*public*"]
-  }
+data "aws_route_table" "subnets_route_tables" {
+  for_each  = toset(data.aws_subnets.get_subnet_ids.ids)
+  subnet_id = each.value
 }
 
 ## AWS: Availability Zones
-data "aws_subnet" "get_availability_zones" {
-  for_each  = toset(data.aws_subnets.get_private_subnet_ids.ids)
+data "aws_subnet" "get_private_availability_zones" {
+  for_each  = toset(local.private_subnet_ids)
+  id        = each.value
+}
+
+data "aws_subnet" "get_public_availability_zones" {
+  for_each  = toset(local.public_subnet_ids)
   id        = each.value
 }
 

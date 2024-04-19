@@ -14,6 +14,12 @@ variable "account_role_prefix" {
     default = "ManagedOpenShift"
 }
 
+variable "aws_region" {
+  type    = string
+  default = "us-east-2"
+  description = "The region where the ROSA cluster is created"
+}
+
 variable "openshift_environment" {
   type = string
   description = "The ROSA cluster environment"

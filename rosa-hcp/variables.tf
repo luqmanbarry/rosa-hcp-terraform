@@ -1,6 +1,6 @@
 variable "business_unit" {
   type        = string
-  description = "The business unit that owns the ROSA cluster"
+  description = "The business unit that owns the ROSA cluster."
 }
 
 variable "ocm_token" {
@@ -141,6 +141,7 @@ variable "vpc_cidr_block" {
 variable "aws_region" {
   type    = string
   default = "us-east-2"
+  description = "The region where the ROSA cluster is created"
 }
 
 variable "private_subnet_ids" {

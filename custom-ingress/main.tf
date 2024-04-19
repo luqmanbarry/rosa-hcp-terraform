@@ -9,7 +9,7 @@ data "vault_kv_secret_v2" "rosa_cluster_details" {
 
 
 ## ROSA: Deploy MachineConfigPool
-resource "rhcs_machine_pool" "ing_shard1_machine_pool" {
+resource "rhcs_hcp_machine_pool" "ing_shard1_machine_pool" {
   depends_on = [ data.vault_kv_secret_v2.rosa_cluster_details ]
   cluster                           = lookup(data.vault_kv_secret_v2.rosa_cluster_details.data, "cluster_id")
   name                              = var.custom_ingress_name
