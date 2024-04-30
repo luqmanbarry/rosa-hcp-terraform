@@ -21,14 +21,14 @@ locals {
   vpc_cidr_block                                   = data.aws_vpc.get_vpc.cidr_block
   # private_subnet_ids                               = sort(toset(data.aws_subnets.get_private_subnet_ids.ids))
   # public_subnet_ids                                = sort(toset(data.aws_subnets.get_public_subnet_ids.ids))
-  private_subnet_ids                               = sort(toset([ for rt in data.aws_route_table.subnets_route_tables : rt.subnet_id if length( trimspace( join("", rt.routes.*.gateway_id ) ) ) == 0 ]))
-  public_subnet_ids                                = sort(toset([ for rt in data.aws_route_table.subnets_route_tables : rt.subnet_id if length( trimspace( join("", rt.routes.*.gateway_id ) ) ) > 0 ]))
+  private_subnet_ids                               = toset([ for rt in data.aws_route_table.subnets_route_tables : rt.subnet_id if length( trimspace( join("", rt.routes.*.gateway_id ) ) ) == 0 ])
+  public_subnet_ids                                = toset([ for rt in data.aws_route_table.subnets_route_tables : rt.subnet_id if length( trimspace( join("", rt.routes.*.gateway_id ) ) ) > 0 ])
   
-  private_availability_zones                       = sort(toset([ for az in data.aws_subnet.get_private_availability_zones : az.availability_zone ]))
-  public_availability_zones                        = sort(toset([ for az in data.aws_subnet.get_public_availability_zones : az.availability_zone ]))
+  private_availability_zones                       = toset([ for az in data.aws_subnet.get_private_availability_zones : az.availability_zone ])
+  public_availability_zones                        = toset([ for az in data.aws_subnet.get_public_availability_zones : az.availability_zone ])
   hosted_zone_id                                   = data.aws_route53_zone.hosted_zone.id
   base_dns_domain                                  = data.aws_route53_zone.hosted_zone.name
-  non_default_security_groups                      = sort(toset([ for sg in data.aws_security_group.aws_additional_security_groups : sg.id if strcontains(sg.name, "default") == false ]))
+  non_default_security_groups                      = toset([ for sg in data.aws_security_group.aws_additional_security_groups : sg.id if strcontains(sg.name, "default") == false ])
   aws_additional_compute_security_group_ids        = local.non_default_security_groups
   aws_additional_control_plane_security_group_ids  = local.non_default_security_groups
   aws_additional_infra_security_group_ids          = local.non_default_security_groups
@@ -86,7 +86,9 @@ locals {
       format("machine_type=%q", local.machine_type),
       format("min_replicas=%s", local.min_replicas),
       format("max_replicas=%s", local.max_replicas),
+      format("tfstate_s3_bucket_name=%q", var.tfstate_s3_bucket_name),
       format("vpc_cidr_block=%q", local.vpc_cidr_block),
+      format("create_account_roles=%s", var.create_account_roles),
       format("private_subnet_cidrs=%v", toset(var.private_subnet_cidrs)),
       format("private_subnet_ids=%v", toset(local.private_subnet_ids)),
       format("public_subnet_cidrs=%v", toset(var.public_subnet_cidrs)),

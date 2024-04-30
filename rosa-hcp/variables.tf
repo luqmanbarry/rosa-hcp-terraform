@@ -78,7 +78,7 @@ variable "min_replicas" {
 variable "max_replicas" {
   description = "The maximum number of replicas not exceeded by the autoscaling functionality."
   type        = number
-  default     = 3
+  default     = 12
 }
 
 variable "proxy" {
@@ -167,6 +167,11 @@ variable "admin_creds_password" {
 }
 
 variable "admin_creds_vault_generate" {
+  type = bool
+  default = true
+}
+
+variable "admin_creds_save_to_vault" {
   type = bool
   default = true
 }

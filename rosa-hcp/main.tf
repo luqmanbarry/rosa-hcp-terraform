@@ -9,13 +9,16 @@ resource "random_string" "random_name" {
 }
 
 resource "rhcs_cluster_rosa_hcp" "rosa_hcp_cluster" {
-  depends_on           = [ time_sleep.wait_for_oidc ]
+  depends_on           = [ 
+    time_sleep.wait_for_oidc,
+    time_sleep.wait_for_operator_roles
+  ]
 
   name                 = local.cluster_name
   cloud_region         = var.aws_region
   aws_account_id       = data.aws_caller_identity.current.account_id
   aws_billing_account_id = data.aws_caller_identity.current.account_id
-  availability_zones   = sort(toset(var.availability_zones))
+  availability_zones   = toset(var.availability_zones)
   version              = var.ocp_version
 
   proxy                = (var.proxy.enable ? var.proxy : null)
@@ -44,6 +47,9 @@ resource "rhcs_cluster_rosa_hcp" "rosa_hcp_cluster" {
   }
 
   tags                 = var.additional_tags
+
+  wait_for_create_complete = true
+  wait_for_std_compute_nodes_complete = true
 }
 
 resource "rhcs_hcp_cluster_autoscaler" "enable_autoscaling" {
@@ -52,10 +58,4 @@ resource "rhcs_hcp_cluster_autoscaler" "enable_autoscaling" {
   resource_limits = {
     max_nodes_total = var.autoscaling_enabled ? var.max_replicas : null
   }
-}
-
-resource "rhcs_cluster_wait" "wait_for_cluster_build" {
-  cluster = rhcs_cluster_rosa_hcp.rosa_hcp_cluster.id
-  # timeout in minutes
-  timeout = 60
 }

@@ -1,5 +1,4 @@
 private_cluster               = false # Whether to deploy PrivateLink
-tfstate_s3_bucket_name        = "rosa-sts-tfstate"
 #================ ACM HUB ==============================================================
 acmhub_api_server       = ""
 acmhub_username         = "" # Ignore if creds pulled form Vault
@@ -12,7 +11,6 @@ acmhub_kubeconfig_filename          = "/Users/luqman/.acmhub-kube/config" # Use 
 managed_oidc                  = true
 worker_node_replicas          = 3
 autoscaling_enabled           = true
-create_account_roles          = true
 custom_ingress_domain_prefix = "shard1"
 custom_ingress_name          = "ingress-shard1"
 custom_ingress_machine_type  = "m5.xlarge"

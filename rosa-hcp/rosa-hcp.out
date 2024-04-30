@@ -1,0 +1,7 @@
+{
+  "oidc_endpoint_url": {
+    "sensitive": false,
+    "type": "string",
+    "value": "oidc.op1.openshiftapps.com/2avftos9b01ljg4d655lnm3bob1uafa9"
+  }
+}

@@ -19,28 +19,45 @@ resource "random_password" "password" {
 }
 
 resource "time_sleep" "wait_for_api_url" {
-  depends_on  = [ rhcs_cluster_wait.wait_for_cluster_build ]
+  depends_on  = [ rhcs_cluster_rosa_hcp.rosa_hcp_cluster ]
   create_duration = "600s"
 }
 
-data "rhcs_cluster_rosa_classic" "get_cluster" {
+data "rhcs_cluster_rosa_hcp" "get_cluster" {
   depends_on  = [ time_sleep.wait_for_api_url ]
   id          = rhcs_cluster_rosa_hcp.rosa_hcp_cluster.id
 }
 
+module "rosa-hcp_idp-htpasswd" {
+  source  = "terraform-redhat/rosa-hcp/rhcs//modules/idp"
+  version = "1.6.1-prerelease.2"
+
+  depends_on  = [ rhcs_cluster_rosa_hcp.rosa_hcp_cluster ]
+
+  cluster_id         = data.rhcs_cluster_rosa_hcp.get_cluster.id
+  name               = "default-users"
+  idp_type           = "htpasswd"
+  htpasswd_idp_users = [
+    {
+      username = local.username
+      password = local.password
+    }
+  ]
+}
+
 ## Vault: Write Cluster Details
 resource "vault_kv_secret_v2" "rosa_cluster_details" {
-  depends_on = [ data.rhcs_cluster_rosa_classic.get_cluster ]
+  depends_on = [ data.rhcs_cluster_rosa_hcp.get_cluster ]
   mount      = var.ocp_vault_secret_engine_mount
   name       = local.rosa_details_secret_name
 
   data_json = jsonencode({
-    # username            = rhcs_cluster_rosa_hcp.rosa_hcp_cluster.admin_credentials.username
-    # password            = rhcs_cluster_rosa_hcp.rosa_hcp_cluster.admin_credentials.password
-    cluster_name        = data.rhcs_cluster_rosa_classic.get_cluster.name
-    console_url         = data.rhcs_cluster_rosa_classic.get_cluster.console_url
-    default_api_url     = data.rhcs_cluster_rosa_classic.get_cluster.api_url
-    cluster_id          = data.rhcs_cluster_rosa_classic.get_cluster.id
+    username            = local.username
+    password            = local.password
+    cluster_name        = data.rhcs_cluster_rosa_hcp.get_cluster.name
+    console_url         = data.rhcs_cluster_rosa_hcp.get_cluster.console_url
+    default_api_url     = data.rhcs_cluster_rosa_hcp.get_cluster.api_url
+    cluster_id          = data.rhcs_cluster_rosa_hcp.get_cluster.id
   })
 
   custom_metadata {

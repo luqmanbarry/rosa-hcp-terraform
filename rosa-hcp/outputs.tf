@@ -2,12 +2,8 @@ output "cluster_id" {
   value = rhcs_cluster_rosa_hcp.rosa_hcp_cluster.id
 }
 
-output "oidc_thumbprint" {
-  value = rhcs_rosa_oidc_config.oidc_config.oidc_endpoint_url
-}
-
 output "oidc_endpoint_url" {
-  value = rhcs_rosa_oidc_config.oidc_config.oidc_endpoint_url
+  value = module.rosa-hcp_oidc-config-and-provider.oidc_endpoint_url
 }
 
 output "api_url" {

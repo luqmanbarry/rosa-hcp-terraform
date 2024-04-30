@@ -323,6 +323,11 @@ variable "ocp_vault_secret_engine_mount" {
   default = "changeme"
 }
 
+variable "admin_creds_save_to_vault" {
+  type = bool
+  default = true
+}
+
 variable "hosted_zone_id" {
   type = string
   description = "The hosted zone id"

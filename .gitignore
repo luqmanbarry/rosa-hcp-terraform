@@ -6,3 +6,4 @@
 *.tfstate
 vault-
 ignore-vars.sh
+ignore-vars-empty.sh
