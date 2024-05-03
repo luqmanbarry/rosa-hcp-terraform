@@ -16,7 +16,7 @@
 - Private and/or Public Subnets tagged with `cluster_name`
   - `x.x.x.x/24` CIDR for Multi-AZ
   - `x.x.x.x/25` CIDR for Single-AZ
-  - tagged with `cluster_name`
+  
 - Base DNS Domain name if you intend to deploy a custom `IngressController`
 - Additional Security Groups to apply to the cluster nodes (Master, Infra, Worker) tagged with `cluster_name`)
 - ROSA OCM Token
@@ -153,10 +153,12 @@ Listed in their order of precedence, they work together to provision a ROSA clus
     For example, AWS credentials, OCM Token, Git Token, Vault Token could be set as environment variables via a plugin.
 
     ```sh
-    .ci/pipeline-create.sh
+    .ci/pipeline-create.sh | tee rosa-hcp-create.log
     ```
 
 ### Cluster Tear Down
 
-Take a look at the [.ci/pipeline-destroy.sh](.ci/pipeline-create.sh) file.
+```sh
+.ci/pipeline-destroy.sh | tee rosa-hcp-destroy.log
+```
 

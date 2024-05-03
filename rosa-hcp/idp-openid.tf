@@ -3,10 +3,11 @@
 # ###################################
 
 # ## GET AAD{client_id, client_secret, issuer} FROM VAULT
-## Vault KV secret Example:
+## Vault KV secret Example: Path /kv/identity-providers/<env>/openid
 ## {
 ##   "client_id": "<value>",
 ##   "client_secret": "<value>",
+##   "root_ca": "<value>",
 ##   "issuer": "https://login.microsoftonline.com/<GUID>"
 ## }
 
@@ -16,18 +17,20 @@
 #   name       = var.aad_vault_secret_name
 # }
 
-# resource "rhcs_identity_provider" "openid_idp" {
-#   depends_on  = [ rhcs_cluster_wait.wait_for_cluster_build, rhcs_cluster_rosa_hcp.rosa_hcp_cluster ]
-#   cluster     = rhcs_cluster_rosa_hcp.rosa_hcp_cluster.id
-#   name        = "MY-AAD"
-#   openid = {
-#      client_id = lookup(data.vault_kv_secret_v2.aad_credentials.data, "client_id")
-#      client_secret = lookup(data.vault_kv_secret_v2.aad_credentials.data, "client_secret")
-#      issuer = lookup(data.vault_kv_secret_v2.aad_credentials.data, "issuer")
-#      claims = {
-#       email = ["email"]
-#       preferred_username = ["upn"]
+# module "rosa-hcp_idp-openid" {
 
-#      }
-#   }
+#   source  = "terraform-redhat/rosa-hcp/rhcs//modules/idp"
+#   version = "1.6.1-prerelease.2"
+
+#   depends_on  = [ rhcs_cluster_rosa_hcp.rosa_hcp_cluster ]
+
+#   cluster_id                            = data.rhcs_cluster_rosa_hcp.get_cluster.id
+#   name                                  = "Azure-AD"
+#   idp_type                              = "openid"
+#   openid_idp_client_id                  = lookup(data.vault_kv_secret_v2.aad_credentials.data, "client_id")
+#   openid_idp_client_secret              = lookup(data.vault_kv_secret_v2.aad_credentials.data, "client_secret")
+#   openid_idp_issuer                     = lookup(data.vault_kv_secret_v2.aad_credentials.data, "issuer")
+#   openid_idp_ca                         = lookup(data.vault_kv_secret_v2.aad_credentials.data, "root_ca")
+#   openid_idp_claims_email               = ["email"]
+#   openid_idp_claims_preferred_username  = ["upn"]
 # }

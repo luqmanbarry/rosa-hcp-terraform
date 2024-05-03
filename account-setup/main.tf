@@ -1,25 +1,15 @@
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
 
-  name  = var.cluster_name
-  cidr  = var.vpc_cidr_block
+module "rosa-hcp_vpc" {
+  source  = "terraform-redhat/rosa-hcp/rhcs//modules/vpc"
+  version = "1.6.1-prerelease.2"
 
-  azs             = [
-    format("%sa", var.aws_region),
-    format("%sb", var.aws_region),
-    format("%sc", var.aws_region)
-  ]
-
-  private_subnets = var.private_subnet_cidrs
-  public_subnets  = var.public_subnet_cidrs
-
-  enable_nat_gateway   = true
-  single_nat_gateway   = var.single_nat_gateway
-  enable_dns_hostnames = true
-  enable_dns_support   = true
+  name_prefix         = var.cluster_name
+  vpc_cidr            = var.vpc_cidr_block
+  availability_zones_count	 = 3
 
   tags = merge(
     {
+      Name         = var.cluster_name
       cluster_name = var.cluster_name
     },
     var.additional_tags
@@ -39,7 +29,7 @@ resource "aws_route53_zone" "base_dns_domain" {
 }
 
 # data "aws_route53_zone" "base_dns_route53_zone" {
-#   depends_on = [ module.vpc ]
+#   depends_on = [ module.rosa-hcp_vpc ]
 #   name         = var.base_dns_domain
 # }
 

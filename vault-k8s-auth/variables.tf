@@ -119,5 +119,5 @@ variable "admin_creds_vault_secret_name_prefix" {
 variable "ocp_vault_secret_engine_mount" {
   type = string
   description = "Vault KV engine mount path"
-  default = "kvv2"
+  default = "kv"
 }

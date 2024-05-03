@@ -6,7 +6,13 @@ module "rosa-hcp_operator-roles" {
   oidc_endpoint_url           = module.rosa-hcp_oidc-config-and-provider.oidc_endpoint_url
   operator_role_prefix        = local.operator_role_prefix
   path                        = local.path
-  tags                        = var.additional_tags
+  
+  tags = merge(
+    {
+      cluster_name = var.cluster_name
+    },
+    var.additional_tags
+  )
 }
 
 resource "time_sleep" "wait_for_operator_roles" {

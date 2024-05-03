@@ -10,16 +10,16 @@ acmhub_kubeconfig_filename          = "/Users/luqman/.acmhub-kube/config" # Use 
 #================ ROSA CLUSTER =========================================================
 managed_oidc                  = true
 worker_node_replicas          = 3
-autoscaling_enabled           = true
-custom_ingress_domain_prefix = "shard1"
-custom_ingress_name          = "ingress-shard1"
+autoscaling_enabled           = false # At the time of testing these modules, autoscaling was not working peroperly.
+custom_ingress_domain_prefix = "ingress1"
+custom_ingress_name          = "ingress1"
 custom_ingress_machine_type  = "m5.xlarge"
 custom_ingress_machine_pool_min_replicas = 3
 custom_ingress_machine_pool_max_replicas = 15
 ingress_sharding_tags         = [ "shard1" ]
 ingress_pod_replicas          = 3 # One pod per node. Must match number of available nodes (infra or worker or both)
 admin_creds_vault_generate_secret     = true
-ocp_vault_secret_engine_mount         = "kvv2"
+ocp_vault_secret_engine_mount         = "kv"
 pod_cidr                      = "172.128.0.0/14"
 service_cidr                  = "172.127.0.0/16"
 
@@ -32,7 +32,6 @@ proxy           = {
 #================ VAULT SECRETS/CERTS =============================================
 vault_login_path                            = "auth/approle/login"
 vault_login_approle_role_id                 = "changeme"
-vault_addr                                  = "https://vault.apps.rosa-7wc76.2ecu.p1.openshiftapps.com"
 vault_pki_path                              = "pki"
 vault_pki_ttl                               = "63070000" # should be 2 years
 #================ KUBERNETES VAULT AUTH BACKEND ===================================

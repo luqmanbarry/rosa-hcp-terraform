@@ -7,32 +7,37 @@ data "vault_kv_secret_v2" "rosa_cluster_details" {
   name = local.rosa_details_secret_name
 }
 
-
 ## ROSA: Deploy MachineConfigPool
-resource "rhcs_hcp_machine_pool" "ing_shard1_machine_pool" {
+module "rosa-hcp_machine-pool" {
+  source  = "terraform-redhat/rosa-hcp/rhcs//modules/machine-pool"
+  version = "1.6.1-prerelease.2"
+
+  count  = length(toset(var.private_subnet_ids))
+
   depends_on = [ data.vault_kv_secret_v2.rosa_cluster_details ]
-  cluster                           = lookup(data.vault_kv_secret_v2.rosa_cluster_details.data, "cluster_id")
-  name                              = var.custom_ingress_name
-  machine_type                      = var.custom_ingress_machine_type
+  
+  name                              = format("%s-%s", var.custom_ingress_name, count.index)
+  cluster_id                        = lookup(data.vault_kv_secret_v2.rosa_cluster_details.data, "cluster_id")
+  auto_repair                       = true
+  aws_node_pool                     = {
+    instance_type       = var.custom_ingress_machine_type
+    tags                = merge(local.ingress_labels, var.default_mp_labels)
+  }
+  autoscaling                       = {
+    enabled = true
+    min_replicas                    = 1
+    max_replicas                    = var.custom_ingress_machine_pool_max_replicas
+  }
   labels                            = merge(local.ingress_labels, var.additional_tags)
-  autoscaling_enabled               = true
-  # min_replicas                      = var.custom_ingress_machine_pool_min_replicas
-  min_replicas                      = var.ingress_pod_replicas
-  max_replicas                      = var.custom_ingress_machine_pool_max_replicas
-  aws_additional_security_group_ids = var.aws_additional_infra_security_group_ids
-  multi_availability_zone           = (length(var.private_subnet_ids) > 2 ? true : false )
-  subnet_id                         = (length(var.private_subnet_ids) > 2 ? null : one(var.private_subnet_ids) )
-  taints = [ 
-    {
-      key           = format("node-role.kubernetes.io/%s", var.custom_ingress_name)
-      value         = ""
-      schedule_type = "NoSchedule"
-    } 
-  ]
+  openshift_version                 = var.ocp_version
+  # subnet_id                         = (length(var.private_subnet_ids) > 2 ? null : one(var.private_subnet_ids) )
+  subnet_id                         = var.private_subnet_ids[count.index]
+
 }
 
+
 resource "time_sleep" "wait_for_machine_pool" {
-  depends_on = [ rhcs_machine_pool.ing_shard1_machine_pool ]
+  depends_on = [ module.rosa-hcp_machine-pool ]
   create_duration = "300s"
 }
 
@@ -40,6 +45,7 @@ resource "time_sleep" "wait_for_machine_pool" {
 ## ROSA: Get details of default IngressController
 data "kubernetes_resource" "default_ingress" {
   depends_on = [ time_sleep.wait_for_machine_pool ]
+  provider    = kubernetes.managed_cluster
   api_version        = "operator.openshift.io/v1"
   kind               = "IngressController" 
 
@@ -79,7 +85,8 @@ resource "null_resource" "default_ingress_patch" {
 ## ROSA: Create TLS secret for the second IngressController domain
 resource "kubernetes_secret" "custom-ingress-certs-secret" {
   depends_on = [ null_resource.default_ingress_patch ]
-  
+  provider    = kubernetes.managed_cluster
+
   metadata         {
     name          = local.ingress_name
     namespace     = local.ingress_child_res_namespace
@@ -100,7 +107,8 @@ resource "kubernetes_secret" "custom-ingress-certs-secret" {
 ## ROSA: Create the second IngressConroller CR in openshift-ingress-operator namespace
 resource "kubernetes_manifest" "custom-ingress" {
 
-  depends_on = [ kubernetes_secret.custom-ingress-certs-secret ]
+  depends_on  = [ kubernetes_secret.custom-ingress-certs-secret ]
+  provider    = kubernetes.managed_cluster
 
   manifest   = {
     "apiVersion"        = "operator.openshift.io/v1"
@@ -225,7 +233,9 @@ resource "kubernetes_manifest" "custom-ingress" {
 
 ## ROSA: Patch the LB service to specify subnets lists
 resource "kubernetes_annotations" "set_elb_subnets" {
-  depends_on = [ kubernetes_manifest.custom-ingress ]
+  depends_on  = [ kubernetes_manifest.custom-ingress ]
+  provider    = kubernetes.managed_cluster
+
   api_version = "v1"
   kind = "Service"
   metadata {
@@ -246,6 +256,8 @@ resource "time_sleep" "wait_for_for_elb" {
 ## ROSA: Get the NLB name/hostname
 data "kubernetes_resource" "custom-ingress-vars" {
   depends_on = [ time_sleep.wait_for_for_elb ]
+  provider    = kubernetes.managed_cluster
+
   api_version = "v1"
   kind        = "Service"
 

@@ -116,7 +116,7 @@ variable "managed_cluster_kubeconfig_filename" {
 variable "ocp_vault_secret_engine_mount" {
   type = string
   description = "Vault KV engine mount path"
-  default = "kvv2"
+  default = "kv"
 }
 
 variable "admin_creds_vault_secret_name_prefix" {
@@ -137,6 +137,12 @@ variable "additional_tags" {
     Environment = "dev"
     Contact     = "lbarry@redhat.com"
   }
+}
+
+variable "default_mp_labels" {
+  description       = "ROSA additional machine pool labels"
+  type              = map(string)
+  default = {}
 }
 
 variable "aws_additional_infra_security_group_ids" {
@@ -165,4 +171,10 @@ variable "ocm_url" {
   type        = string
   description = "Provide OCM environment by setting a value to url"
   default     = "https://api.openshift.com"
+}
+
+variable "ocp_version" {
+  type        = string
+  default     = "4.15.1"
+  description = "Desired version of OpenShift for the cluster, for example '4.1.0'. If version is greater than the currently running version, an upgrade will be scheduled."
 }

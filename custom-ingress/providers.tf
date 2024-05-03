@@ -39,6 +39,7 @@ provider "vault" {
 provider "kubernetes" {
   config_path    = var.managed_cluster_kubeconfig_filename
   insecure       = true
+  alias          = "managed_cluster"
 }
 
 

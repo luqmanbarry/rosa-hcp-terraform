@@ -15,27 +15,31 @@ resource "random_password" "password" {
   min_numeric       = 10
   special           = true
   min_special       = 5
-  override_special  = "-_()[]<>=?+"
+  override_special  = "-_()[]=?+"
 }
 
 resource "time_sleep" "wait_for_api_url" {
-  depends_on  = [ rhcs_cluster_rosa_hcp.rosa_hcp_cluster ]
-  create_duration = "600s"
+  # depends_on  = [ rhcs_cluster_rosa_hcp.rosa_hcp_cluster ]
+  depends_on      = [module.rosa-hcp_rosa-cluster-hcp]
+  create_duration = "300s"
 }
 
 data "rhcs_cluster_rosa_hcp" "get_cluster" {
   depends_on  = [ time_sleep.wait_for_api_url ]
-  id          = rhcs_cluster_rosa_hcp.rosa_hcp_cluster.id
+  # id          = rhcs_cluster_rosa_hcp.rosa_hcp_cluster.id
+  id          = module.rosa-hcp_rosa-cluster-hcp.cluster_id
 }
 
 module "rosa-hcp_idp-htpasswd" {
+
   source  = "terraform-redhat/rosa-hcp/rhcs//modules/idp"
   version = "1.6.1-prerelease.2"
 
-  depends_on  = [ rhcs_cluster_rosa_hcp.rosa_hcp_cluster ]
+  # depends_on  = [ rhcs_cluster_rosa_hcp.rosa_hcp_cluster ]
+  depends_on  = [module.rosa-hcp_rosa-cluster-hcp]
 
   cluster_id         = data.rhcs_cluster_rosa_hcp.get_cluster.id
-  name               = "default-users"
+  name               = local.cluster_admin_idp
   idp_type           = "htpasswd"
   htpasswd_idp_users = [
     {
@@ -45,9 +49,31 @@ module "rosa-hcp_idp-htpasswd" {
   ]
 }
 
+resource "null_resource" "grant_user_cluster_admin" {
+  depends_on  = [ module.rosa-hcp_idp-htpasswd ]
+
+  provisioner "local-exec" {
+    interpreter = [ "/bin/bash", "-c" ]
+    command = "rosa login --token=\"$OCM_TOKEN\" &> /dev/null"
+    environment = {
+      OCM_TOKEN = var.ocm_token
+    }
+  }
+
+  provisioner "local-exec" {
+    interpreter = [ "/bin/bash", "-c" ]
+    command = "rosa grant user cluster-admin --user \"$USER_NAME\" --cluster=\"$IDP_NAME\""
+    environment = {
+      IDP_NAME  = data.rhcs_cluster_rosa_hcp.get_cluster.id
+      USER_NAME = local.username
+    }
+  }
+}
+
 ## Vault: Write Cluster Details
 resource "vault_kv_secret_v2" "rosa_cluster_details" {
   depends_on = [ data.rhcs_cluster_rosa_hcp.get_cluster ]
+  count      = var.admin_creds_save_to_vault ? 1 : 0
   mount      = var.ocp_vault_secret_engine_mount
   name       = local.rosa_details_secret_name
 

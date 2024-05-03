@@ -27,11 +27,13 @@ echo "==> Module - $TF_MODULE"
 echo "=================================================="
 
 cd "${TF_MODULE}"
-terraform workspace new ${TF_WORKSPACE} || echo "Workspace ${TF_WORKSPACE} already exists or cannot be created"
+unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
   -backend-config="region=${AWS_REGION}"
+terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
+export TF_WORKSPACE="${TF_ENV}"
 terraform plan -destroy -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
 terraform apply "$TF_MODULE.plan"
 cd "${WORKING_DIRECTORY}"
@@ -46,11 +48,13 @@ echo "==> Module - $TF_MODULE"
 echo "=================================================="
 
 cd "${TF_MODULE}"
-terraform workspace new ${TF_WORKSPACE} || echo "Workspace ${TF_WORKSPACE} already exists or cannot be created"
+unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
   -backend-config="region=${AWS_REGION}"
+terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
+export TF_WORKSPACE="${TF_ENV}"
 terraform plan -destroy -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
 terraform apply "$TF_MODULE.plan"
 cd "${WORKING_DIRECTORY}"
@@ -65,11 +69,13 @@ echo "==> Module - $TF_MODULE"
 echo "=================================================="
 
 cd "${TF_MODULE}"
-terraform workspace new ${TF_WORKSPACE} || echo "Workspace ${TF_WORKSPACE} already exists or cannot be created"
+unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
   -backend-config="region=${AWS_REGION}"
+terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
+export TF_WORKSPACE="${TF_ENV}"
 terraform plan -destroy -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
 terraform apply "$TF_MODULE.plan"
 cd "${WORKING_DIRECTORY}"
@@ -84,11 +90,13 @@ echo "==> Module - $TF_MODULE"
 echo "=================================================="
 
 cd "${TF_MODULE}"
-terraform workspace new ${TF_WORKSPACE} || echo "Workspace ${TF_WORKSPACE} already exists or cannot be created"
+unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
   -backend-config="region=${AWS_REGION}"
+terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
+export TF_WORKSPACE="${TF_ENV}"
 terraform plan -destroy -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
 terraform apply "$TF_MODULE.plan"
 cd "${WORKING_DIRECTORY}"
