@@ -27,12 +27,14 @@ echo "=================================================="
 echo "==> Module - $TF_MODULE"
 echo "=================================================="
 
-if !(aws s3api head-bucket --bucket "${TF_VAR_tfstate_s3_bucket_name}" 2>/dev/null);
+if !(aws s3api head-bucket --region="${AWS_REGION}" --bucket "${TF_VAR_tfstate_s3_bucket_name}" 2>/dev/null);
 then
   echo "===> TFState bucket does not exists. Creating..."
   cd "${TF_MODULE}"
   unset TF_WORKSPACE
-  terraform init
+  terraform init \
+  || \
+  terraform init -reconfigure
   terraform plan -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
   terraform apply "$TF_MODULE.plan"
   cd ${WORKING_DIRECTORY}
@@ -53,7 +55,13 @@ unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
-  -backend-config="region=${AWS_REGION}"
+  -backend-config="region=${BUCKET_REGION}" \
+|| \
+terraform init \
+  -reconfigure \
+  -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
+  -backend-config="key=${BACKEND_KEY}" \
+  -backend-config="region=${BUCKET_REGION}"
 terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
 export TF_WORKSPACE="${TF_ENV}"
 terraform plan -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
@@ -73,7 +81,13 @@ unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
-  -backend-config="region=${AWS_REGION}"
+  -backend-config="region=${BUCKET_REGION}" \
+|| \
+terraform init \
+  -reconfigure \
+  -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
+  -backend-config="key=${BACKEND_KEY}" \
+  -backend-config="region=${BUCKET_REGION}"
 terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
 export TF_WORKSPACE="${TF_ENV}"
 terraform plan -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
@@ -93,7 +107,13 @@ unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
-  -backend-config="region=${AWS_REGION}"
+  -backend-config="region=${BUCKET_REGION}" \
+|| \
+terraform init \
+  -reconfigure \
+  -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
+  -backend-config="key=${BACKEND_KEY}" \
+  -backend-config="region=${BUCKET_REGION}"
 terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
 export TF_WORKSPACE="${TF_ENV}"
 terraform plan -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
@@ -113,7 +133,13 @@ unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
-  -backend-config="region=${AWS_REGION}"
+  -backend-config="region=${BUCKET_REGION}" \
+|| \
+terraform init \
+  -reconfigure \
+  -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
+  -backend-config="key=${BACKEND_KEY}" \
+  -backend-config="region=${BUCKET_REGION}"
 terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
 export TF_WORKSPACE="${TF_ENV}"
 terraform plan -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
@@ -136,7 +162,13 @@ cd ${WORKING_DIRECTORY}
 # terraform init \
 #   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
 #   -backend-config="key=${BACKEND_KEY}" \
-#   -backend-config="region=${AWS_REGION}"
+#   -backend-config="region=${BUCKET_REGION}" \
+# || \
+# terraform init \
+#   -reconfigure \
+#   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
+#   -backend-config="key=${BACKEND_KEY}" \
+#   -backend-config="region=${BUCKET_REGION}"
 # terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
 # export TF_WORKSPACE="${TF_ENV}"
 # terraform plan -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
@@ -158,7 +190,13 @@ cd ${WORKING_DIRECTORY}
 # terraform init \
 #   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
 #   -backend-config="key=${BACKEND_KEY}" \
-#   -backend-config="region=${AWS_REGION}"
+#   -backend-config="region=${BUCKET_REGION}" \
+# || \
+# terraform init \
+#   -reconfigure \
+#   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
+#   -backend-config="key=${BACKEND_KEY}" \
+#   -backend-config="region=${BUCKET_REGION}"
 # terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
 # export TF_WORKSPACE="${TF_ENV}"
 # terraform plan -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
@@ -178,13 +216,18 @@ cd ${WORKING_DIRECTORY}
 # terraform init \
 #   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
 #   -backend-config="key=${BACKEND_KEY}" \
-#   -backend-config="region=${AWS_REGION}"
+#   -backend-config="region=${BUCKET_REGION}" \
+# || \
+# terraform init \
+#   -reconfigure \
+#   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
+#   -backend-config="key=${BACKEND_KEY}" \
+#   -backend-config="region=${BUCKET_REGION}"
 # terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
 # export TF_WORKSPACE="${TF_ENV}"
 # terraform plan -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
 # terraform apply "$TF_MODULE.plan"
 # cd ${WORKING_DIRECTORY}
-# set +e
 
 # echo "#########################################################################################################"
 # TF_MODULE="acmhub-registration"
@@ -199,7 +242,13 @@ cd ${WORKING_DIRECTORY}
 # terraform init \
 #   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
 #   -backend-config="key=${BACKEND_KEY}" \
-#   -backend-config="region=${AWS_REGION}"
+#   -backend-config="region=${BUCKET_REGION}" \
+# || \
+# terraform init \
+#   -reconfigure \
+#   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
+#   -backend-config="key=${BACKEND_KEY}" \
+#   -backend-config="region=${BUCKET_REGION}"
 # terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
 # export TF_WORKSPACE="${TF_ENV}"
 # terraform plan -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"

@@ -31,7 +31,13 @@ unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
-  -backend-config="region=${AWS_REGION}"
+  -backend-config="region=${BUCKET_REGION}" \
+|| \
+terraform init \
+  -reconfigure \
+  -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
+  -backend-config="key=${BACKEND_KEY}" \
+  -backend-config="region=${BUCKET_REGION}"
 terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
 export TF_WORKSPACE="${TF_ENV}"
 terraform plan -destroy -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
@@ -52,7 +58,13 @@ unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
-  -backend-config="region=${AWS_REGION}"
+  -backend-config="region=${BUCKET_REGION}" \
+|| \
+terraform init \
+  -reconfigure \
+  -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
+  -backend-config="key=${BACKEND_KEY}" \
+  -backend-config="region=${BUCKET_REGION}"
 terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
 export TF_WORKSPACE="${TF_ENV}"
 terraform plan -destroy -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
@@ -73,7 +85,13 @@ unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
-  -backend-config="region=${AWS_REGION}"
+  -backend-config="region=${BUCKET_REGION}" \
+|| \
+terraform init \
+  -reconfigure \
+  -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
+  -backend-config="key=${BACKEND_KEY}" \
+  -backend-config="region=${BUCKET_REGION}"
 terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
 export TF_WORKSPACE="${TF_ENV}"
 terraform plan -destroy -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
@@ -94,7 +112,13 @@ unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
-  -backend-config="region=${AWS_REGION}"
+  -backend-config="region=${BUCKET_REGION}" \
+|| \
+terraform init \
+  -reconfigure \
+  -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
+  -backend-config="key=${BACKEND_KEY}" \
+  -backend-config="region=${BUCKET_REGION}"
 terraform workspace new ${TF_ENV} || echo "Workspace ${TF_ENV} already exists or cannot be created"
 export TF_WORKSPACE="${TF_ENV}"
 terraform plan -destroy -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
