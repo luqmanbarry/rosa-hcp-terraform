@@ -4,6 +4,7 @@
 *outputs.txt
 *.backup
 *.tfstate
+*.out
 vault-
 ignore-vars.sh
 ignore-vars-empty.sh

@@ -6,6 +6,7 @@
 - [Detailed List](https://docs.openshift.com/rosa/rosa_planning/rosa-sts-aws-prereqs.html)
 
 ### Execution Level
+- ROSA HCP enabled and accounts linked
 - IAM STS User with permission to:
   - Create Operator Roles
   - Create S3 Bucket (TF State Bucket)
