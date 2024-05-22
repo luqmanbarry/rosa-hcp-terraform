@@ -2,20 +2,21 @@
 "kind": "IngressController"
 "metadata":
   "annotations":
-    "Owner": "cluster-ingress-operator"
     "ingress.operator.openshift.io/auto-delete-load-balancer": "true"
-  "creationTimestamp": "2024-05-03T17:33:05Z"
+  "creationTimestamp": "2024-05-22T18:29:45Z"
   "finalizers":
   - "ingresscontroller.operator.openshift.io/finalizer-ingresscontroller"
-  "generation": 5
+  "generation": 2
+  "labels":
+    "hypershift.openshift.io/managed": "true"
   "managedFields":
   - "apiVersion": "operator.openshift.io/v1"
     "fieldsType": "FieldsV1"
     "fieldsV1":
       "f:metadata":
-        "f:finalizers":
+        "f:labels":
           ".": {}
-          "v:\"ingresscontroller.operator.openshift.io/finalizer-ingresscontroller\"": {}
+          "f:hypershift.openshift.io/managed": {}
       "f:spec":
         ".": {}
         "f:clientTLS":
@@ -24,6 +25,7 @@
             ".": {}
             "f:name": {}
           "f:clientCertificatePolicy": {}
+        "f:domain": {}
         "f:endpointPublishingStrategy":
           ".": {}
           "f:loadBalancer":
@@ -33,6 +35,7 @@
               ".": {}
               "f:aws":
                 ".": {}
+                "f:networkLoadBalancer": {}
                 "f:type": {}
               "f:type": {}
             "f:scope": {}
@@ -47,33 +50,31 @@
           ".": {}
           "f:reloadInterval": {}
         "f:unsupportedConfigOverrides": {}
+    "manager": "hosted-cluster-config-operator-manager"
+    "operation": "Update"
+    "time": "2024-05-22T18:29:45Z"
+  - "apiVersion": "operator.openshift.io/v1"
+    "fieldsType": "FieldsV1"
+    "fieldsV1":
+      "f:metadata":
+        "f:finalizers":
+          ".": {}
+          "v:\"ingresscontroller.operator.openshift.io/finalizer-ingresscontroller\"": {}
     "manager": "ingress-operator"
     "operation": "Update"
-    "time": "2024-05-03T17:33:05Z"
+    "time": "2024-05-22T18:29:48Z"
   - "apiVersion": "operator.openshift.io/v1"
     "fieldsType": "FieldsV1"
     "fieldsV1":
       "f:metadata":
         "f:annotations":
           ".": {}
-          "f:Owner": {}
           "f:ingress.operator.openshift.io/auto-delete-load-balancer": {}
       "f:spec":
         "f:defaultCertificate": {}
-        "f:domain": {}
-        "f:namespaceSelector": {}
-        "f:nodePlacement":
-          ".": {}
-          "f:nodeSelector": {}
-          "f:tolerations": {}
-        "f:routeAdmission":
-          ".": {}
-          "f:namespaceOwnership": {}
-          "f:wildcardPolicy": {}
-        "f:routeSelector": {}
-    "manager": "manager"
+    "manager": "config-policy-controller"
     "operation": "Update"
-    "time": "2024-05-03T20:02:56Z"
+    "time": "2024-05-22T18:31:07Z"
   - "apiVersion": "operator.openshift.io/v1"
     "fieldsType": "FieldsV1"
     "fieldsV1":
@@ -91,13 +92,12 @@
               ".": {}
               "f:aws":
                 ".": {}
+                "f:networkLoadBalancer": {}
                 "f:type": {}
               "f:type": {}
             "f:scope": {}
           "f:type": {}
-        "f:namespaceSelector": {}
         "f:observedGeneration": {}
-        "f:routeSelector": {}
         "f:selector": {}
         "f:tlsProfile":
           ".": {}
@@ -106,11 +106,11 @@
     "manager": "ingress-operator"
     "operation": "Update"
     "subresource": "status"
-    "time": "2024-05-03T20:03:29Z"
+    "time": "2024-05-22T18:36:31Z"
   "name": "default"
   "namespace": "openshift-ingress-operator"
-  "resourceVersion": "192859"
-  "uid": "b0302420-b2f5-4e9c-a01d-362520c26ca5"
+  "resourceVersion": "14131"
+  "uid": "1acf03bc-d5cd-4e1e-990c-570b130faada"
 "spec":
   "clientTLS":
     "allowedSubjectPatterns": null
@@ -118,8 +118,8 @@
       "name": ""
     "clientCertificatePolicy": ""
   "defaultCertificate":
-    "name": "classic-102-primary-cert-bundle-secret"
-  "domain": "apps.classic-102.swew.p1.openshiftapps.com"
+    "name": "2bduikch23ghadi49g1m3bvqamjkv20r-primary-cert-bundle-secret"
+  "domain": "apps.rosa.hcp-1091.dlnp.p3.openshiftapps.com"
   "endpointPublishingStrategy":
     "hostNetwork":
       "httpPort": null
@@ -133,7 +133,7 @@
         "aws":
           "classicLoadBalancer":
             "connectionIdleTimeout": null
-          "networkLoadBalancer": null
+          "networkLoadBalancer": {}
           "type": "NLB"
         "gcp":
           "clientAccess": null
@@ -178,25 +178,19 @@
       "httpLogFormat": null
       "logEmptyRequests": null
   "namespaceSelector":
-    "matchExpressions": []
+    "matchExpressions": null
     "matchLabels": null
   "nodePlacement":
     "nodeSelector":
       "matchExpressions": null
-      "matchLabels":
-        "node-role.kubernetes.io/infra": ""
-    "tolerations":
-    - "effect": "NoSchedule"
-      "key": "node-role.kubernetes.io/infra"
-      "operator": "Exists"
-      "tolerationSeconds": null
-      "value": null
+      "matchLabels": null
+    "tolerations": null
   "replicas": 2
   "routeAdmission":
-    "namespaceOwnership": "Strict"
-    "wildcardPolicy": "WildcardsDisallowed"
+    "namespaceOwnership": null
+    "wildcardPolicy": null
   "routeSelector":
-    "matchExpressions": []
+    "matchExpressions": null
     "matchLabels": null
   "tlsSecurityProfile":
     "custom":
@@ -223,88 +217,88 @@
 "status":
   "availableReplicas": 2
   "conditions":
-  - "lastTransitionTime": "2024-05-03T17:33:05Z"
+  - "lastTransitionTime": "2024-05-22T18:29:48Z"
     "message": null
     "reason": "Valid"
     "status": "True"
     "type": "Admitted"
-  - "lastTransitionTime": "2024-05-03T17:39:47Z"
+  - "lastTransitionTime": "2024-05-22T18:36:31Z"
     "message": "The deployment has Available status condition set to True"
     "reason": "DeploymentAvailable"
     "status": "True"
     "type": "DeploymentAvailable"
-  - "lastTransitionTime": "2024-05-03T17:39:47Z"
+  - "lastTransitionTime": "2024-05-22T18:36:31Z"
     "message": "Minimum replicas requirement is met"
     "reason": "DeploymentMinimumReplicasMet"
     "status": "True"
     "type": "DeploymentReplicasMinAvailable"
-  - "lastTransitionTime": "2024-05-03T20:03:29Z"
+  - "lastTransitionTime": "2024-05-22T18:36:31Z"
     "message": "All replicas are available"
     "reason": "DeploymentReplicasAvailable"
     "status": "True"
     "type": "DeploymentReplicasAllAvailable"
-  - "lastTransitionTime": "2024-05-03T20:03:29Z"
+  - "lastTransitionTime": "2024-05-22T18:36:31Z"
     "message": "Deployment is not actively rolling out"
     "reason": "DeploymentNotRollingOut"
     "status": "False"
     "type": "DeploymentRollingOut"
-  - "lastTransitionTime": "2024-05-03T17:33:06Z"
+  - "lastTransitionTime": "2024-05-22T18:29:49Z"
     "message": "The endpoint publishing strategy supports a managed load balancer"
     "reason": "WantedByEndpointPublishingStrategy"
     "status": "True"
     "type": "LoadBalancerManaged"
-  - "lastTransitionTime": "2024-05-03T17:33:09Z"
+  - "lastTransitionTime": "2024-05-22T18:30:16Z"
     "message": "The LoadBalancer service is provisioned"
     "reason": "LoadBalancerProvisioned"
     "status": "True"
     "type": "LoadBalancerReady"
-  - "lastTransitionTime": "2024-05-03T17:33:06Z"
+  - "lastTransitionTime": "2024-05-22T18:29:49Z"
     "message": "LoadBalancer is not progressing"
     "reason": "LoadBalancerNotProgressing"
     "status": "False"
     "type": "LoadBalancerProgressing"
-  - "lastTransitionTime": "2024-05-03T17:33:06Z"
+  - "lastTransitionTime": "2024-05-22T18:29:49Z"
     "message": "DNS management is supported and zones are specified in the cluster
       DNS config."
     "reason": "Normal"
     "status": "True"
     "type": "DNSManaged"
-  - "lastTransitionTime": "2024-05-03T17:33:28Z"
+  - "lastTransitionTime": "2024-05-22T18:30:17Z"
     "message": "The record is provisioned in all reported zones."
     "reason": "NoFailedZones"
     "status": "True"
     "type": "DNSReady"
-  - "lastTransitionTime": "2024-05-03T17:39:47Z"
+  - "lastTransitionTime": "2024-05-22T18:36:31Z"
     "message": null
     "reason": null
     "status": "True"
     "type": "Available"
-  - "lastTransitionTime": "2024-05-03T20:03:29Z"
+  - "lastTransitionTime": "2024-05-22T18:36:31Z"
     "message": null
     "reason": null
     "status": "False"
     "type": "Progressing"
-  - "lastTransitionTime": "2024-05-03T17:39:47Z"
+  - "lastTransitionTime": "2024-05-22T18:36:31Z"
     "message": null
     "reason": null
     "status": "False"
     "type": "Degraded"
-  - "lastTransitionTime": "2024-05-03T17:33:06Z"
+  - "lastTransitionTime": "2024-05-22T18:29:49Z"
     "message": "IngressController is upgradeable."
     "reason": "Upgradeable"
     "status": "True"
     "type": "Upgradeable"
-  - "lastTransitionTime": "2024-05-03T17:33:06Z"
+  - "lastTransitionTime": "2024-05-22T18:29:49Z"
     "message": "No evaluation condition is detected."
     "reason": "NoEvaluationCondition"
     "status": "False"
     "type": "EvaluationConditionsDetected"
-  - "lastTransitionTime": "2024-05-03T17:40:53Z"
+  - "lastTransitionTime": "2024-05-22T18:36:01Z"
     "message": "Canary route checks for the default ingress controller are successful"
     "reason": "CanaryChecksSucceeding"
     "status": "True"
     "type": "CanaryChecksSucceeding"
-  "domain": "apps.classic-102.swew.p1.openshiftapps.com"
+  "domain": "apps.rosa.hcp-1091.dlnp.p3.openshiftapps.com"
   "endpointPublishingStrategy":
     "hostNetwork":
       "httpPort": null
@@ -318,7 +312,7 @@
         "aws":
           "classicLoadBalancer":
             "connectionIdleTimeout": null
-          "networkLoadBalancer": null
+          "networkLoadBalancer": {}
           "type": "NLB"
         "gcp":
           "clientAccess": null
@@ -334,7 +328,7 @@
   "namespaceSelector":
     "matchExpressions": null
     "matchLabels": null
-  "observedGeneration": 5
+  "observedGeneration": 2
   "routeSelector":
     "matchExpressions": null
     "matchLabels": null

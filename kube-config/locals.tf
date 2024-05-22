@@ -7,7 +7,7 @@ locals {
   
   managed_cluster_secret_name       = format("%s/%s/%s", var.business_unit, var.admin_creds_vault_secret_name_prefix, var.cluster_name)
   managed_cluster_api_url           = lookup(data.vault_kv_secret_v2.managed_cluster_credentials.data, "default_api_url")
-  managed_cluster_username          = sensitive(lookup(data.vault_kv_secret_v2.managed_cluster_credentials.data, "username"))
-  managed_cluster_password          = sensitive(lookup(data.vault_kv_secret_v2.managed_cluster_credentials.data, "password"))
+  managed_cluster_username          = lookup(data.vault_kv_secret_v2.managed_cluster_credentials.data, "username")
+  managed_cluster_password          = lookup(data.vault_kv_secret_v2.managed_cluster_credentials.data, "password")
   managed_cluster_kube_context      = var.cluster_name
 }

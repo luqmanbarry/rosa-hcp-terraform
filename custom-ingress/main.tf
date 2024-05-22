@@ -32,7 +32,6 @@ module "rosa-hcp_machine-pool" {
   openshift_version                 = var.ocp_version
   # subnet_id                         = (length(var.private_subnet_ids) > 2 ? null : one(var.private_subnet_ids) )
   subnet_id                         = var.private_subnet_ids[count.index]
-
 }
 
 

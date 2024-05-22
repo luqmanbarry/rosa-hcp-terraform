@@ -16,13 +16,13 @@ terraform {
 
 provider "kubernetes" {
   config_path      = var.managed_cluster_kubeconfig_filename
-  insecure         = true
+  insecure         = false
   alias            = "managed_cluster"
 }
 
 provider "kubernetes" {
   config_path      = var.acmhub_kubeconfig_filename
-  insecure         = true
+  insecure         = false
   alias            = "acmhub_cluster"
 }
 

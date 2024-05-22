@@ -32,7 +32,7 @@
   
   - Identity Provider Details. Look at the [idp-idp_name.tf](./rosa-classic/) files for a guide.
     
-    For example: GitLab IDP credentials are stored at vault path `kvv2/identity-providers/dev/gitlab` and the the secret data below.
+    For example: GitLab IDP credentials are stored at vault path `kv/identity-providers/dev/gitlab` and the the secret data below.
     ```json
       {
         "client_id": "<value>",
@@ -43,7 +43,7 @@
 
   - ACMHUB cluster credentials (api_url, username, password)
 
-    For example: ACMHUB cluster credentials are stored at vault path `kvv2/acmhub/<env>/<cluster-name>` and the secret data below.
+    For example: ACMHUB cluster credentials are stored at vault path `kv/acmhub/<env>/<cluster-name>` and the secret data below.
     ```json
       {
         "api_url": "https://api.example.p1.openshiftapps.com:6443",
@@ -54,7 +54,7 @@
 
   - OCM Token
   
-    For example: The OCM token is stored at vault path `kvv2/rosa/ocm-token` and the secret data below.
+    For example: The OCM token is stored at vault path `kv/rosa/ocm-token` and the secret data below.
     ```json
       {
         "ocm_token": "<value>"
@@ -63,7 +63,7 @@
 
   - Github/GitLab Authentication Token
   
-    For Example: The Git token is stored at vault path `kvv2/git/github/pat` and the secret data below.
+    For Example: The Git token is stored at vault path `kv/git/github/pat` and the secret data below.
     ```json
       {
         "git_token": "<value>"
@@ -102,7 +102,7 @@ Listed in their order of precedence, they work together to provision a ROSA clus
 - [account-setup](./account-setup/): Create necessary AWS resources such as VPC, Subnets, NAT Gateways, Account Roles. Security Groups..etc. This module is optional if you choose to implement account setup through other means.
 - [tfvars-prep](./tfvars-prep/): Combine admin, user inputs, and dynamic variables into a master tfvars file. All subsequent modules will use the master tfvars file.
 - [git-tfvars-file](./git-tfvars-file/): Commit the master tfvars file to GitHub. Feel free to change the repo location to GitLab, BitBucket...etc.
-- [rosa-sts](./rosa-sts/): Creates the ROSA cluster, deploys two identity providers (GitHub, GitLab), and then writes the cluster-admin credentials to Vault.
+- [rosa-hcp](./rosa-hcp/): Creates the ROSA cluster, deploys two identity providers (GitHub, GitLab), and then writes the cluster-admin credentials to Vault.
 - [kube-config](./kube-config/): Create two `kubeconfig` files. One for the ROSA cluster and another for the ACMHUB cluster.
 - [custom-ingress](./custom-ingress/): Deploys an additional IngressController.
 - [vault-k8s-auth](./vault-k8s-auth/): Deploy the vault-kubernetes-authentication backend for apps running on the cluster to be able to read Vault secrets.
@@ -125,9 +125,9 @@ Listed in their order of precedence, they work together to provision a ROSA clus
     export TF_VAR_aws_account="<value>"
     # Could gnerated by the user
     export TF_VAR_vault_token="<value>"
-    # Vault Path: kvv2/rosa/ocm-token
+    # Vault Path: kv/rosa/ocm-token
     export TF_VAR_ocm_token="<value>"
-    # Vault Path: kvv2/git/github/pat
+    # Vault Path: kv/git/github/pat
     export TF_VAR_git_token="<value>"
 
     export TF_VAR_tfstate_s3_bucket_name="rosa-sts-tfstate"

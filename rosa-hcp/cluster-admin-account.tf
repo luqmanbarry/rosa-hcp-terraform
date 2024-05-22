@@ -1,6 +1,17 @@
+# Dumb resource to trigger other resources
+resource "null_resource" "always_run" {
+  triggers = {
+    timestamp = "${timestamp()}"
+  }
+}
+
 ## Vault: Generate username
 resource "random_uuid" "username" {
   count = var.admin_creds_vault_generate ? 1 : 0
+
+  # lifecycle {
+  #   replace_triggered_by = [ null_resource.always_run ]
+  # }
 }
 
 ## Vault: Generate password
@@ -15,12 +26,16 @@ resource "random_password" "password" {
   min_numeric       = 10
   special           = true
   min_special       = 5
-  override_special  = "-_()[]=?+"
+  override_special  = "-_[]=?+.%@#"
+
+  # lifecycle {
+  #   replace_triggered_by = [ null_resource.always_run ]
+  # }
 }
 
 resource "time_sleep" "wait_for_api_url" {
   # depends_on  = [ rhcs_cluster_rosa_hcp.rosa_hcp_cluster ]
-  depends_on      = [module.rosa-hcp_rosa-cluster-hcp]
+  depends_on      = [ module.rosa-hcp_rosa-cluster-hcp ]
   create_duration = "300s"
 }
 
@@ -36,7 +51,7 @@ module "rosa-hcp_idp-htpasswd" {
   version = "1.6.1-prerelease.2"
 
   # depends_on  = [ rhcs_cluster_rosa_hcp.rosa_hcp_cluster ]
-  depends_on  = [module.rosa-hcp_rosa-cluster-hcp]
+  depends_on  = [ module.rosa-hcp_rosa-cluster-hcp ]
 
   cluster_id         = data.rhcs_cluster_rosa_hcp.get_cluster.id
   name               = local.cluster_admin_idp
@@ -47,6 +62,7 @@ module "rosa-hcp_idp-htpasswd" {
       password = local.password
     }
   ]
+
 }
 
 resource "null_resource" "grant_user_cluster_admin" {
@@ -62,17 +78,21 @@ resource "null_resource" "grant_user_cluster_admin" {
 
   provisioner "local-exec" {
     interpreter = [ "/bin/bash", "-c" ]
-    command = "rosa grant user cluster-admin --user \"$USER_NAME\" --cluster=\"$IDP_NAME\""
+    command = "rosa grant user cluster-admin --user \"$USER_NAME\" --cluster=\"$CLUSTER_ID\""
     environment = {
-      IDP_NAME  = data.rhcs_cluster_rosa_hcp.get_cluster.id
-      USER_NAME = local.username
+      CLUSTER_ID  = data.rhcs_cluster_rosa_hcp.get_cluster.id
+      USER_NAME   = local.username
     }
   }
+
+  # lifecycle {
+  #   replace_triggered_by = [ null_resource.always_run ]
+  # }
 }
 
 ## Vault: Write Cluster Details
 resource "vault_kv_secret_v2" "rosa_cluster_details" {
-  depends_on = [ data.rhcs_cluster_rosa_hcp.get_cluster ]
+  depends_on = [ null_resource.grant_user_cluster_admin ]
   count      = var.admin_creds_save_to_vault ? 1 : 0
   mount      = var.ocp_vault_secret_engine_mount
   name       = local.rosa_details_secret_name
@@ -86,10 +106,20 @@ resource "vault_kv_secret_v2" "rosa_cluster_details" {
     cluster_id          = data.rhcs_cluster_rosa_hcp.get_cluster.id
   })
 
-  custom_metadata {
-    data = {
-      business_unit = var.business_unit
-      cluster_name  = var.cluster_name
-    }
-  }
+  # custom_metadata {
+  #   data = {
+  #     business_unit = var.business_unit
+  #     cluster_name  = var.cluster_name
+  #   }
+  # }
+
+  # lifecycle {
+  #   replace_triggered_by = [ null_resource.always_run ]
+  # }
+}
+
+resource "time_sleep" "wait_for_oauth_pods_to_rollout" {
+  # depends_on  = [ rhcs_cluster_rosa_hcp.rosa_hcp_cluster ]
+  depends_on      = [ vault_kv_secret_v2.rosa_cluster_details ]
+  create_duration = "180s"
 }

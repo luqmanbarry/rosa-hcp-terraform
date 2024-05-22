@@ -11,7 +11,7 @@ fi
 
 echo "Log in to your cluster as cluster-admin"
 
-sed "s/VAULT_ADDR_DOMAIN/$CLUSTER_DOMAIN/g" ".ci/hashicorp-vault-k8s-crs.yaml" | oc replace -f -
+sed "s/VAULT_ADDR_DOMAIN/$CLUSTER_DOMAIN/g" ".ci/hashicorp-vault-k8s-crs.yaml" | oc apply -f - || oc replace -f -
 
 sleep 60
 

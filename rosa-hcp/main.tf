@@ -20,7 +20,7 @@ module "rosa-hcp_rosa-cluster-hcp" {
   cluster_name                 = local.cluster_name
   aws_region                   = var.aws_region
   aws_account_id               = data.aws_caller_identity.current.account_id
-  aws_billing_account_id       = data.aws_caller_identity.current.account_id
+  aws_billing_account_id       = data.aws_caller_identity.current.account_id # This may different in a prod environment
   aws_availability_zones       = toset(var.availability_zones)
   openshift_version            = var.ocp_version
   # PROXY
