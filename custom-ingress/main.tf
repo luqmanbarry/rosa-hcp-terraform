@@ -17,7 +17,7 @@ module "rosa-hcp_machine-pool" {
   depends_on = [ data.vault_kv_secret_v2.rosa_cluster_details ]
   
   name                              = format("%s-%s", var.custom_ingress_name, count.index)
-  cluster_id                        = lookup(data.vault_kv_secret_v2.rosa_cluster_details.data, "cluster_id")
+  cluster_id                        = try(lookup(data.vault_kv_secret_v2.rosa_cluster_details.data, "cluster_id"), "null")
   auto_repair                       = true
   aws_node_pool                     = {
     instance_type       = var.custom_ingress_machine_type

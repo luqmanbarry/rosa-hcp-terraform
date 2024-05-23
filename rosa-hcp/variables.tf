@@ -56,6 +56,7 @@ variable "machine_type" {
   default     = "m5.xlarge"
 }
 
+
 variable "worker_node_replicas" {
   default     = 3
   description = "Number of worker nodes to provision. Single zone clusters need at least 2 nodes, multizone clusters need at least 3 nodes"

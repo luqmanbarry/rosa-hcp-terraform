@@ -84,6 +84,7 @@ locals {
       format("ocp_version=%q", local.ocp_version),
       format("acmhub_cluster_name=%q", local.acmhub_cluster_name),
       format("machine_type=%q", local.machine_type),
+      format("worker_node_replicas=%s", var.worker_node_replicas),
       format("min_replicas=%s", local.min_replicas),
       format("max_replicas=%s", local.max_replicas),
       format("tfstate_s3_bucket_name=%q", var.tfstate_s3_bucket_name),

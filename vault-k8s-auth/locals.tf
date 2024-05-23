@@ -8,5 +8,5 @@ locals {
   found_backend_paths           = data.vault_auth_backends.check_mount_paths.paths
   
   cluster_secret_name       = format("%s/%s/%s", var.business_unit, var.admin_creds_vault_secret_name_prefix, var.cluster_name)
-  cluster_api_url           = lookup(data.vault_kv_secret_v2.managed_cluster_credentials.data, "default_api_url")
+  cluster_api_url           = try(lookup(data.vault_kv_secret_v2.managed_cluster_credentials.data, "default_api_url"), null)
 }

@@ -115,8 +115,8 @@ resource "vault_kubernetes_auth_backend_config" "vault-auth-backend" {
   backend                = local.custom_backend_path
   kubernetes_host        = local.cluster_api_url
 
-  kubernetes_ca_cert     = lookup(data.kubernetes_secret.vault-sa-token-secret.data, "ca.crt")
-  token_reviewer_jwt     = lookup(data.kubernetes_secret.vault-sa-token-secret.data, "token")
+  kubernetes_ca_cert     = try(lookup(data.kubernetes_secret.vault-sa-token-secret.data, "ca.crt"), null)
+  token_reviewer_jwt     = try(lookup(data.kubernetes_secret.vault-sa-token-secret.data, "token"), null)
   disable_iss_validation = "true"
 }
 

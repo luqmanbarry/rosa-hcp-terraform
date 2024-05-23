@@ -1,14 +1,15 @@
+
 ## ACMHUB: Create namespace for managed cluster
-resource "kubernetes_namespace" "hub_namespace_managed_cluster" {
-  provider    = kubernetes.acmhub_cluster
-  metadata  {
-    name = local.cluster_name
-  }
-}
+# resource "kubernetes_namespace" "hub_namespace_managed_cluster" {
+#   provider    = kubernetes.acmhub_cluster
+#   metadata  {
+#     name = local.cluster_name
+#   }
+# }
 
 ## ACMHUB: Create ManagedCluster CR
 resource "kubernetes_manifest" "hub_managedcluster_cr" {
-  depends_on  = [ kubernetes_namespace.hub_namespace_managed_cluster ]
+  # depends_on  = [ kubernetes_namespace.hub_namespace_managed_cluster ]
   provider    = kubernetes.acmhub_cluster
   manifest = {
     "apiVersion" = "cluster.open-cluster-management.io/v1"
@@ -85,10 +86,21 @@ data "kubernetes_secret" "import_manifests" {
   }
 }
 
+# data "kubernetes_resource" "import_manifests" {
+#   depends_on  = [ time_sleep.wait_for_import_secret ]
+#   provider    = kubernetes.acmhub_cluster
+#   api_version = "v1"
+#   kind        = "Secret"
+#   metadata {
+#     name = format("%s-import", local.cluster_name)
+#     namespace = local.cluster_name
+#   }
+# }
+
 ## Local FileSystem: Write the crds.yaml string to a file
 resource "local_sensitive_file" "klusterlet_crd_yaml" {
   depends_on  = [ data.kubernetes_secret.import_manifests ]
-  content     = lookup(data.kubernetes_secret.import_manifests.data, "crds.yaml")
+  content     = try(lookup(data.kubernetes_secret.import_manifests.data, "crds.yaml"), "null")
   filename    = local.klusterlet_crd_yaml
 }
 
@@ -122,7 +134,7 @@ resource "null_resource" "managed_apply_klusterlet_crd" {
 ## Local FileSystem: Write import.yaml string to a file
 resource "local_sensitive_file" "import_crd_yaml" {
   depends_on  = [ null_resource.managed_apply_klusterlet_crd ]
-  content     = lookup(data.kubernetes_secret.import_manifests.data, "import.yaml")
+  content     = try(lookup(data.kubernetes_secret.import_manifests.data, "import.yaml"), "null")
   filename    = local.import_file_yaml
 }
 
