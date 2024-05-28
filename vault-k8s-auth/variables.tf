@@ -3,6 +3,11 @@ variable "business_unit" {
   description = "The region where the ROSA cluster is created"
 }
 
+variable "aws_region" {
+  type = string
+  default = "us-east-1"
+}
+
 variable "vault_token" {
   type = string
   default = ""

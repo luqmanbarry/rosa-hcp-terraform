@@ -10,6 +10,11 @@ variable "aws_account" {
   default = "012345678901"
 }
 
+variable "aws_region" {
+  type = string
+  default = "us-east-1"
+}
+
 variable "business_unit" {
   type        = string
   description = "The region where the ROSA cluster is created"

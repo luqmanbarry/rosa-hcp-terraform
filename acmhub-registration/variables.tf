@@ -4,6 +4,11 @@ variable "business_unit" {
   default = "sales"
 }
 
+variable "aws_region" {
+  type = string
+  default = "us-east-1"
+}
+
 variable "cluster_name" {
   default     = "rosa-sts-001"
   type        = string

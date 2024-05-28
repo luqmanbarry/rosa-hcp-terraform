@@ -13,3 +13,9 @@ variable "additional_tags" {
   description = "Additional AWS resource tags"
   type        = map(string)
 }
+
+variable "tfstate_bucket_region" {
+  type = string
+  description = "The TF state bucket region"
+  default = "us-east-1"
+}

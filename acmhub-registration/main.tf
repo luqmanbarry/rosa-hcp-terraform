@@ -100,7 +100,7 @@ data "kubernetes_secret" "import_manifests" {
 ## Local FileSystem: Write the crds.yaml string to a file
 resource "local_sensitive_file" "klusterlet_crd_yaml" {
   depends_on  = [ data.kubernetes_secret.import_manifests ]
-  content     = try(lookup(data.kubernetes_secret.import_manifests.data, "crds.yaml"), "null")
+  content     = try(lookup(data.kubernetes_secret.import_manifests.data, "crds.yaml"), null)
   filename    = local.klusterlet_crd_yaml
 }
 
@@ -134,7 +134,7 @@ resource "null_resource" "managed_apply_klusterlet_crd" {
 ## Local FileSystem: Write import.yaml string to a file
 resource "local_sensitive_file" "import_crd_yaml" {
   depends_on  = [ null_resource.managed_apply_klusterlet_crd ]
-  content     = try(lookup(data.kubernetes_secret.import_manifests.data, "import.yaml"), "null")
+  content     = try(lookup(data.kubernetes_secret.import_manifests.data, "import.yaml"), null)
   filename    = local.import_file_yaml
 }
 

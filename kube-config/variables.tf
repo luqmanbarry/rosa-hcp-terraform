@@ -5,6 +5,11 @@ variable "business_unit" {
   default = "sales"
 }
 
+variable "aws_region" {
+  type = string
+  default = "us-east-1"
+}
+
 variable "vault_token" {
   type = string
   default = ""

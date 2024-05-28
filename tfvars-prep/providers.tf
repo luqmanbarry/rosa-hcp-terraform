@@ -11,4 +11,5 @@ terraform {
 
 provider "aws" {
   # Authentication crdentials will be provided as env vars
+  region = var.aws_region
 }
