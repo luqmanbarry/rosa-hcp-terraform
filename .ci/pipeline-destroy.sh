@@ -32,7 +32,7 @@ unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
-  -backend-config="region=${BUCKET_REGION}"
+  -backend-config="region=${TF_VAR_tfstate_bucket_region}"
 terraform plan -destroy -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
 terraform apply "$TF_MODULE.plan"
 cd "${WORKING_DIRECTORY}"
@@ -52,7 +52,7 @@ unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
-  -backend-config="region=${BUCKET_REGION}"
+  -backend-config="region=${TF_VAR_tfstate_bucket_region}"
 terraform plan -destroy -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
 terraform apply "$TF_MODULE.plan"
 cd "${WORKING_DIRECTORY}"
@@ -72,7 +72,7 @@ unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
-  -backend-config="region=${BUCKET_REGION}" 
+  -backend-config="region=${TF_VAR_tfstate_bucket_region}" 
 terraform plan -destroy -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
 terraform apply "$TF_MODULE.plan"
 cd "${WORKING_DIRECTORY}"
@@ -92,7 +92,7 @@ unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
-  -backend-config="region=${BUCKET_REGION}"
+  -backend-config="region=${TF_VAR_tfstate_bucket_region}"
 terraform plan -destroy -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
 terraform apply "$TF_MODULE.plan"
 cd "${WORKING_DIRECTORY}"
@@ -112,7 +112,7 @@ unset TF_WORKSPACE
 terraform init \
   -backend-config="bucket=${TF_VAR_tfstate_s3_bucket_name}" \
   -backend-config="key=${BACKEND_KEY}" \
-  -backend-config="region=${BUCKET_REGION}"
+  -backend-config="region=${TF_VAR_tfstate_bucket_region}"
 terraform plan -destroy -out "$TF_MODULE.plan" -var-file="$TFVARS_FILE"
 terraform apply "$TF_MODULE.plan"
 cd "${WORKING_DIRECTORY}"
