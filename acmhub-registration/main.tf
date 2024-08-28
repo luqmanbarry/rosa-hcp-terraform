@@ -64,6 +64,7 @@ resource "kubernetes_manifest" "hub_klusterletaddonconfig_cr" {
       "version" = "2.0.0"
     }
   }
+  
   wait {
     fields = {
       "metadata.creationTimestamp" = ".+"

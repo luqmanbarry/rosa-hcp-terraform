@@ -4,9 +4,6 @@ acmhub_api_server       = ""
 acmhub_username         = "" # Ignore if creds pulled form Vault
 acmhub_password         = "" # Ignore if creds pulled form Vault
 acmhub_pull_from_vault  = true
-default_kubeconfig_filename         = "/Users/luqman/.kube/config" # Use absolute path
-managed_cluster_kubeconfig_filename = "/Users/luqman/.managed_cluster-kube/config"
-acmhub_kubeconfig_filename          = "/Users/luqman/.acmhub-kube/config" # Use absolute path 
 #================ ROSA CLUSTER =========================================================
 managed_oidc                  = true
 autoscaling_enabled           = false # At the time of testing these modules, autoscaling was not working peroperly.

@@ -14,6 +14,7 @@ resource "random_uuid" "username" {
   # }
 }
 
+
 ## Vault: Generate password
 resource "random_password" "password" {
   count = var.admin_creds_vault_generate ? 1 : 0

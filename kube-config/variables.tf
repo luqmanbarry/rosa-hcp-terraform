@@ -96,10 +96,10 @@ variable "default_kubeconfig_filename" {
 
 variable "acmhub_kubeconfig_filename" {
   type = string
-  default = "~/.acmhub-kube/config"
+  default = "~/.acmhub_kube/config"
 }
 
 variable "managed_cluster_kubeconfig_filename" {
   type = string
-  default = "~/.managed_cluster-kube/config"
+  default = "~/.managed_cluster_kube/config"
 }
