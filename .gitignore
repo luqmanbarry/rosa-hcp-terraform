@@ -5,6 +5,13 @@
 *.backup
 *.tfstate
 *.out
+.DS_Store
+.ci/user-inputs.sh
+tfvars/**
+!tfvars/admin/
+!tfvars/admin/**
+!tfvars/templates/
+!tfvars/templates/**
 vault-
 ignore-vars.sh
 ignore-vars-empty.sh

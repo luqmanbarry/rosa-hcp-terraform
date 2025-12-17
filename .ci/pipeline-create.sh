@@ -7,6 +7,12 @@ echo "=================================================="
 echo "==> Set Environment Variables"
 echo "=================================================="
 
+if [[ ! -f ".ci/user-inputs.sh" ]]; then
+  echo "Missing .ci/user-inputs.sh"
+  echo "Create it from .ci/user-inputs.sh.example, then re-run."
+  exit 1
+fi
+
 . .ci/user-inputs.sh
 
 WORKING_DIRECTORY="$(pwd)"
