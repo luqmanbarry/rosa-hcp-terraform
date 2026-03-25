@@ -1,0 +1,5 @@
+profile_name: ai
+instance_type: m7i.4xlarge
+labels:
+  workload.platform/ai: "true"
+taints: []

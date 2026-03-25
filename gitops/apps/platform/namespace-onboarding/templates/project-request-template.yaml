@@ -1,0 +1,125 @@
+{{- if .Values.projectRequestTemplate.enabled }}
+{{- $template := .Values.projectRequestTemplate }}
+---
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: {{ $template.name }}
+  namespace: openshift-config
+  {{- with $template.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+  {{- end }}
+  {{- with $template.labels }}
+  labels:
+{{ toYaml . | indent 4 }}
+  {{- end }}
+parameters:
+  - name: PROJECT_NAME
+    required: true
+  - name: PROJECT_DISPLAYNAME
+    required: false
+  - name: PROJECT_DESCRIPTION
+    required: false
+objects:
+  - apiVersion: project.openshift.io/v1
+    kind: Project
+    metadata:
+      name: ${PROJECT_NAME}
+    spec:
+      displayName: ${PROJECT_DISPLAYNAME}
+      description: ${PROJECT_DESCRIPTION}
+  {{- with $template.resourceQuota }}
+  - apiVersion: v1
+    kind: ResourceQuota
+    metadata:
+      name: {{ default "tenant-quota" .name }}
+      namespace: ${PROJECT_NAME}
+    spec:
+      hard:
+{{ toYaml .hard | indent 8 }}
+  {{- end }}
+  {{- with $template.limitRange }}
+  - apiVersion: v1
+    kind: LimitRange
+    metadata:
+      name: {{ default "tenant-defaults" .name }}
+      namespace: ${PROJECT_NAME}
+    spec:
+      limits:
+{{ toYaml .limits | indent 8 }}
+  {{- end }}
+  {{- with $template.networkPolicies }}
+  {{- if .defaultDenyIngress }}
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: default-deny-ingress
+      namespace: ${PROJECT_NAME}
+    spec:
+      podSelector: {}
+      policyTypes:
+        - Ingress
+  {{- end }}
+  {{- if .defaultDenyEgress }}
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: default-deny-egress
+      namespace: ${PROJECT_NAME}
+    spec:
+      podSelector: {}
+      policyTypes:
+        - Egress
+  {{- end }}
+  {{- if .allowSameNamespaceIngress }}
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: allow-same-namespace-ingress
+      namespace: ${PROJECT_NAME}
+    spec:
+      podSelector: {}
+      ingress:
+        - from:
+            - podSelector: {}
+      policyTypes:
+        - Ingress
+  {{- end }}
+  {{- if .allowSameNamespaceEgress }}
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: allow-same-namespace-egress
+      namespace: ${PROJECT_NAME}
+    spec:
+      podSelector: {}
+      egress:
+        - to:
+            - podSelector: {}
+      policyTypes:
+        - Egress
+  {{- end }}
+  {{- if .allowClusterDNS }}
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: allow-cluster-dns
+      namespace: ${PROJECT_NAME}
+    spec:
+      podSelector: {}
+      egress:
+        - to:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: openshift-dns
+          ports:
+            - protocol: UDP
+              port: 5353
+            - protocol: TCP
+              port: 5353
+      policyTypes:
+        - Egress
+  {{- end }}
+  {{- end }}
+{{- end }}

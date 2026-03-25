@@ -1,0 +1,6 @@
+oauth:
+  identityProviders: []
+trustedCA:
+  configMapName: oauth-trusted-ca
+  certificates: {}
+

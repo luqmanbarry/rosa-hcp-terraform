@@ -1,0 +1,7 @@
+apiVersion: v2
+name: groups-rbac
+description: Cluster role bindings for enterprise identity groups.
+type: application
+version: 0.1.0
+appVersion: "4.20"
+

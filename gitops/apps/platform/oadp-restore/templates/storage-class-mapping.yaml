@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: change-storage-class-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    velero.io/plugin-config: ""
+    velero.io/change-storage-class: RestoreItemAction
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+data:
+{{- range $key, $value := .Values.storageClassMapping }}
+  {{ $key }}: {{ $value | quote }}
+{{- end }}
+

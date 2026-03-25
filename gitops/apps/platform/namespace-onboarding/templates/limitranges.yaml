@@ -1,0 +1,13 @@
+{{- range $ns := .Values.namespaces }}
+{{- with $ns.limitRange }}
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{ default "tenant-defaults" .name }}
+  namespace: {{ $ns.name }}
+spec:
+  limits:
+{{ toYaml .limits | indent 4 }}
+{{- end }}
+{{- end }}

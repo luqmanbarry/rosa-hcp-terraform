@@ -1,0 +1,45 @@
+{{- if .Values.enableDataProtectionApplication }}
+apiVersion: oadp.openshift.io/v1alpha1
+kind: DataProtectionApplication
+metadata:
+  name: {{ .Values.dpaName }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  backupLocations:
+    - name: {{ .Values.backupLocation.name }}
+      velero:
+        config:
+{{ toYaml (merge (dict "region" .Values.backupLocation.region) .Values.backupLocation.config) | indent 10 }}
+        credential:
+          key: {{ .Values.backupLocation.credentialKey }}
+          name: {{ .Values.backupLocation.credentialSecret }}
+        default: true
+        objectStorage:
+          bucket: {{ required "backupLocation.bucket must be set when enableDataProtectionApplication=true" .Values.backupLocation.bucket }}
+          prefix: {{ .Values.backupLocation.prefix }}
+        provider: {{ .Values.backupLocation.provider }}
+  snapshotLocations:
+    - name: {{ .Values.snapshotLocation.name }}
+      velero:
+        config:
+{{ toYaml (merge (dict "region" .Values.snapshotLocation.region) .Values.snapshotLocation.config) | indent 10 }}
+        credential:
+          key: {{ .Values.snapshotLocation.credentialKey }}
+          name: {{ .Values.snapshotLocation.credentialSecret }}
+        provider: {{ .Values.snapshotLocation.provider }}
+  configuration:
+    velero:
+      resourceTimeout: {{ .Values.configuration.velero.resourceTimeout }}
+      defaultSnapshotMoveData: {{ .Values.configuration.velero.defaultSnapshotMoveData }}
+      defaultPlugins:
+{{ toYaml .Values.configuration.velero.defaultPlugins | indent 8 }}
+    nodeAgent:
+      enable: {{ .Values.configuration.nodeAgent.enable }}
+      uploaderType: {{ .Values.configuration.nodeAgent.uploaderType }}
+      {{- if .Values.configuration.nodeAgent.podConfig }}
+      podConfig:
+{{ toYaml .Values.configuration.nodeAgent.podConfig | indent 8 }}
+      {{- end }}
+{{- end }}

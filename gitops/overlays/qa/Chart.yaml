@@ -1,0 +1,7 @@
+apiVersion: v2
+name: overlay-qa
+description: Environment overlay for the qa platform baseline.
+type: application
+version: 0.1.0
+appVersion: "1.0"
+

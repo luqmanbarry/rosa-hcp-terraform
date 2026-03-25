@@ -1,0 +1,80 @@
+{{- range $ns := .Values.namespaces }}
+{{- with $ns.networkPolicies }}
+{{- if .defaultDenyIngress }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: {{ $ns.name }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+{{- end }}
+{{- if .defaultDenyEgress }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: {{ $ns.name }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+{{- end }}
+{{- if .allowSameNamespaceIngress }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-same-namespace-ingress
+  namespace: {{ $ns.name }}
+spec:
+  podSelector: {}
+  ingress:
+    - from:
+        - podSelector: {}
+  policyTypes:
+    - Ingress
+{{- end }}
+{{- if .allowSameNamespaceEgress }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-same-namespace-egress
+  namespace: {{ $ns.name }}
+spec:
+  podSelector: {}
+  egress:
+    - to:
+        - podSelector: {}
+  policyTypes:
+    - Egress
+{{- end }}
+{{- if .allowClusterDNS }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-cluster-dns
+  namespace: {{ $ns.name }}
+spec:
+  podSelector: {}
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-dns
+      ports:
+        - protocol: UDP
+          port: 5353
+        - protocol: TCP
+          port: 5353
+  policyTypes:
+    - Egress
+{{- end }}
+{{- end }}
+{{- end }}

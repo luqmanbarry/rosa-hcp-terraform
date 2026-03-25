@@ -1,0 +1,9 @@
+profile_name: observability
+instance_type: m7i.2xlarge
+labels:
+  node-role.kubernetes.io/infra: ""
+  workload.platform/observability: "true"
+taints:
+  - key: workload.platform/observability
+    value: "true"
+    effect: NoSchedule

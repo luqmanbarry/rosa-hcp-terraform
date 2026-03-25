@@ -1,0 +1,7 @@
+apiVersion: v2
+name: oadp-operator
+description: Install the OpenShift API for Data Protection operator and seed a DataProtectionApplication.
+type: application
+version: 0.1.0
+appVersion: "1.4"
+

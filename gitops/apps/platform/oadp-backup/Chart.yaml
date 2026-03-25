@@ -1,0 +1,7 @@
+apiVersion: v2
+name: oadp-backup
+description: Configure scheduled OADP backups.
+type: application
+version: 0.1.0
+appVersion: "1.4"
+

@@ -1,0 +1,35 @@
+{{- if .Values.enabled }}
+{{- range $schedule := .Values.schedules }}
+---
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: {{ $schedule.name }}
+  namespace: {{ $.Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  schedule: {{ $schedule.cronSchedule | quote }}
+  paused: {{ default false $schedule.paused }}
+  useOwnerReferencesInBackup: true
+  template:
+    storageLocation: {{ default "default" $schedule.storageLocation }}
+    ttl: {{ $schedule.backupRetentionPeriod }}
+    includedNamespaces:
+{{- range $schedule.includedNamespaces }}
+      - {{ . }}
+{{- end }}
+    {{- if $schedule.excludedNamespaces }}
+    excludedNamespaces:
+{{- range $schedule.excludedNamespaces }}
+      - {{ . }}
+{{- end }}
+    {{- end }}
+    includeClusterResources: {{ default $.Values.includeClusterResources $schedule.includeClusterResources }}
+    csiSnapshotTimeout: {{ default "10m" $schedule.csiSnapshotTimeout }}
+    defaultVolumesToFsBackup: {{ if eq $.Values.backupMode "filesystem" }}true{{ else }}false{{ end }}
+    {{- if eq $.Values.backupMode "snapshot" }}
+    snapshotMoveData: true
+    {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,176 @@
+name: factory
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Set up OpenShift CLI
+        uses: redhat-actions/oc-installer@v1
+        with:
+          version: latest
+
+      - name: Install Python dependencies
+        run: python3 -m pip install --upgrade pyyaml
+
+      - name: Check required CI tools
+        run: |
+          chmod +x scripts/check_required_ci_tools.sh
+          scripts/check_required_ci_tools.sh bash git jq python3 terraform helm rg oc
+
+      - name: Detect changed clusters
+        id: clusters
+        run: |
+          chmod +x scripts/detect_changed_clusters.sh
+          CHANGED="$(scripts/detect_changed_clusters.sh origin/${{ github.base_ref }} HEAD)"
+          {
+            echo 'changed<<EOF'
+            echo "$CHANGED"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Render effective configs
+        run: |
+          mkdir -p .artifacts/pr
+          while IFS= read -r stack; do
+            [ -z "$stack" ] && continue
+            python3 scripts/validate_stack_inputs.py \
+              --cluster "$stack/cluster.yaml" \
+              --gitops-values "$stack/gitops.yaml"
+            out=".artifacts/pr/${stack//\//_}"
+            python3 scripts/render_effective_config.py \
+              --cluster "$stack/cluster.yaml" \
+              --gitops-values "$stack/gitops.yaml" \
+              --output-dir "$out"
+            cp "$out/terraform.auto.tfvars.json" "$stack/terraform.auto.tfvars.json"
+          done <<< "${{ steps.clusters.outputs.changed }}"
+
+      - name: Terraform fmt
+        run: terraform fmt -recursive -check
+
+      - name: Terraform validate changed clusters
+        env:
+          TF_VAR_ocm_token: dummy
+        run: |
+          while IFS= read -r stack; do
+            [ -z "$stack" ] && continue
+            terraform -chdir="$stack" init -backend=false
+            terraform -chdir="$stack" validate
+          done <<< "${{ steps.clusters.outputs.changed }}"
+
+      - name: Upload PR artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-rendered-configs
+          path: .artifacts/pr
+
+  apply:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Set up OpenShift CLI
+        uses: redhat-actions/oc-installer@v1
+        with:
+          version: latest
+
+      - name: Install Python dependencies
+        run: python3 -m pip install --upgrade pyyaml
+
+      - name: Check required CI tools
+        run: |
+          chmod +x scripts/check_required_ci_tools.sh
+          scripts/check_required_ci_tools.sh bash git jq python3 terraform helm rg oc
+
+      - name: Detect changed clusters
+        id: clusters
+        run: |
+          chmod +x scripts/detect_changed_clusters.sh
+          CHANGED="$(scripts/detect_changed_clusters.sh HEAD~1 HEAD)"
+          {
+            echo 'changed<<EOF'
+            echo "$CHANGED"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Render effective configs
+        run: |
+          mkdir -p .artifacts/apply
+          while IFS= read -r stack; do
+            [ -z "$stack" ] && continue
+            python3 scripts/validate_stack_inputs.py \
+              --cluster "$stack/cluster.yaml" \
+              --gitops-values "$stack/gitops.yaml"
+            out=".artifacts/apply/${stack//\//_}"
+            python3 scripts/render_effective_config.py \
+              --cluster "$stack/cluster.yaml" \
+              --gitops-values "$stack/gitops.yaml" \
+              --output-dir "$out"
+            cp "$out/terraform.auto.tfvars.json" "$stack/terraform.auto.tfvars.json"
+          done <<< "${{ steps.clusters.outputs.changed }}"
+
+      - name: Terraform validate changed clusters
+        env:
+          TF_VAR_ocm_token: ${{ secrets.OCM_TOKEN }}
+        run: |
+          while IFS= read -r stack; do
+            [ -z "$stack" ] && continue
+            terraform -chdir="$stack" init -backend=false
+            terraform -chdir="$stack" validate
+          done <<< "${{ steps.clusters.outputs.changed }}"
+
+      - name: Placeholder plan and apply stage
+        run: |
+          echo "Wire backend config, cloud credentials, and apply gates here."
+          echo "Use the generated terraform.auto.tfvars.json in each changed stack root."
+
+      - name: Upload apply artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: apply-rendered-configs
+          path: .artifacts/apply

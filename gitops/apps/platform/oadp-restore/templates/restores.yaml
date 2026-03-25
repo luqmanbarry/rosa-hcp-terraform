@@ -1,0 +1,29 @@
+{{- if .Values.enabled }}
+{{- range $restore := .Values.restores }}
+---
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: {{ $restore.name }}
+  namespace: {{ $.Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  backupName: {{ $restore.backupName }}
+  {{- if $restore.includedNamespaces }}
+  includedNamespaces:
+{{- range $restore.includedNamespaces }}
+    - {{ . }}
+{{- end }}
+  {{- end }}
+  {{- if $restore.namespaceMapping }}
+  namespaceMapping:
+{{ toYaml $restore.namespaceMapping | indent 4 }}
+  {{- end }}
+  excludedResources:
+    - nodes
+    - events
+    - events.events.k8s.io
+  restorePVs: {{ default true $restore.restorePVs }}
+{{- end }}
+{{- end }}

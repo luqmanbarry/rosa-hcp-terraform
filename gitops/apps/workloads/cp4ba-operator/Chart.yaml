@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cp4ba-operator
+description: Install the IBM Cloud Pak for Business Automation operator in namespace-scoped production mode.
+type: application
+version: 0.1.0
+appVersion: "24.0"

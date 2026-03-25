@@ -1,0 +1,6 @@
+apiVersion: v2
+name: openshift-ai
+description: Install Red Hat OpenShift AI Self-Managed with a production-oriented baseline and hardware-profile-ready dashboard settings.
+type: application
+version: 0.1.0
+appVersion: "2.25"

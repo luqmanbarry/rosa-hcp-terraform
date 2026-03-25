@@ -1,0 +1,19 @@
+cluster_name: cluster-01
+class_name: dev
+aws_region: us-east-2
+business_metadata:
+  owner: platform-team
+  cost_center: platform-shared
+  compliance_tier: non-production
+network:
+  vpc_lookup_tag: cluster-01
+  base_dns_domain: apps.example.internal
+acm:
+  hub_cluster_name: hub-01
+  labels:
+    environment: dev
+    provider: rosa-hcp
+gitops:
+  overlay: dev
+  repository_url: https://github.com/your-org/rosa-hcp-factory.git
+  target_revision: main

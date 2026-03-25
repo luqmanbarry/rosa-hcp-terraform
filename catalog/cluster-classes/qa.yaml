@@ -1,0 +1,22 @@
+class_name: qa
+environment: qa
+openshift_version: "4.20"
+private_cluster: true
+multi_az: true
+enable_acm_registration: true
+enable_gitops_bootstrap: true
+machine_pools:
+  - name: system
+    profile: system
+    replicas: 3
+    autoscaling:
+      enabled: true
+      min_replicas: 3
+      max_replicas: 6
+  - name: observability
+    profile: observability
+    replicas: 2
+    autoscaling:
+      enabled: true
+      min_replicas: 2
+      max_replicas: 4

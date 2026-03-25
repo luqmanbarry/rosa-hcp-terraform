@@ -1,0 +1,7 @@
+apiVersion: v2
+name: self-provisioner
+description: Toggle the OpenShift self-provisioner role and project request messaging.
+type: application
+version: 0.1.0
+appVersion: "4.20"
+

@@ -1,0 +1,35 @@
+namespace: openshift-adp
+channel: stable-1.4
+enableDataProtectionApplication: false
+dpaName: oadp
+configuration:
+  velero:
+    defaultPlugins:
+      - openshift
+      - aws
+      - csi
+    resourceTimeout: 10m
+    defaultSnapshotMoveData: false
+  nodeAgent:
+    enable: true
+    uploaderType: kopia
+    podConfig: {}
+backupLocation:
+  name: default
+  provider: aws
+  bucket: ""
+  prefix: velero
+  region: us-east-2
+  credentialSecret: cloud-credentials
+  credentialKey: cloud
+  config:
+    profile: default
+    s3ForcePathStyle: "true"
+snapshotLocation:
+  name: default
+  provider: aws
+  region: us-east-2
+  credentialSecret: cloud-credentials
+  credentialKey: cloud
+  config:
+    profile: default

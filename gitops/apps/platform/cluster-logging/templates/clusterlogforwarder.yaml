@@ -1,0 +1,48 @@
+{{- if .Values.forwarding.enable }}
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: {{ .Values.forwarding.name }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  managementState: Managed
+  serviceAccount:
+    name: {{ .Values.collector.serviceAccountName }}
+  outputs:
+    - name: collector
+      type: {{ .Values.forwarding.type }}
+      {{- if eq .Values.forwarding.type "splunk" }}
+      splunk:
+        authentication:
+          token:
+            from: secret
+            secret:
+              name: {{ required "forwarding.secretName is required when forwarding.enable=true" .Values.forwarding.secretName }}
+              key: token
+        indexName: {{ .Values.forwarding.splunk.indexName }}
+        url: {{ required "forwarding.url is required when forwarding.enable=true" .Values.forwarding.url }}
+      {{- else if eq .Values.forwarding.type "http" }}
+      http:
+        authentication:
+          token:
+            from: secret
+            secret:
+              name: {{ required "forwarding.secretName is required when forwarding.enable=true" .Values.forwarding.secretName }}
+              key: token
+        url: {{ required "forwarding.url is required when forwarding.enable=true" .Values.forwarding.url }}
+      {{- else }}
+      url: {{ required "forwarding.url is required when forwarding.enable=true" .Values.forwarding.url }}
+      {{- end }}
+  pipelines:
+    - name: all-logs
+      inputRefs:
+        - application
+        - infrastructure
+        {{- if .Values.collector.collectAuditLogs }}
+        - audit
+        {{- end }}
+      outputRefs:
+        - collector
+{{- end }}

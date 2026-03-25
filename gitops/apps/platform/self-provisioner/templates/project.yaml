@@ -1,0 +1,17 @@
+apiVersion: config.openshift.io/v1
+kind: Project
+metadata:
+  name: cluster
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+{{- if not .Values.disableSelfProvisioner }}
+  {{- if .Values.projectRequestTemplateName }}
+  projectRequestTemplate:
+    name: {{ .Values.projectRequestTemplateName | quote }}
+  {{- else }}
+  {}
+  {{- end }}
+{{- else }}
+  projectRequestMessage: "To request a project or namespace, contact your system administrator at {{ .Values.clusterAdminEmail }}."
+{{- end }}

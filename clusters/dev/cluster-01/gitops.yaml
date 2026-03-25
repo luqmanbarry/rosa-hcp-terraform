@@ -1,0 +1,122 @@
+applications:
+  - name: self-provisioner
+    namespace: openshift-config
+    path: gitops/apps/platform/self-provisioner
+    syncWave: "10"
+    helmValues: |
+      disableSelfProvisioner: true
+      clusterAdminEmail: cluster-admins@example.com
+  - name: user-workload-monitoring
+    namespace: openshift-monitoring
+    path: gitops/apps/platform/user-workload-monitoring
+    syncWave: "20"
+    helmValues: |
+      clusterMonitoring:
+        enableUserWorkload: true
+        alertmanagerMain:
+          enableUserAlertmanagerConfig: true
+      userWorkloadMonitoring:
+        prometheus:
+          retention: 7d
+          storageClassName: gp3-csi
+          volumeMode: Filesystem
+          storageCapacity: 100Gi
+        alertmanager:
+          enabled: true
+          enableAlertmanagerConfig: true
+        thanosRuler:
+          retention: 7d
+          storageClassName: gp3-csi
+          volumeMode: Filesystem
+          storageCapacity: 50Gi
+        prometheusOperator: {}
+        remoteWrite:
+          enabled: false
+          url: https://metrics.example.com/api/v1/write
+          secretName: prometheus-remote-write
+  - name: internal-image-registry
+    namespace: openshift-image-registry
+    path: gitops/apps/platform/internal-image-registry
+    syncWave: "30"
+  - name: image-registry-allow-deny
+    namespace: openshift-config
+    path: gitops/apps/platform/image-registry-allow-deny
+    syncWave: "40"
+  - name: cluster-logging
+    namespace: openshift-logging
+    path: gitops/apps/platform/cluster-logging
+    syncWave: "50"
+  - name: namespace-onboarding
+    namespace: openshift-config
+    path: gitops/apps/platform/namespace-onboarding
+    syncWave: "55"
+    helmValues: |
+      namespaces:
+        - name: team-a-dev
+          displayName: Team A Development
+          description: Shared development namespace for Team A
+          labels:
+            tenant: team-a
+            environment: dev
+          resourceQuota:
+            name: team-a-quota
+            hard:
+              requests.cpu: "8"
+              requests.memory: 16Gi
+              limits.cpu: "16"
+              limits.memory: 32Gi
+              persistentvolumeclaims: "10"
+          limitRange:
+            name: team-a-defaults
+            limits:
+              - type: Container
+                default:
+                  cpu: 500m
+                  memory: 1Gi
+                defaultRequest:
+                  cpu: 100m
+                  memory: 256Mi
+          networkPolicies:
+            defaultDenyIngress: true
+            allowSameNamespaceIngress: true
+            allowClusterDNS: true
+          roleBindings:
+            - group: team-a-developers
+              role: edit
+            - group: team-a-operators
+              role: admin
+  - name: identity-providers
+    namespace: openshift-config
+    path: gitops/apps/platform/identity-providers
+    syncWave: "60"
+  - name: groups-rbac
+    namespace: openshift-config
+    path: gitops/apps/platform/groups-rbac
+    syncWave: "70"
+  - name: vault-k8s-auth
+    namespace: vault-auth
+    path: gitops/apps/platform/vault-k8s-auth
+    syncWave: "80"
+  - name: oadp-operator
+    namespace: openshift-adp
+    path: gitops/apps/platform/oadp-operator
+    syncWave: "90"
+  - name: oadp-backup
+    namespace: openshift-adp
+    path: gitops/apps/platform/oadp-backup
+    syncWave: "100"
+    helmValues: |
+      enabled: false
+      namespace: openshift-adp
+      backupMode: filesystem
+      includeClusterResources: true
+      schedules: []
+  - name: oadp-restore
+    namespace: openshift-adp
+    path: gitops/apps/platform/oadp-restore
+    syncWave: "110"
+    helmValues: |
+      enabled: false
+      namespace: openshift-adp
+      storageClassMapping: {}
+      restores: []

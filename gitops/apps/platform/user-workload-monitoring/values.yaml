@@ -1,0 +1,24 @@
+clusterMonitoring:
+  enableUserWorkload: true
+  alertmanagerMain:
+    enableUserAlertmanagerConfig: true
+
+userWorkloadMonitoring:
+  prometheus:
+    retention: 15d
+    storageClassName: gp3-csi
+    volumeMode: Filesystem
+    storageCapacity: 100Gi
+  alertmanager:
+    enabled: true
+    enableAlertmanagerConfig: true
+  thanosRuler:
+    retention: 15d
+    storageClassName: gp3-csi
+    volumeMode: Filesystem
+    storageCapacity: 50Gi
+  prometheusOperator: {}
+  remoteWrite:
+    enabled: false
+    url: https://metrics.example.com/api/v1/write
+    secretName: prometheus-remote-write

@@ -1,0 +1,13 @@
+namespace: openshift-logging
+channel: stable-6.0
+collector:
+  serviceAccountName: logcollector
+  collectAuditLogs: true
+forwarding:
+  enable: false
+  name: default-forwarder
+  type: splunk
+  url: https://logs.example.com:8088/services/collector
+  secretName: collector-token
+  splunk:
+    indexName: openshift

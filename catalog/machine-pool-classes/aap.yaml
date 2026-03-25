@@ -1,0 +1,5 @@
+profile_name: aap
+instance_type: m7i.2xlarge
+labels:
+  workload.platform/aap: "true"
+taints: []

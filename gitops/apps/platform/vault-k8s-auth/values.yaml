@@ -1,0 +1,5 @@
+namespace: vault-auth
+serviceAccountName: vault-auth
+# Prefer TokenRequest or an external controller to source the reviewer token.
+# Enable this only when a legacy service-account-token Secret is explicitly required.
+createReviewerTokenSecret: false

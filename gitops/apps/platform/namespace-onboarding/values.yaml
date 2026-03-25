@@ -1,0 +1,14 @@
+namespaces: []
+projectRequestTemplate:
+  enabled: false
+  name: project-request-template
+  labels: {}
+  annotations: {}
+  resourceQuota: {}
+  limitRange: {}
+  networkPolicies:
+    defaultDenyIngress: false
+    defaultDenyEgress: false
+    allowSameNamespaceIngress: false
+    allowSameNamespaceEgress: false
+    allowClusterDNS: false

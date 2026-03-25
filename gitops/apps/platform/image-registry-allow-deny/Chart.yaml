@@ -1,0 +1,7 @@
+apiVersion: v2
+name: image-registry-allow-deny
+description: Configure trusted registries and allowed registry sources.
+type: application
+version: 0.1.0
+appVersion: "4.20"
+

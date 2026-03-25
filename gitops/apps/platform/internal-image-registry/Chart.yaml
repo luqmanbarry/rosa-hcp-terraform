@@ -1,0 +1,7 @@
+apiVersion: v2
+name: internal-image-registry
+description: Configure the OpenShift internal image registry.
+type: application
+version: 0.1.0
+appVersion: "4.20"
+

@@ -1,0 +1,7 @@
+apiVersion: v2
+name: user-workload-monitoring
+description: Configure OpenShift monitoring and user workload monitoring.
+type: application
+version: 0.1.0
+appVersion: "4.20"
+

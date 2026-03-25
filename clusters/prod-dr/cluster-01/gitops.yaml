@@ -1,0 +1,197 @@
+applications:
+  - name: self-provisioner
+    namespace: openshift-config
+    path: gitops/apps/platform/self-provisioner
+    syncWave: "10"
+    helmValues: |
+      disableSelfProvisioner: true
+      clusterAdminEmail: cluster-admins@example.com
+  - name: user-workload-monitoring
+    namespace: openshift-monitoring
+    path: gitops/apps/platform/user-workload-monitoring
+    syncWave: "20"
+    helmValues: |
+      clusterMonitoring:
+        enableUserWorkload: true
+        alertmanagerMain:
+          enableUserAlertmanagerConfig: true
+      userWorkloadMonitoring:
+        prometheus:
+          retention: 15d
+          storageClassName: gp3-csi
+          volumeMode: Filesystem
+          storageCapacity: 200Gi
+        alertmanager:
+          enabled: true
+          enableAlertmanagerConfig: true
+        thanosRuler:
+          retention: 15d
+          storageClassName: gp3-csi
+          volumeMode: Filesystem
+          storageCapacity: 100Gi
+        prometheusOperator: {}
+        remoteWrite:
+          enabled: false
+          url: https://metrics.example.com/api/v1/write
+          secretName: prometheus-remote-write
+  - name: internal-image-registry
+    namespace: openshift-image-registry
+    path: gitops/apps/platform/internal-image-registry
+    syncWave: "30"
+    helmValues: |
+      defaultRoute: false
+      disableRedirect: true
+      replicas: 2
+      samplesRegistry: registry.redhat.io
+  - name: image-registry-allow-deny
+    namespace: openshift-config
+    path: gitops/apps/platform/image-registry-allow-deny
+    syncWave: "40"
+  - name: cluster-logging
+    namespace: openshift-logging
+    path: gitops/apps/platform/cluster-logging
+    syncWave: "50"
+  - name: namespace-onboarding
+    namespace: openshift-config
+    path: gitops/apps/platform/namespace-onboarding
+    syncWave: "55"
+    helmValues: |
+      namespaces:
+        - name: team-a-prod-dr
+          displayName: Team A Production DR
+          description: Shared disaster recovery namespace for Team A
+          labels:
+            tenant: team-a
+            environment: prod-dr
+            compliance-tier: regulated
+          resourceQuota:
+            name: team-a-quota
+            hard:
+              requests.cpu: "24"
+              requests.memory: 64Gi
+              limits.cpu: "48"
+              limits.memory: 128Gi
+              persistentvolumeclaims: "20"
+              services.loadbalancers: "2"
+          limitRange:
+            name: team-a-defaults
+            limits:
+              - type: Container
+                default:
+                  cpu: "2"
+                  memory: 4Gi
+                defaultRequest:
+                  cpu: 250m
+                  memory: 512Mi
+          networkPolicies:
+            defaultDenyIngress: true
+            defaultDenyEgress: true
+            allowSameNamespaceIngress: true
+            allowClusterDNS: true
+          roleBindings:
+            - group: team-a-operators
+              role: admin
+            - group: team-a-developers
+              role: view
+  - name: identity-providers
+    namespace: openshift-config
+    path: gitops/apps/platform/identity-providers
+    syncWave: "60"
+  - name: groups-rbac
+    namespace: openshift-config
+    path: gitops/apps/platform/groups-rbac
+    syncWave: "70"
+  - name: vault-k8s-auth
+    namespace: vault-auth
+    path: gitops/apps/platform/vault-k8s-auth
+    syncWave: "80"
+  - name: oadp-operator
+    namespace: openshift-adp
+    path: gitops/apps/platform/oadp-operator
+    syncWave: "90"
+    helmValues: |
+      namespace: openshift-adp
+      channel: stable-1.4
+      enableDataProtectionApplication: false
+      backupLocation:
+        provider: aws
+        bucket: rosa-hcp-backups-prod-dr
+        region: us-east-2
+        credentialSecret: cloud-credentials
+      snapshotLocation:
+        provider: aws
+        region: us-east-2
+  - name: oadp-backup
+    namespace: openshift-adp
+    path: gitops/apps/platform/oadp-backup
+    syncWave: "100"
+    helmValues: |
+      enabled: true
+      namespace: openshift-adp
+      backupMode: filesystem
+      includeClusterResources: true
+      schedules: []
+  - name: oadp-restore
+    namespace: openshift-adp
+    path: gitops/apps/platform/oadp-restore
+    syncWave: "110"
+    helmValues: |
+      enabled: false
+      namespace: openshift-adp
+      storageClassMapping: {}
+      restores: []
+  - name: cp4ba-operator
+    namespace: cp4ba
+    path: gitops/apps/workloads/cp4ba-operator
+    syncWave: "200"
+    helmValues: |
+      namespace: cp4ba
+      channel: v24.0
+      subscriptionName: ibm-cp4a-operator
+      packageName: ibm-cp4a-operator
+      catalogSource:
+        name: ibm-cp4a-operator-catalog
+        namespace: openshift-marketplace
+      installPlanApproval: Automatic
+  - name: aap
+    namespace: ansible-automation-platform
+    path: gitops/apps/workloads/aap
+    syncWave: "210"
+    helmValues: |
+      namespace: ansible-automation-platform
+      subscription:
+        name: ansible-automation-platform
+        packageName: ansible-automation-platform-operator
+        channel: stable-2.6
+        installPlanApproval: Manual
+        source: redhat-operators
+        sourceNamespace: openshift-marketplace
+      aap:
+        enabled: true
+        name: aap
+        no_log: true
+        image_pull_policy: IfNotPresent
+        controller:
+          disabled: false
+          replicas: 2
+          create_preload_data: true
+          route_tls_termination_mechanism: Edge
+          ingress_type: Route
+          auto_upgrade: true
+          task_privileged: false
+          projects_persistence: false
+          admin_user: admin
+          node_selector: |
+            workload.platform/aap: "true"
+          postgres_selector: |
+            workload.platform/aap: "true"
+          tolerations: []
+          postgres_tolerations: []
+          topology_spread_constraints: ""
+          ee_extra_env:
+            - name: RECEPTOR_KUBE_SUPPORT_RECONNECT
+              value: enabled
+        hub:
+          disabled: true
+        eda:
+          disabled: true

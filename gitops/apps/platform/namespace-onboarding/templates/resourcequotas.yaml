@@ -1,0 +1,13 @@
+{{- range $ns := .Values.namespaces }}
+{{- with $ns.resourceQuota }}
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ default "tenant-quota" .name }}
+  namespace: {{ $ns.name }}
+spec:
+  hard:
+{{ toYaml .hard | indent 4 }}
+{{- end }}
+{{- end }}

@@ -12,6 +12,9 @@ tfvars/**
 !tfvars/admin/**
 !tfvars/templates/
 !tfvars/templates/**
+.artifacts/
+rendered/
 vault-
-ignore-vars.sh
-ignore-vars-empty.sh
+__pycache__/
+*.pyc
+.assets/

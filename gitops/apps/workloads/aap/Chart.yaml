@@ -1,0 +1,6 @@
+apiVersion: v2
+name: aap
+description: Install Red Hat Ansible Automation Platform 2.6 on OpenShift with controller-focused production defaults.
+type: application
+version: 0.1.0
+appVersion: "2.6"

@@ -1,0 +1,43 @@
+cluster_name: cluster-01
+class_name: qa
+aws_region: us-east-2
+business_metadata:
+  owner: platform-team
+  cost_center: platform-shared
+  compliance_tier: pre-production
+network:
+  vpc_lookup_tag: cluster-01
+  base_dns_domain: apps.example.internal
+machine_pools:
+  - name: system
+    profile: system
+    replicas: 3
+    autoscaling:
+      enabled: true
+      min_replicas: 3
+      max_replicas: 6
+  - name: observability
+    profile: observability
+    replicas: 2
+    autoscaling:
+      enabled: true
+      min_replicas: 2
+      max_replicas: 4
+  - name: ai
+    profile: ai
+    replicas: 2
+    labels:
+      node-purpose: ai
+    autoscaling:
+      enabled: true
+      min_replicas: 2
+      max_replicas: 4
+acm:
+  hub_cluster_name: hub-01
+  labels:
+    environment: qa
+    provider: rosa-hcp
+gitops:
+  overlay: qa
+  repository_url: https://github.com/your-org/rosa-hcp-factory.git
+  target_revision: main

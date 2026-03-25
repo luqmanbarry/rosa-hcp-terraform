@@ -1,0 +1,68 @@
+{{- if .Values.oauth.identityProviders }}
+apiVersion: config.openshift.io/v1
+kind: OAuth
+metadata:
+  name: cluster
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  identityProviders:
+{{- range .Values.oauth.identityProviders }}
+    - name: {{ .name }}
+      mappingMethod: {{ default "claim" .mappingMethod }}
+      type: {{ .type }}
+{{- if eq .type "OpenID" }}
+      openID:
+        clientID: {{ .openID.clientID }}
+        clientSecret:
+          name: {{ .openID.clientSecretSecretName }}
+        issuer: {{ .openID.issuer }}
+        claims:
+          email:
+{{- range .openID.claims.email }}
+            - {{ . }}
+{{- end }}
+{{- end }}
+          name:
+{{- range .openID.claims.name }}
+            - {{ . }}
+{{- end }}
+          preferredUsername:
+{{- range .openID.claims.preferredUsername }}
+            - {{ . }}
+{{- end }}
+{{- if .openID.caConfigMapName }}
+        ca:
+          name: {{ .openID.caConfigMapName }}
+{{- end }}
+{{- end }}
+{{- if eq .type "LDAP" }}
+      ldap:
+        url: {{ .ldap.url }}
+        bindDN: {{ .ldap.bindDN }}
+        bindPassword:
+          name: {{ .ldap.bindPasswordSecretName }}
+        insecure: {{ default false .ldap.insecure }}
+        attributes:
+          id:
+{{- range .ldap.attributes.id }}
+            - {{ . }}
+{{- end }}
+          name:
+{{- range .ldap.attributes.name }}
+            - {{ . }}
+{{- end }}
+          email:
+{{- range .ldap.attributes.email }}
+            - {{ . }}
+{{- end }}
+          preferredUsername:
+{{- range .ldap.attributes.preferredUsername }}
+            - {{ . }}
+{{- end }}
+{{- if .ldap.caConfigMapName }}
+        ca:
+          name: {{ .ldap.caConfigMapName }}
+{{- end }}
+{{- end }}
+{{- end }}

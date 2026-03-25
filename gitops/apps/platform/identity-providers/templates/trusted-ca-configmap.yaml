@@ -1,0 +1,15 @@
+{{- if .Values.trustedCA.certificates }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.trustedCA.configMapName }}
+  namespace: openshift-config
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+data:
+{{- range $key, $value := .Values.trustedCA.certificates }}
+  {{ $key }}: |-
+{{ $value | nindent 4 }}
+{{- end }}
+{{- end }}
+

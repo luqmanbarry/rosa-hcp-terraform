@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.registriesCertsConfigMap }}
+  namespace: openshift-config
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+data:
+{{- range $key, $value := .Values.additionalTrustedCAs }}
+  {{ $key }}: |-
+{{ $value | nindent 4 }}
+{{- end }}
+

@@ -1,0 +1,4 @@
+defaultRoute: false
+disableRedirect: true
+replicas: 2
+samplesRegistry: registry.redhat.io

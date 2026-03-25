@@ -1,0 +1,7 @@
+apiVersion: v2
+name: cluster-logging
+description: Install Red Hat OpenShift Logging and configure a cluster log forwarder.
+type: application
+version: 0.1.0
+appVersion: "6.0"
+

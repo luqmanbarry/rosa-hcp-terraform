@@ -1,0 +1,3 @@
+disableSelfProvisioner: true
+clusterAdminEmail: cluster-admins@example.com
+projectRequestTemplateName: ""

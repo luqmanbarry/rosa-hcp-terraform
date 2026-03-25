@@ -1,0 +1,7 @@
+apiVersion: v2
+name: vault-k8s-auth
+description: Bootstrap Kubernetes-side resources required for Vault Kubernetes authentication.
+type: application
+version: 0.1.0
+appVersion: "1.0"
+

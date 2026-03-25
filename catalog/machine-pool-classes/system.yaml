@@ -1,0 +1,5 @@
+profile_name: system
+instance_type: m7i.xlarge
+labels:
+  node-role.kubernetes.io/worker: ""
+taints: []
