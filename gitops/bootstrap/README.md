@@ -4,7 +4,7 @@ This folder contains the minimum GitOps content Terraform needs to start Argo CD
 
 ## Contents
 
-- `root-app/`: Helm chart that creates the environment root `Application`
+- `root-app/`: Helm chart that creates the cluster root `Application`
 - `root-app/values.example.yaml`: example values for local rendering only
 
 ## Flow

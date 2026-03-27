@@ -1,0 +1,69 @@
+{{- if .Values.tenantGitOps.enabled }}
+{{- $applicationNamespaces := list }}
+{{- $applicationSetNamespaces := list }}
+{{- range $tenant := .Values.tenantGitOps.tenants }}
+{{- if $tenant.enabled }}
+{{- range $namespace := $tenant.namespaces }}
+{{- $applicationNamespaces = append $applicationNamespaces $namespace }}
+{{- if $tenant.allowApplicationSets }}
+{{- $applicationSetNamespaces = append $applicationSetNamespaces $namespace }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ArgoCD
+metadata:
+  name: {{ .Values.tenantGitOps.instanceName }}
+  namespace: {{ .Values.tenantGitOps.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "33"
+spec:
+  resourceTrackingMethod: annotation+label
+  {{- with .Values.tenantGitOps.instance.server }}
+  server:
+    {{- with .route }}
+    route:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .resources }}
+    resources:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+  {{- end }}
+  {{- with .Values.tenantGitOps.instance.controller.resources }}
+  controller:
+    resources:
+{{ toYaml . | indent 6 }}
+  {{- end }}
+  {{- with .Values.tenantGitOps.instance.repo.resources }}
+  repo:
+    resources:
+{{ toYaml . | indent 6 }}
+  {{- end }}
+  {{- with .Values.tenantGitOps.instance.redis.resources }}
+  redis:
+    resources:
+{{ toYaml . | indent 6 }}
+  {{- end }}
+  {{- if $applicationNamespaces }}
+  sourceNamespaces:
+{{- range $namespace := uniq $applicationNamespaces }}
+    - {{ $namespace }}
+{{- end }}
+  {{- else }}
+  sourceNamespaces: []
+  {{- end }}
+  {{- if $applicationSetNamespaces }}
+  applicationSet:
+    {{- with .Values.tenantGitOps.instance.applicationSet.resources }}
+    resources:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    sourceNamespaces:
+{{- range $namespace := uniq $applicationSetNamespaces }}
+      - {{ $namespace }}
+{{- end }}
+  {{- end }}
+{{- end }}

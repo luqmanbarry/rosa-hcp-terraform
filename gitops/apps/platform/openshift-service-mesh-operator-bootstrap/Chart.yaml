@@ -1,0 +1,6 @@
+apiVersion: v2
+name: openshift-service-mesh-operator-bootstrap
+description: Installs the Red Hat OpenShift Service Mesh Operator
+type: application
+version: 0.1.0
+appVersion: "1.0"

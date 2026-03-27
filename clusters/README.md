@@ -23,11 +23,13 @@ clusters/
 What each file does:
 
 - `cluster.yaml`: cluster settings such as region, networking, and machine pools
-- `gitops.yaml`: list of GitOps apps for this cluster
+- `gitops.yaml`: list of GitOps apps for this cluster, including enablement and optional sync policy
 - `values/*.yaml`: one values file per GitOps app
 
 Use `enabled: true` or `enabled: false` in `gitops.yaml` to control whether an app is active.
 In the sample clusters, only `external-secrets-operator` is enabled by default. Everything else is opt-in.
+
+You can also set an optional `syncPolicy` per app in `gitops.yaml` when a module should not use the default auto-sync behavior.
 
 Important secret rule:
 

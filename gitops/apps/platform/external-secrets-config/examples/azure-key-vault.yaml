@@ -1,0 +1,19 @@
+enabled: true
+config:
+  name: cluster
+  external_secrets_namespace: external-secrets
+  refresh_interval: 1h
+  cluster_secret_stores:
+  - name: platform-secrets
+    spec:
+      provider:
+        azurekv:
+          tenantId: 00000000-0000-0000-0000-000000000000
+          vaultUrl: https://<vault-name>.vault.azure.net
+          authSecretRef:
+            clientId:
+              name: azure-key-vault-auth
+              key: client-id
+            clientSecret:
+              name: azure-key-vault-auth
+              key: client-secret

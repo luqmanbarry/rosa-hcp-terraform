@@ -253,6 +253,7 @@ def validate_role_binding(binding, context):
 
 def validate_namespace_onboarding_values(values, context):
     expect_type(values, dict, context)
+    defined_namespace_names = set()
     if "namespaces" in values:
         expect_type(values["namespaces"], list, f"{context}.namespaces")
         seen_names = set()
@@ -263,6 +264,7 @@ def validate_namespace_onboarding_values(values, context):
             if namespace["name"] in seen_names:
                 raise ValueError(f"{ns_context}.name duplicates another namespace")
             seen_names.add(namespace["name"])
+            defined_namespace_names.add(namespace["name"])
             for key in ["displayName", "description", "nodeSelector"]:
                 if key in namespace:
                     expect_non_empty_string(namespace[key], f"{ns_context}.{key}")
@@ -316,6 +318,203 @@ def validate_namespace_onboarding_values(values, context):
                 f"{context}.projectRequestTemplate.networkPolicies",
             )
 
+    if "tenantGitOps" in values:
+        tenant_gitops = values["tenantGitOps"]
+        expect_type(tenant_gitops, dict, f"{context}.tenantGitOps")
+        if "enabled" in tenant_gitops:
+            expect_bool(tenant_gitops["enabled"], f"{context}.tenantGitOps.enabled")
+        else:
+            tenant_gitops["enabled"] = False
+        for key in ["namespace", "instanceName"]:
+            if key in tenant_gitops:
+                expect_non_empty_string(tenant_gitops[key], f"{context}.tenantGitOps.{key}")
+        if "globalSecretStoreRef" in tenant_gitops:
+            expect_type(tenant_gitops["globalSecretStoreRef"], dict, f"{context}.tenantGitOps.globalSecretStoreRef")
+            expect_non_empty_string(
+                tenant_gitops["globalSecretStoreRef"].get("name", ""),
+                f"{context}.tenantGitOps.globalSecretStoreRef.name",
+            )
+            if "kind" in tenant_gitops["globalSecretStoreRef"]:
+                expect_non_empty_string(
+                    tenant_gitops["globalSecretStoreRef"]["kind"],
+                    f"{context}.tenantGitOps.globalSecretStoreRef.kind",
+                )
+        if "rbac" in tenant_gitops:
+            expect_type(tenant_gitops["rbac"], dict, f"{context}.tenantGitOps.rbac")
+            if "defaultPolicy" in tenant_gitops["rbac"]:
+                expect_non_empty_string(
+                    tenant_gitops["rbac"]["defaultPolicy"],
+                    f"{context}.tenantGitOps.rbac.defaultPolicy",
+                )
+            if "scopes" in tenant_gitops["rbac"]:
+                expect_non_empty_string(
+                    tenant_gitops["rbac"]["scopes"],
+                    f"{context}.tenantGitOps.rbac.scopes",
+                )
+        if "instance" in tenant_gitops:
+            expect_type(tenant_gitops["instance"], dict, f"{context}.tenantGitOps.instance")
+            for component in ["server", "controller", "repo", "redis", "applicationSet"]:
+                if component in tenant_gitops["instance"]:
+                    component_value = tenant_gitops["instance"][component]
+                    expect_type(
+                        component_value,
+                        dict,
+                        f"{context}.tenantGitOps.instance.{component}",
+                    )
+                    if "resources" in component_value:
+                        expect_type(
+                            component_value["resources"],
+                            dict,
+                            f"{context}.tenantGitOps.instance.{component}.resources",
+                        )
+            server = tenant_gitops["instance"].get("server", {})
+            if "route" in server:
+                expect_type(server["route"], dict, f"{context}.tenantGitOps.instance.server.route")
+                if "enabled" in server["route"]:
+                    expect_bool(
+                        server["route"]["enabled"],
+                        f"{context}.tenantGitOps.instance.server.route.enabled",
+                    )
+        if "clusterResourceWhitelist" in tenant_gitops:
+            expect_type(
+                tenant_gitops["clusterResourceWhitelist"],
+                list,
+                f"{context}.tenantGitOps.clusterResourceWhitelist",
+            )
+        if "namespaceResourceBlacklist" in tenant_gitops:
+            expect_type(
+                tenant_gitops["namespaceResourceBlacklist"],
+                list,
+                f"{context}.tenantGitOps.namespaceResourceBlacklist",
+            )
+
+        tenants = tenant_gitops.get("tenants", [])
+        expect_type(tenants, list, f"{context}.tenantGitOps.tenants")
+        enabled_tenants = []
+        seen_tenant_names = set()
+        seen_project_names = set()
+        seen_repo_secret_names = set()
+        for index, tenant in enumerate(tenants):
+            tenant_context = f"{context}.tenantGitOps.tenants[{index}]"
+            expect_type(tenant, dict, tenant_context)
+            expect_non_empty_string(tenant.get("name", ""), f"{tenant_context}.name")
+            if tenant["name"] in seen_tenant_names:
+                raise ValueError(f"{tenant_context}.name duplicates another tenant")
+            seen_tenant_names.add(tenant["name"])
+            expect_bool(tenant.get("enabled", False), f"{tenant_context}.enabled")
+            project_name = tenant.get("projectName", tenant["name"])
+            expect_non_empty_string(project_name, f"{tenant_context}.projectName")
+            if project_name in seen_project_names:
+                raise ValueError(f"{tenant_context}.projectName duplicates another tenant project")
+            seen_project_names.add(project_name)
+            expect_type(tenant.get("namespaces", []), list, f"{tenant_context}.namespaces")
+            if not tenant.get("namespaces", []):
+                raise ValueError(f"{tenant_context}.namespaces must not be empty")
+            namespace_names = set()
+            for ns_index, namespace in enumerate(tenant["namespaces"]):
+                expect_non_empty_string(namespace, f"{tenant_context}.namespaces[{ns_index}]")
+                if namespace in namespace_names:
+                    raise ValueError(f"{tenant_context}.namespaces[{ns_index}] duplicates another namespace")
+                namespace_names.add(namespace)
+                if defined_namespace_names and namespace not in defined_namespace_names:
+                    raise ValueError(
+                        f"{tenant_context}.namespaces[{ns_index}] must also exist in {context}.namespaces"
+                    )
+            expect_type(tenant.get("sourceRepos", []), list, f"{tenant_context}.sourceRepos")
+            if not tenant.get("sourceRepos", []):
+                raise ValueError(f"{tenant_context}.sourceRepos must not be empty")
+            approved_repos = set()
+            for repo_index, repo_url in enumerate(tenant["sourceRepos"]):
+                expect_non_empty_string(repo_url, f"{tenant_context}.sourceRepos[{repo_index}]")
+                if not re.match(r"^(https://|ssh://|git@)", repo_url):
+                    raise ValueError(f"{tenant_context}.sourceRepos[{repo_index}] must be an HTTPS, SSH, or git@ URL")
+                approved_repos.add(repo_url)
+            expect_bool(
+                tenant.get("allowApplicationSets", False),
+                f"{tenant_context}.allowApplicationSets",
+            )
+            groups = tenant.get("groups", {})
+            expect_type(groups, dict, f"{tenant_context}.groups")
+            for group_key in ["admins", "deployers", "viewers"]:
+                if group_key in groups:
+                    expect_type(groups[group_key], list, f"{tenant_context}.groups.{group_key}")
+                    for group_index, group_name in enumerate(groups[group_key]):
+                        expect_non_empty_string(
+                            group_name,
+                            f"{tenant_context}.groups.{group_key}[{group_index}]",
+                        )
+            if tenant.get("enabled", False):
+                deployer_groups = groups.get("deployers", [])
+                admin_groups = groups.get("admins", [])
+                if not deployer_groups and not admin_groups:
+                    raise ValueError(
+                        f"{tenant_context}.groups must define at least one admin or deployer group when the tenant is enabled"
+                    )
+            if "clusterResourceWhitelist" in tenant:
+                expect_type(
+                    tenant["clusterResourceWhitelist"],
+                    list,
+                    f"{tenant_context}.clusterResourceWhitelist",
+                )
+            if "namespaceResourceWhitelist" in tenant:
+                expect_type(
+                    tenant["namespaceResourceWhitelist"],
+                    list,
+                    f"{tenant_context}.namespaceResourceWhitelist",
+                )
+            if "namespaceResourceBlacklist" in tenant:
+                expect_type(
+                    tenant["namespaceResourceBlacklist"],
+                    list,
+                    f"{tenant_context}.namespaceResourceBlacklist",
+                )
+            repo_credentials = tenant.get("repoCredentials", [])
+            expect_type(repo_credentials, list, f"{tenant_context}.repoCredentials")
+            for repo_index, repo in enumerate(repo_credentials):
+                repo_context = f"{tenant_context}.repoCredentials[{repo_index}]"
+                expect_type(repo, dict, repo_context)
+                expect_non_empty_string(repo.get("name", ""), f"{repo_context}.name")
+                expect_non_empty_string(repo.get("url", ""), f"{repo_context}.url")
+                if repo["url"] not in approved_repos:
+                    raise ValueError(f"{repo_context}.url must also appear in {tenant_context}.sourceRepos")
+                if "authType" in repo:
+                    expect_non_empty_string(repo["authType"], f"{repo_context}.authType")
+                    if repo["authType"] not in ["https", "ssh"]:
+                        raise ValueError(f"{repo_context}.authType must be either https or ssh")
+                external_secret = repo.get("externalSecret", {})
+                expect_type(external_secret, dict, f"{repo_context}.externalSecret")
+                expect_non_empty_string(
+                    external_secret.get("name", ""),
+                    f"{repo_context}.externalSecret.name",
+                )
+                if external_secret["name"] in seen_repo_secret_names:
+                    raise ValueError(f"{repo_context}.externalSecret.name duplicates another tenant repo credential secret")
+                seen_repo_secret_names.add(external_secret["name"])
+                secret_store_ref = external_secret.get("secretStoreRef", {})
+                expect_type(secret_store_ref, dict, f"{repo_context}.externalSecret.secretStoreRef")
+                store_name = secret_store_ref.get("name", "") or tenant_gitops.get("globalSecretStoreRef", {}).get("name", "")
+                if not store_name:
+                    raise ValueError(
+                        f"{repo_context}.externalSecret.secretStoreRef.name must be set or tenantGitOps.globalSecretStoreRef.name must be defined"
+                    )
+                if "kind" in secret_store_ref:
+                    expect_non_empty_string(
+                        secret_store_ref["kind"],
+                        f"{repo_context}.externalSecret.secretStoreRef.kind",
+                    )
+                has_data = "data" in external_secret and external_secret["data"]
+                has_data_from = "dataFrom" in external_secret and external_secret["dataFrom"]
+                if not has_data and not has_data_from:
+                    raise ValueError(f"{repo_context}.externalSecret must define data or dataFrom")
+                if has_data:
+                    expect_type(external_secret["data"], list, f"{repo_context}.externalSecret.data")
+            if tenant.get("enabled", False):
+                enabled_tenants.append(tenant["name"])
+        if enabled_tenants and not tenant_gitops["enabled"]:
+            raise ValueError(
+                f"{context}.tenantGitOps.enabled must be true when tenant GitOps is enabled for tenants: {', '.join(enabled_tenants)}"
+            )
+
 
 def validate_self_provisioner_values(values, context):
     expect_type(values, dict, context)
@@ -328,6 +527,17 @@ def validate_self_provisioner_values(values, context):
             values["projectRequestTemplateName"],
             f"{context}.projectRequestTemplateName",
         )
+
+
+def validate_sync_policy(sync_policy, context):
+    expect_type(sync_policy, dict, context)
+    for key in ["automated", "prune", "selfHeal"]:
+        if key in sync_policy:
+            expect_bool(sync_policy[key], f"{context}.{key}")
+    if "syncOptions" in sync_policy:
+        expect_type(sync_policy["syncOptions"], list, f"{context}.syncOptions")
+        for index, option in enumerate(sync_policy["syncOptions"]):
+            expect_non_empty_string(option, f"{context}.syncOptions[{index}]")
 
 
 def validate_external_secrets(values, context):
@@ -525,6 +735,8 @@ def validate_gitops(gitops, repo_root):
             expect_non_empty_string(app[key], f"{context}.{key}")
         if "enabled" in app:
             expect_bool(app["enabled"], f"{context}.enabled")
+        if "syncPolicy" in app:
+            validate_sync_policy(app["syncPolicy"], f"{context}.syncPolicy")
 
         if app["name"] in seen_names:
             raise ValueError(f"{context}.name duplicates another application")
@@ -568,6 +780,10 @@ def validate_gitops(gitops, repo_root):
             expect_non_empty_string(app.get("targetRevision", ""), f"{context}.targetRevision")
             if not re.match(r"^https://", app["repoURL"]):
                 raise ValueError(f"{context}.repoURL must be an HTTPS URL")
+            if app.get("enabled", False):
+                raise ValueError(
+                    f"{context} uses an external chart source. Central admin GitOps apps must stay in this repo."
+                )
             if "valueFiles" in app:
                 expect_type(app["valueFiles"], list, f"{context}.valueFiles")
                 if not app["valueFiles"]:

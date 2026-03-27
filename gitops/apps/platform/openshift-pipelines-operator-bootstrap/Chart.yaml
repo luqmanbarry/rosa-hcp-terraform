@@ -1,0 +1,6 @@
+apiVersion: v2
+name: openshift-pipelines-operator-bootstrap
+description: Installs the Red Hat OpenShift Pipelines Operator
+type: application
+version: 0.1.0
+appVersion: "1.0"

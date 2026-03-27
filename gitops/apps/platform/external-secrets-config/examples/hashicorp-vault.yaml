@@ -1,0 +1,17 @@
+enabled: true
+config:
+  name: cluster
+  external_secrets_namespace: external-secrets
+  refresh_interval: 1h
+  cluster_secret_stores:
+    - name: platform-secrets
+      spec:
+        provider:
+          vault:
+            server: https://vault.platform.internal:8200
+            path: secret
+            version: v2
+            auth:
+              tokenSecretRef:
+                name: vault-auth
+                key: token

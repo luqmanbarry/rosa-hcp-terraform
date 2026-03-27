@@ -1,0 +1,6 @@
+apiVersion: v2
+name: global-cluster-pull-secret
+description: Synchronizes and merges additional registry credentials into the global pull secret
+type: application
+version: 0.1.0
+appVersion: "4.20"

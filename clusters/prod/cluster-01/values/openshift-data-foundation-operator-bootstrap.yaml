@@ -1,0 +1,10 @@
+enabled: false
+operator:
+  namespace: openshift-storage
+  operator_group_name: openshift-storage
+  subscription_name: odf-operator
+  subscription_channel: set-before-enable
+  subscription_source: redhat-operators
+  subscription_source_namespace: openshift-marketplace
+  install_plan_approval: Automatic
+  package_name: odf-operator

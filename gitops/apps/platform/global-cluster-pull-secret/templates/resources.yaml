@@ -1,0 +1,36 @@
+{{- $imageRegistry := .Values.imageRegistry | default dict }}
+{{- $pullSecret := $imageRegistry.globalPullSecret | default dict }}
+{{- if $pullSecret.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: global-cluster-pull-secret
+  namespace: {{ $pullSecret.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "18"
+spec:
+  schedule: {{ $pullSecret.patch_schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: openshift-gitops-argocd-application-controller
+          restartPolicy: OnFailure
+          containers:
+            - name: global-cluster-pull-secret
+              image: {{ $pullSecret.oc_image }}
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  oc get secret/pull-secret -n openshift-config --template='{{`{{index .data ".dockerconfigjson" | base64decode }}`}}' > /tmp/pull-secret.json
+                  oc get secret/{{ $pullSecret.target_secret_name }} -n {{ $pullSecret.namespace }} --template='{{`{{index .data "pull_secret_json" | base64decode }}`}}' > /tmp/additional-pull-secret.json
+                  jq 'del(.auths."cloud.openshift.com")' /tmp/pull-secret.json > /tmp/pull-secret-base.json
+                  jq -r --argjson new_json "$(jq '.auths' /tmp/additional-pull-secret.json)" '.auths += $new_json' /tmp/pull-secret-base.json > /tmp/pull-secret-new.json
+                  oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/pull-secret-new.json
+{{- end }}

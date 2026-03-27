@@ -18,6 +18,8 @@ High-level flow:
 - [Clusters](./clusters/README.md)
 - [Terraform Modules](./modules/README.md)
 - [GitOps Apps](./gitops/apps/README.md)
+- [Tenant Onboarding](./docs/operations/tenant-onboarding.md)
+- [Execution Models](./docs/operations/execution-models.md)
 
 ## Repository Layout
 
@@ -156,6 +158,8 @@ The example pipeline checks for these tools before proceeding:
 - `oc`
 
 See [factory.yml](./.github/workflows/factory.yml) and [check_required_ci_tools.sh](./scripts/check_required_ci_tools.sh).
+
+For step-by-step execution examples, see [Execution Models](./docs/operations/execution-models.md).
 
 Users still need to prepare the environment before opening a PR. CI checks file structure and rendering, but it does not create missing AWS, ROSA, DNS, or external service prerequisites for you.
 

@@ -1,0 +1,44 @@
+{{- $eso := .Values | default dict }}
+{{- $config := $eso.config | default dict }}
+{{- $certManager := .Values.certManager | default dict }}
+{{- if $eso.enabled }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $config.external_secrets_namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "8"
+---
+apiVersion: operator.openshift.io/v1alpha1
+kind: ExternalSecretsConfig
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app.kubernetes.io/name: cluster
+  annotations:
+    argocd.argoproj.io/sync-wave: "9"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  controllerConfig:
+    namespace: {{ $config.external_secrets_namespace }}
+{{- if $certManager.enabled }}
+  certManager:
+    mode: Enabled
+{{- end }}
+  externalSecretsConfig:
+    refreshInterval: {{ $config.refresh_interval | quote }}
+---
+{{- range $store := $config.cluster_secret_stores }}
+apiVersion: external-secrets.io/v1beta1
+kind: ClusterSecretStore
+metadata:
+  name: {{ $store.name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+{{ toYaml $store.spec | indent 2 }}
+---
+{{- end }}
+{{- end }}

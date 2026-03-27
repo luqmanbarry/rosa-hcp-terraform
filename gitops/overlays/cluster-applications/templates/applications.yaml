@@ -9,7 +9,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: {{ .name }}
-  namespace: openshift-gitops
+  namespace: {{ default "openshift-gitops" $.Values.gitopsNamespace }}
   annotations:
     argocd.argoproj.io/sync-wave: {{ .syncWave | quote }}
 spec:
@@ -59,9 +59,22 @@ spec:
 {{ .helmValues | indent 8 }}
     {{- end }}
   {{- end }}
+  {{- $syncPolicy := default (dict) .syncPolicy }}
+  {{- $automated := true }}
+  {{- if hasKey $syncPolicy "automated" }}
+  {{- $automated = $syncPolicy.automated }}
+  {{- end }}
+  {{- if or $automated (hasKey $syncPolicy "syncOptions") }}
   syncPolicy:
+    {{- if $automated }}
     automated:
-      prune: true
-      selfHeal: true
+      prune: {{ default true $syncPolicy.prune }}
+      selfHeal: {{ default true $syncPolicy.selfHeal }}
+    {{- end }}
+    {{- with $syncPolicy.syncOptions }}
+    syncOptions:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 {{- end }}

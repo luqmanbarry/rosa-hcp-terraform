@@ -1,0 +1,21 @@
+enabled: true
+config:
+  name: cluster
+  external_secrets_namespace: external-secrets
+  refresh_interval: 1h
+  cluster_secret_stores:
+  - name: platform-secrets
+    spec:
+      provider:
+        conjur:
+          url: https://conjur.platform.internal
+          account: my-conjur-account
+          auth:
+            apikey:
+              account: my-conjur-account
+              userRef:
+                name: cyberark-conjur-auth
+                key: hostid
+              apiKeyRef:
+                name: cyberark-conjur-auth
+                key: apikey

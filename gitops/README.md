@@ -26,20 +26,36 @@ Platform modules in this repo include:
 
 - self-provisioner
 - external-secrets operator
+- external-secrets config
 - cert-manager operator
+- cert-manager config
 - user workload monitoring
 - internal image registry
 - image registry allow/deny
+- global cluster pull secret
 - cluster logging
 - Splunk log forwarding
 - namespace onboarding
+- advanced cluster security operator bootstrap
 - compliance operator
+- compliance content
+- file integrity operator bootstrap
+- OpenShift Data Foundation operator bootstrap
+- OpenShift Pipelines operator bootstrap
+- OpenShift Service Mesh operator bootstrap
+- OpenShift Virtualization operator bootstrap
 - OADP operator
 - OADP backup
 - OADP restore
 - identity providers
 - groups and RBAC
 - Vault Kubernetes auth bootstrap
+
+The central admin Argo CD in this repo is admin-only.
+
+- it owns the platform repo
+- it should deploy only admin-approved content from this repo
+- tenant teams should use the shared tenant Argo CD path only after onboarding approval
 
 Workload modules in this repo include:
 
@@ -90,7 +106,7 @@ This avoids Argo CD ownership conflicts.
 - `external-secrets-operator` should come before modules that expect secrets sourced from an external backend
 - `cert-manager-operator` should come before modules that rely on declarative certificate issuance
 
-The External Secrets Operator module includes provider examples for:
+The external-secrets-config module includes provider examples for:
 
 - AWS Secrets Manager
 - Azure Key Vault
@@ -102,5 +118,14 @@ The External Secrets Operator module includes provider examples for:
 The CyberArk example uses the ESO `conjur` provider name.
 
 Those examples are for central `SecretStore` or `ClusterSecretStore` resources. Consumer modules should still define their own `ExternalSecret` resources in their per-cluster values files.
+
+Tenant app CD uses a different pattern:
+
+- `namespace-onboarding` can create one shared tenant Argo CD instance
+- each tenant gets one `AppProject`
+- each tenant gets approved namespaces and approved repos
+- tenant admin and deployer groups get namespace-scoped RBAC for Argo CD custom resources in their approved namespaces
+- tenant repo credentials are created with `ExternalSecret`
+- `ApplicationSet` is disabled unless the admin enables it for that tenant
 
 `compliance-operator` installs only the operator by default. No compliance profile is enabled until you add it.

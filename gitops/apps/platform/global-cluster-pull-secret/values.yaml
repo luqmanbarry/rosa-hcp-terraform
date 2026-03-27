@@ -1,0 +1,9 @@
+imageRegistry:
+  globalPullSecret:
+    enabled: false
+    namespace: openshift-gitops
+    refresh_interval: 1h
+    target_secret_name: additional-pull-secret
+    patch_schedule: "0 */6 * * *"
+    oc_image: registry.redhat.io/openshift4/ose-tools-rhel9:v4.20.0
+    externalSecrets: []

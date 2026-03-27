@@ -1,0 +1,114 @@
+{{- if .Values.tenantGitOps.enabled }}
+{{- range $tenant := .Values.tenantGitOps.tenants }}
+{{- if $tenant.enabled }}
+{{- $projectName := default $tenant.name $tenant.projectName }}
+{{- range $namespace := $tenant.namespaces }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ printf "%s-argocd-deployer" $projectName }}
+  namespace: {{ $namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "35"
+rules:
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applications
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  {{- if $tenant.allowApplicationSets }}
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applicationsets
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ printf "%s-argocd-deployer" $projectName }}
+  namespace: {{ $namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "36"
+subjects:
+{{- range $group := $tenant.groups.deployers }}
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: {{ $group }}
+{{- end }}
+{{- range $group := $tenant.groups.admins }}
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: {{ $group }}
+{{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ printf "%s-argocd-deployer" $projectName }}
+{{- if $tenant.groups.viewers }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ printf "%s-argocd-viewer" $projectName }}
+  namespace: {{ $namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "35"
+rules:
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applications
+    verbs:
+      - get
+      - list
+      - watch
+  {{- if $tenant.allowApplicationSets }}
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applicationsets
+    verbs:
+      - get
+      - list
+      - watch
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ printf "%s-argocd-viewer" $projectName }}
+  namespace: {{ $namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "36"
+subjects:
+{{- range $group := $tenant.groups.viewers }}
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: {{ $group }}
+{{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ printf "%s-argocd-viewer" $projectName }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

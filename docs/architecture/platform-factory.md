@@ -81,6 +81,8 @@ After merge
   -> OpenShift GitOps applies the selected apps
 ```
 
+For run methods such as a bastion host, AAP, or CI, see [Execution Models](../operations/execution-models.md).
+
 ## Audit Model
 
 Git is the source of truth.

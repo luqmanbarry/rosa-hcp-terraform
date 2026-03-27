@@ -1,0 +1,6 @@
+apiVersion: v2
+name: openshift-virtualization-operator-bootstrap
+description: Installs the Red Hat OpenShift Virtualization Operator
+type: application
+version: 0.1.0
+appVersion: "1.0"

@@ -7,6 +7,7 @@ locals {
   root_app_values = merge(
     var.gitops_values,
     {
+      gitopsNamespace = var.gitops_namespace
       git = {
         repoURL        = var.gitops_git_repo_url
         targetRevision = var.gitops_target_revision
@@ -185,7 +186,7 @@ resource "kubernetes_manifest" "workloads_project" {
     }
     spec = {
       description = "Workload-owned GitOps applications"
-      sourceRepos = ["*"]
+      sourceRepos = [var.gitops_git_repo_url]
       destinations = [{
         namespace = "*"
         server    = "https://kubernetes.default.svc"

@@ -21,26 +21,9 @@ Installs the External Secrets Operator early in the GitOps sync order.
 
 ## Provider Examples
 
-Example store definitions are in [`examples/`](./examples/README.md).
-
-Included examples:
-
-- AWS Secrets Manager
-- Azure Key Vault
-- Google Secret Manager
-- HashiCorp Vault
-- IBM Cloud Secrets Manager
-- CyberArk Conjur
-
-The CyberArk example uses the ESO `conjur` provider. That is the provider name you should expect in the store definition.
-
-Use these examples to create central stores only.
+Use [`external-secrets-config`](../external-secrets-config/README.md) for shared `ClusterSecretStore` definitions and provider examples.
 
 Do not move normal application `ExternalSecret` objects into this chart. Keep those definitions with the consumer module that needs the secret.
-
-The provider examples all use the same `ClusterSecretStore` name: `platform-secrets`.
-
-That lets consumer modules reuse one global store name and avoid repeating provider-specific store names in every values file.
 
 Consumer modules with secret examples:
 

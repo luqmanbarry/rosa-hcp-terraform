@@ -35,3 +35,40 @@ namespaces:
         role: admin
       - group: team-a-developers
         role: view
+tenantGitOps:
+  enabled: false
+  namespace: openshift-gitops-tenants
+  instanceName: tenant-gitops
+  globalSecretStoreRef:
+    name: platform-secrets
+    kind: ClusterSecretStore
+  tenants:
+    - name: team-a
+      enabled: false
+      projectName: team-a
+      description: Shared tenant Argo CD project for Team A
+      namespaces:
+        - team-a-prod-dr
+      sourceRepos:
+        - https://github.com/your-org/team-a-apps.git
+      allowApplicationSets: false
+      groups:
+        admins:
+          - team-a-operators
+        deployers:
+          - team-a-developers
+      repoCredentials:
+        - name: team-a-apps
+          url: https://github.com/your-org/team-a-apps.git
+          externalSecret:
+            name: team-a-apps-repo
+            refreshInterval: 1h
+            data:
+              - secretKey: username
+                remoteRef:
+                  key: secret/data/tenants/team-a/git
+                  property: username
+              - secretKey: password
+                remoteRef:
+                  key: secret/data/tenants/team-a/git
+                  property: password

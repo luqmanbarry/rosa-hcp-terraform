@@ -1,122 +1,192 @@
 applications:
-  - name: self-provisioner
-    enabled: false
-    namespace: openshift-config
-    path: gitops/apps/platform/self-provisioner
-    syncWave: "10"
-    valueFiles:
-      - clusters/dev/cluster-01/values/self-provisioner.yaml
-  - name: external-secrets-operator
-    enabled: true
-    namespace: external-secrets-operator
-    path: gitops/apps/platform/external-secrets-operator
-    syncWave: "15"
-    valueFiles:
-      - clusters/dev/cluster-01/values/external-secrets-operator.yaml
-  - name: cert-manager-operator
-    enabled: false
-    namespace: cert-manager-operator
-    path: gitops/apps/platform/cert-manager-operator
-    syncWave: "18"
-    valueFiles:
-      - clusters/dev/cluster-01/values/cert-manager-operator.yaml
-  - name: user-workload-monitoring
-    enabled: false
-    namespace: openshift-monitoring
-    path: gitops/apps/platform/user-workload-monitoring
-    syncWave: "20"
-    valueFiles:
-      - clusters/dev/cluster-01/values/user-workload-monitoring.yaml
-  - name: internal-image-registry
-    enabled: false
-    namespace: openshift-image-registry
-    path: gitops/apps/platform/internal-image-registry
-    syncWave: "30"
-    valueFiles:
-      - clusters/dev/cluster-01/values/internal-image-registry.yaml
-  - name: image-registry-allow-deny
-    enabled: false
-    namespace: openshift-config
-    path: gitops/apps/platform/image-registry-allow-deny
-    syncWave: "40"
-    valueFiles:
-      - clusters/dev/cluster-01/values/image-registry-allow-deny.yaml
-  - name: cluster-logging
-    enabled: false
-    namespace: openshift-logging
-    path: gitops/apps/platform/cluster-logging
-    syncWave: "50"
-    valueFiles:
-      - clusters/dev/cluster-01/values/cluster-logging.yaml
-  - name: splunk-log-forwarding
-    enabled: false
-    namespace: openshift-logging
-    path: gitops/apps/platform/splunk-log-forwarding
-    syncWave: "52"
-    valueFiles:
-      - clusters/dev/cluster-01/values/splunk-log-forwarding.yaml
-  - name: namespace-onboarding
-    enabled: false
-    namespace: openshift-config
-    path: gitops/apps/platform/namespace-onboarding
-    syncWave: "55"
-    valueFiles:
-      - clusters/dev/cluster-01/values/namespace-onboarding.yaml
-  - name: compliance-operator
-    enabled: false
-    namespace: openshift-compliance
-    path: gitops/apps/platform/compliance-operator
-    syncWave: "58"
-    valueFiles:
-      - clusters/dev/cluster-01/values/compliance-operator.yaml
-  - name: identity-providers
-    enabled: false
-    namespace: openshift-config
-    path: gitops/apps/platform/identity-providers
-    syncWave: "60"
-    valueFiles:
-      - clusters/dev/cluster-01/values/identity-providers.yaml
-  - name: groups-rbac
-    enabled: false
-    namespace: openshift-config
-    path: gitops/apps/platform/groups-rbac
-    syncWave: "70"
-    valueFiles:
-      - clusters/dev/cluster-01/values/groups-rbac.yaml
-  - name: vault-k8s-auth
-    enabled: false
-    namespace: vault-auth
-    path: gitops/apps/platform/vault-k8s-auth
-    syncWave: "80"
-    valueFiles:
-      - clusters/dev/cluster-01/values/vault-k8s-auth.yaml
-  - name: oadp-operator
-    enabled: false
-    namespace: openshift-adp
-    path: gitops/apps/platform/oadp-operator
-    syncWave: "90"
-    valueFiles:
-      - clusters/dev/cluster-01/values/oadp-operator.yaml
-  - name: oadp-backup
-    enabled: false
-    namespace: openshift-adp
-    path: gitops/apps/platform/oadp-backup
-    syncWave: "100"
-    valueFiles:
-      - clusters/dev/cluster-01/values/oadp-backup.yaml
-  - name: oadp-restore
-    enabled: false
-    namespace: openshift-adp
-    path: gitops/apps/platform/oadp-restore
-    syncWave: "110"
-    valueFiles:
-      - clusters/dev/cluster-01/values/oadp-restore.yaml
-  - name: twistlock-defender-helm
-    enabled: false
-    namespace: twistlock
-    chart: twistlock-defender
-    repoURL: https://paloaltonetworks.github.io/twistlock-defender-helm/
-    targetRevision: "0.1.0"
-    syncWave: "190"
-    valueFiles:
-      - clusters/dev/cluster-01/values/twistlock-defender-helm.yaml
+- name: self-provisioner
+  enabled: false
+  namespace: openshift-config
+  path: gitops/apps/platform/self-provisioner
+  syncWave: '10'
+  valueFiles:
+  - clusters/dev/cluster-01/values/self-provisioner.yaml
+- name: external-secrets-operator
+  enabled: true
+  namespace: external-secrets-operator
+  path: gitops/apps/platform/external-secrets-operator
+  syncWave: '15'
+  valueFiles:
+  - clusters/dev/cluster-01/values/external-secrets-operator.yaml
+- name: cert-manager-operator
+  enabled: false
+  namespace: cert-manager-operator
+  path: gitops/apps/platform/cert-manager-operator
+  syncWave: '18'
+  valueFiles:
+  - clusters/dev/cluster-01/values/cert-manager-operator.yaml
+- name: user-workload-monitoring
+  enabled: false
+  namespace: openshift-monitoring
+  path: gitops/apps/platform/user-workload-monitoring
+  syncWave: '20'
+  valueFiles:
+  - clusters/dev/cluster-01/values/user-workload-monitoring.yaml
+- name: internal-image-registry
+  enabled: false
+  namespace: openshift-image-registry
+  path: gitops/apps/platform/internal-image-registry
+  syncWave: '30'
+  valueFiles:
+  - clusters/dev/cluster-01/values/internal-image-registry.yaml
+- name: image-registry-allow-deny
+  enabled: false
+  namespace: openshift-config
+  path: gitops/apps/platform/image-registry-allow-deny
+  syncWave: '40'
+  valueFiles:
+  - clusters/dev/cluster-01/values/image-registry-allow-deny.yaml
+- name: cluster-logging
+  enabled: false
+  namespace: openshift-logging
+  path: gitops/apps/platform/cluster-logging
+  syncWave: '50'
+  valueFiles:
+  - clusters/dev/cluster-01/values/cluster-logging.yaml
+- name: splunk-log-forwarding
+  enabled: false
+  namespace: openshift-logging
+  path: gitops/apps/platform/splunk-log-forwarding
+  syncWave: '52'
+  valueFiles:
+  - clusters/dev/cluster-01/values/splunk-log-forwarding.yaml
+- name: namespace-onboarding
+  enabled: false
+  namespace: openshift-config
+  path: gitops/apps/platform/namespace-onboarding
+  syncWave: '55'
+  valueFiles:
+  - clusters/dev/cluster-01/values/namespace-onboarding.yaml
+- name: compliance-operator
+  enabled: false
+  namespace: openshift-compliance
+  path: gitops/apps/platform/compliance-operator
+  syncWave: '58'
+  valueFiles:
+  - clusters/dev/cluster-01/values/compliance-operator.yaml
+- name: identity-providers
+  enabled: false
+  namespace: openshift-config
+  path: gitops/apps/platform/identity-providers
+  syncWave: '60'
+  valueFiles:
+  - clusters/dev/cluster-01/values/identity-providers.yaml
+- name: groups-rbac
+  enabled: false
+  namespace: openshift-config
+  path: gitops/apps/platform/groups-rbac
+  syncWave: '70'
+  valueFiles:
+  - clusters/dev/cluster-01/values/groups-rbac.yaml
+- name: vault-k8s-auth
+  enabled: false
+  namespace: vault-auth
+  path: gitops/apps/platform/vault-k8s-auth
+  syncWave: '80'
+  valueFiles:
+  - clusters/dev/cluster-01/values/vault-k8s-auth.yaml
+- name: oadp-operator
+  enabled: false
+  namespace: openshift-adp
+  path: gitops/apps/platform/oadp-operator
+  syncWave: '90'
+  valueFiles:
+  - clusters/dev/cluster-01/values/oadp-operator.yaml
+- name: oadp-backup
+  enabled: false
+  namespace: openshift-adp
+  path: gitops/apps/platform/oadp-backup
+  syncWave: '100'
+  valueFiles:
+  - clusters/dev/cluster-01/values/oadp-backup.yaml
+- name: oadp-restore
+  enabled: false
+  namespace: openshift-adp
+  path: gitops/apps/platform/oadp-restore
+  syncWave: '110'
+  valueFiles:
+  - clusters/dev/cluster-01/values/oadp-restore.yaml
+- name: twistlock-defender-helm
+  enabled: false
+  namespace: twistlock
+  chart: twistlock-defender
+  repoURL: https://paloaltonetworks.github.io/twistlock-defender-helm/
+  targetRevision: 0.1.0
+  syncWave: '190'
+  valueFiles:
+  - clusters/dev/cluster-01/values/twistlock-defender-helm.yaml
+- name: external-secrets-config
+  enabled: false
+  namespace: external-secrets-operator
+  path: gitops/apps/platform/external-secrets-config
+  syncWave: '16'
+  valueFiles:
+  - clusters/dev/cluster-01/values/external-secrets-config.yaml
+- name: cert-manager-config
+  enabled: false
+  namespace: cert-manager-operator
+  path: gitops/apps/platform/cert-manager-config
+  syncWave: '19'
+  valueFiles:
+  - clusters/dev/cluster-01/values/cert-manager-config.yaml
+- name: global-cluster-pull-secret
+  enabled: false
+  namespace: openshift-gitops
+  path: gitops/apps/platform/global-cluster-pull-secret
+  syncWave: '24'
+  valueFiles:
+  - clusters/dev/cluster-01/values/global-cluster-pull-secret.yaml
+- name: compliance-content
+  enabled: false
+  namespace: openshift-compliance
+  path: gitops/apps/platform/compliance-content
+  syncWave: '59'
+  valueFiles:
+  - clusters/dev/cluster-01/values/compliance-content.yaml
+- name: advanced-cluster-security-operator-bootstrap
+  enabled: false
+  namespace: rhacs-operator
+  path: gitops/apps/platform/advanced-cluster-security-operator-bootstrap
+  syncWave: '120'
+  valueFiles:
+  - clusters/dev/cluster-01/values/advanced-cluster-security-operator-bootstrap.yaml
+- name: file-integrity-operator-bootstrap
+  enabled: false
+  namespace: openshift-file-integrity
+  path: gitops/apps/platform/file-integrity-operator-bootstrap
+  syncWave: '122'
+  valueFiles:
+  - clusters/dev/cluster-01/values/file-integrity-operator-bootstrap.yaml
+- name: openshift-data-foundation-operator-bootstrap
+  enabled: false
+  namespace: openshift-storage
+  path: gitops/apps/platform/openshift-data-foundation-operator-bootstrap
+  syncWave: '124'
+  valueFiles:
+  - clusters/dev/cluster-01/values/openshift-data-foundation-operator-bootstrap.yaml
+- name: openshift-pipelines-operator-bootstrap
+  enabled: false
+  namespace: openshift-operators
+  path: gitops/apps/platform/openshift-pipelines-operator-bootstrap
+  syncWave: '126'
+  valueFiles:
+  - clusters/dev/cluster-01/values/openshift-pipelines-operator-bootstrap.yaml
+- name: openshift-service-mesh-operator-bootstrap
+  enabled: false
+  namespace: openshift-operators
+  path: gitops/apps/platform/openshift-service-mesh-operator-bootstrap
+  syncWave: '128'
+  valueFiles:
+  - clusters/dev/cluster-01/values/openshift-service-mesh-operator-bootstrap.yaml
+- name: openshift-virtualization-operator-bootstrap
+  enabled: false
+  namespace: openshift-cnv
+  path: gitops/apps/platform/openshift-virtualization-operator-bootstrap
+  syncWave: '130'
+  valueFiles:
+  - clusters/dev/cluster-01/values/openshift-virtualization-operator-bootstrap.yaml
