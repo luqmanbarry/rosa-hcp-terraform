@@ -16,6 +16,7 @@ This directory contains the Helm charts used by OpenShift GitOps.
 - [internal-image-registry](./platform/internal-image-registry/README.md)
 - [image-registry-allow-deny](./platform/image-registry-allow-deny/README.md)
 - [cluster-logging](./platform/cluster-logging/README.md)
+- [splunk-log-forwarding](./platform/splunk-log-forwarding/README.md)
 - [namespace-onboarding](./platform/namespace-onboarding/README.md)
 - [identity-providers](./platform/identity-providers/README.md)
 - [groups-rbac](./platform/groups-rbac/README.md)

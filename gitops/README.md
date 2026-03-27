@@ -30,6 +30,7 @@ Platform modules in this repo include:
 - internal image registry
 - image registry allow/deny
 - cluster logging
+- Splunk log forwarding
 - namespace onboarding
 - compliance operator
 - OADP operator
@@ -47,6 +48,19 @@ Workload modules in this repo include:
 - `twistlock-defender-helm`
 
 `twistlock-defender-helm` is an external Helm chart. Its values still live under `clusters/<environment>/<cluster>/values/`.
+
+Secrets should follow one simple rule:
+
+- the module that needs a Kubernetes `Secret` should define the matching `ExternalSecret` in its own values file
+
+Example:
+
+- `identity-providers` should define the `ExternalSecret` objects for its OAuth client or LDAP bind secrets
+- `user-workload-monitoring` should define the `ExternalSecret` for remote write credentials
+- `cluster-logging` or `splunk-log-forwarding` should define the `ExternalSecret` for log forwarding tokens
+- `oadp-operator` should define the `ExternalSecret` for backup credential secrets
+
+This keeps the secret contract close to the module that uses it.
 
 `oadp-backup` and `oadp-restore` stay separate on purpose:
 

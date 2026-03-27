@@ -1,1 +1,3 @@
-{}
+externalSecrets: []
+forwarding:
+  enable: false

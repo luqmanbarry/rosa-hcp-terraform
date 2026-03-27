@@ -48,6 +48,13 @@ applications:
     syncWave: "50"
     valueFiles:
       - clusters/qa/cluster-01/values/cluster-logging.yaml
+  - name: splunk-log-forwarding
+    enabled: false
+    namespace: openshift-logging
+    path: gitops/apps/platform/splunk-log-forwarding
+    syncWave: "52"
+    valueFiles:
+      - clusters/qa/cluster-01/values/splunk-log-forwarding.yaml
   - name: namespace-onboarding
     enabled: false
     namespace: openshift-config

@@ -13,4 +13,6 @@ The chart renders nothing unless `oauth.identityProviders` is populated.
 
 ## Use
 
-Supply real provider definitions and referenced secrets through the cluster values files.
+Supply real provider definitions through the cluster values file.
+
+If a provider needs a Kubernetes `Secret`, define the matching `ExternalSecret` in the same values file under `externalSecrets`.

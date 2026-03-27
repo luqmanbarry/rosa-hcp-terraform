@@ -1,5 +1,6 @@
 namespace: openshift-adp
 channel: stable-1.4
+externalSecrets: []
 enableDataProtectionApplication: false
 backupLocation:
   provider: aws

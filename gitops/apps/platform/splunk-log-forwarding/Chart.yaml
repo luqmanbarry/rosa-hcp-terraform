@@ -1,0 +1,6 @@
+apiVersion: v2
+name: splunk-log-forwarding
+description: Configure ClusterLogForwarder to send OpenShift logs to Splunk HEC.
+type: application
+version: 0.1.0
+appVersion: "6.0"

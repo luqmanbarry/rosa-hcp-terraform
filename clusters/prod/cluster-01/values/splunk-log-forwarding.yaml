@@ -1,0 +1,24 @@
+namespace: openshift-logging
+clusterLogForwarderName: splunk
+serviceAccountName: logcollector
+externalSecrets: []
+output:
+  name: splunk-hec
+  url: https://logs.example.com:8088/services/collector
+  secretName: splunk-hec-token
+  secretKey: hecToken
+  index: openshift-prod
+  source: openshift
+  sourcetype: _json
+  indexedFields: []
+  payloadKey: ""
+  tls: {}
+  tuning: {}
+pipelines:
+  - name: all-logs
+    inputRefs:
+      - application
+      - infrastructure
+      - audit
+    outputRefs:
+      - splunk-hec

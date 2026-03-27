@@ -17,3 +17,7 @@ Installs the logging operator and can configure log forwarding.
 
 - destination URL
 - secret containing authentication token
+
+If forwarding needs a token `Secret`, define the matching `ExternalSecret` in the same values file.
+
+If you forward logs to Splunk, prefer the dedicated `splunk-log-forwarding` chart.

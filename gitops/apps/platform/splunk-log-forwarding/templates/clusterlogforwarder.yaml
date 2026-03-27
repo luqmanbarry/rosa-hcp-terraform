@@ -1,0 +1,48 @@
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: {{ .Values.clusterLogForwarderName }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  managementState: Managed
+  serviceAccount:
+    name: {{ .Values.serviceAccountName }}
+  outputs:
+    - name: {{ .Values.output.name }}
+      type: splunk
+      splunk:
+        url: {{ required "output.url is required" .Values.output.url | quote }}
+        authentication:
+          token:
+            from: secret
+            secret:
+              name: {{ required "output.secretName is required" .Values.output.secretName }}
+              key: {{ .Values.output.secretKey | default "hecToken" }}
+        {{- with .Values.output.tls }}
+        tls:
+{{ toYaml . | indent 10 }}
+        {{- end }}
+        {{- with .Values.output.index }}
+        indexName: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.output.source }}
+        source: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.output.sourcetype }}
+        sourcetype: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.output.indexedFields }}
+        indexedFields:
+{{ toYaml . | indent 10 }}
+        {{- end }}
+        {{- with .Values.output.payloadKey }}
+        payloadKey: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.output.tuning }}
+        tuning:
+{{ toYaml . | indent 10 }}
+        {{- end }}
+  pipelines:
+{{ toYaml .Values.pipelines | indent 4 }}

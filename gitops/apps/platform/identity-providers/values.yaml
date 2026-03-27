@@ -1,6 +1,6 @@
 oauth:
   identityProviders: []
+externalSecrets: []
 trustedCA:
   configMapName: oauth-trusted-ca
   certificates: {}
-

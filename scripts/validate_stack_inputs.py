@@ -330,11 +330,95 @@ def validate_self_provisioner_values(values, context):
         )
 
 
-def validate_app_values(app_path, values, context):
+def validate_external_secrets(values, context):
+    external_secrets = values.get("externalSecrets", [])
+    expect_type(external_secrets, list, f"{context}.externalSecrets")
+    seen_names = set()
+    target_names = set()
+    for index, item in enumerate(external_secrets):
+        item_context = f"{context}.externalSecrets[{index}]"
+        expect_type(item, dict, item_context)
+        expect_non_empty_string(item.get("name", ""), f"{item_context}.name")
+        if item["name"] in seen_names:
+            raise ValueError(f"{item_context}.name duplicates another ExternalSecret")
+        seen_names.add(item["name"])
+        expect_type(item.get("secretStoreRef", {}), dict, f"{item_context}.secretStoreRef")
+        expect_non_empty_string(
+            item["secretStoreRef"].get("name", ""),
+            f"{item_context}.secretStoreRef.name",
+        )
+        if "kind" in item["secretStoreRef"]:
+            expect_non_empty_string(
+                item["secretStoreRef"]["kind"],
+                f"{item_context}.secretStoreRef.kind",
+            )
+        expect_type(item.get("target", {}), dict, f"{item_context}.target")
+        expect_non_empty_string(item["target"].get("name", ""), f"{item_context}.target.name")
+        target_names.add(item["target"]["name"])
+        has_data = "data" in item and item["data"]
+        has_data_from = "dataFrom" in item and item["dataFrom"]
+        if not has_data and not has_data_from:
+            raise ValueError(f"{item_context} must define data or dataFrom")
+        if has_data:
+            expect_type(item["data"], list, f"{item_context}.data")
+        if has_data_from:
+            expect_type(item["dataFrom"], list, f"{item_context}.dataFrom")
+    return target_names
+
+
+def validate_app_values(app_path, values, context, enabled=False):
+    target_secret_names = validate_external_secrets(values, context) if "externalSecrets" in values else set()
     if app_path == "gitops/apps/platform/namespace-onboarding":
         validate_namespace_onboarding_values(values, context)
     if app_path == "gitops/apps/platform/self-provisioner":
         validate_self_provisioner_values(values, context)
+    if app_path == "gitops/apps/platform/identity-providers" and enabled:
+        for provider_index, provider in enumerate(values.get("oauth", {}).get("identityProviders", [])):
+            provider_context = f"{context}.oauth.identityProviders[{provider_index}]"
+            if provider.get("type") == "OpenID":
+                secret_name = provider.get("openID", {}).get("clientSecretSecretName", "")
+                if secret_name and secret_name not in target_secret_names:
+                    raise ValueError(
+                        f"{provider_context}.openID.clientSecretSecretName must be created by externalSecrets"
+                    )
+            if provider.get("type") == "LDAP":
+                secret_name = provider.get("ldap", {}).get("bindPasswordSecretName", "")
+                if secret_name and secret_name not in target_secret_names:
+                    raise ValueError(
+                        f"{provider_context}.ldap.bindPasswordSecretName must be created by externalSecrets"
+                    )
+    if app_path == "gitops/apps/platform/user-workload-monitoring" and enabled:
+        remote_write = values.get("userWorkloadMonitoring", {}).get("remoteWrite", {})
+        if remote_write.get("enabled"):
+            secret_name = remote_write.get("secretName", "")
+            if secret_name and secret_name not in target_secret_names:
+                raise ValueError(
+                    f"{context}.userWorkloadMonitoring.remoteWrite.secretName must be created by externalSecrets"
+                )
+    if app_path == "gitops/apps/platform/cluster-logging" and enabled:
+        forwarding = values.get("forwarding", {})
+        if forwarding.get("enable"):
+            secret_name = forwarding.get("secretName", "")
+            if secret_name and secret_name not in target_secret_names:
+                raise ValueError(
+                    f"{context}.forwarding.secretName must be created by externalSecrets"
+                )
+    if app_path == "gitops/apps/platform/splunk-log-forwarding" and enabled:
+        secret_name = values.get("output", {}).get("secretName", "")
+        if secret_name and secret_name not in target_secret_names:
+            raise ValueError(
+                f"{context}.output.secretName must be created by externalSecrets"
+            )
+    if app_path == "gitops/apps/platform/oadp-operator" and enabled:
+        if values.get("enableDataProtectionApplication"):
+            backup_secret = values.get("backupLocation", {}).get("credentialSecret", "")
+            snapshot_secret = values.get("snapshotLocation", {}).get("credentialSecret", "")
+            for secret_name, field_name in [
+                (backup_secret, "backupLocation.credentialSecret"),
+                (snapshot_secret, "snapshotLocation.credentialSecret"),
+            ]:
+                if secret_name and secret_name not in target_secret_names:
+                    raise ValueError(f"{context}.{field_name} must be created by externalSecrets")
 
 
 def validate_cluster(cluster, overlays_root):
@@ -450,7 +534,12 @@ def validate_gitops(gitops, repo_root):
                     if not value_file_path.exists():
                         raise ValueError(f"{value_file_context} does not exist: {value_file}")
                     parsed_file_values = load_yaml(value_file_path)
-                    validate_app_values(app["path"], parsed_file_values, value_file_context)
+                    validate_app_values(
+                        app["path"],
+                        parsed_file_values,
+                        value_file_context,
+                        app.get("enabled", False),
+                    )
         else:
             expect_non_empty_string(app["chart"], f"{context}.chart")
             expect_non_empty_string(app.get("repoURL", ""), f"{context}.repoURL")
@@ -487,7 +576,7 @@ def validate_gitops(gitops, repo_root):
             if not isinstance(parsed_values, dict):
                 raise ValueError(f"{context}.helmValues must decode to a YAML mapping")
             app_path = app.get("path", "")
-            validate_app_values(app_path, parsed_values, f"{context}.helmValues")
+            validate_app_values(app_path, parsed_values, f"{context}.helmValues", app.get("enabled", False))
 
 
 def main():

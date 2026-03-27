@@ -1,5 +1,6 @@
 namespace: openshift-logging
 channel: stable-6.0
+externalSecrets: []
 collector:
   serviceAccountName: logcollector
   collectAuditLogs: true

@@ -3,6 +3,8 @@ clusterMonitoring:
   alertmanagerMain:
     enableUserAlertmanagerConfig: true
 
+externalSecrets: []
+
 userWorkloadMonitoring:
   prometheus:
     retention: 15d
