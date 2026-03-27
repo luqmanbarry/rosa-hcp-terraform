@@ -354,6 +354,10 @@ def validate_external_secrets(values, context):
             )
         expect_type(item.get("target", {}), dict, f"{item_context}.target")
         expect_non_empty_string(item["target"].get("name", ""), f"{item_context}.target.name")
+        if item["target"]["name"] in target_names:
+            raise ValueError(
+                f"{item_context}.target.name duplicates another ExternalSecret target Secret"
+            )
         target_names.add(item["target"]["name"])
         has_data = "data" in item and item["data"]
         has_data_from = "dataFrom" in item and item["dataFrom"]
@@ -421,7 +425,7 @@ def validate_app_values(app_path, values, context, enabled=False):
                     raise ValueError(f"{context}.{field_name} must be created by externalSecrets")
 
 
-def validate_cluster(cluster, overlays_root):
+def validate_cluster(cluster, overlays_root, cluster_class):
     expect_keys(
         cluster,
         [
@@ -430,7 +434,6 @@ def validate_cluster(cluster, overlays_root):
             "aws_region",
             "business_metadata",
             "network",
-            "acm",
             "gitops",
         ],
         "cluster.yaml",
@@ -441,7 +444,12 @@ def validate_cluster(cluster, overlays_root):
 
     validate_business_metadata(cluster["business_metadata"], "cluster.yaml.business_metadata")
     validate_network(cluster["network"], "cluster.yaml.network")
-    validate_acm(cluster["acm"], "cluster.yaml.acm")
+    if cluster_class.get("enable_acm_registration"):
+        if "acm" not in cluster:
+            raise ValueError("cluster.yaml.acm is required when enable_acm_registration is true")
+        validate_acm(cluster["acm"], "cluster.yaml.acm")
+    elif "acm" in cluster:
+        validate_acm(cluster["acm"], "cluster.yaml.acm")
     validate_gitops_config(cluster["gitops"], overlays_root, "cluster.yaml.gitops")
 
     if "private_cluster" in cluster:
@@ -620,7 +628,7 @@ def main():
     cluster_class = load_yaml(class_path)
 
     validate_cluster_class(cluster_class, class_path, overlays_root)
-    validate_cluster(cluster, overlays_root)
+    validate_cluster(cluster, overlays_root, cluster_class)
     validate_gitops(gitops, repo_root)
     return 0
 

@@ -12,7 +12,6 @@ REQUIRED_CLUSTER_KEYS = [
     "class_name",
     "aws_region",
     "network",
-    "acm",
     "gitops",
 ]
 

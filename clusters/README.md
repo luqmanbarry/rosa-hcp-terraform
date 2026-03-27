@@ -62,7 +62,7 @@ PR validation fails if:
 - required keys are missing
 - the referenced cluster class does not exist
 - the referenced GitOps overlay does not exist
-- business, network, ACM, or machine pool objects do not match the expected shape
+- business, network, optional ACM, or machine pool objects do not match the expected shape
 - GitOps application paths do not exist or are missing `Chart.yaml`
 - external Helm `valueFiles` entries do not exist or do not decode to YAML mappings
 - an enabled secret-consuming module references a `Secret` name that is not created by its own `externalSecrets` entries

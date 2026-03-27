@@ -7,7 +7,7 @@ High-level flow:
 1. Engineers add or update cluster inputs under `clusters/`.
 2. They open a pull request.
 3. CI validates inputs, renders effective config, and validates Terraform.
-4. Merge to `main` runs Terraform to create or update the cluster, register it to ACM, and bootstrap OpenShift GitOps.
+4. Merge to `main` runs Terraform to create or update the cluster, optionally register it to ACM, and bootstrap OpenShift GitOps.
 5. OpenShift GitOps reconciles platform and workload configuration from Git.
 
 ## Start Here
@@ -84,7 +84,7 @@ Engineer edits files in clusters/
   -> Merge to main
   -> Terraform apply
      -> ROSA HCP cluster
-     -> ACM registration
+     -> optional ACM registration
      -> OpenShift GitOps bootstrap
         -> Argo CD root app
            -> Platform apps
@@ -98,7 +98,7 @@ Terraform
   - AWS discovery and bootstrap prerequisites
   - ROSA HCP cluster
   - machine pools
-  - ACM registration
+  - optional ACM registration
   - OpenShift GitOps bootstrap
 
 OpenShift GitOps

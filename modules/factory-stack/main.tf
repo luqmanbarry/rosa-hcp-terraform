@@ -35,19 +35,25 @@ data "aws_route53_zone" "selected" {
 }
 
 locals {
+  availability_zones = sort(distinct([
+    for subnet in data.aws_subnet.selected : subnet.availability_zone
+  ]))
+
+  selected_availability_zones = var.multi_az ? local.availability_zones : slice(local.availability_zones, 0, min(length(local.availability_zones), 1))
+
   private_subnet_ids = sort([
     for rt in data.aws_route_table.subnets_route_tables :
-    rt.subnet_id if length(trimspace(join("", rt.routes.*.gateway_id))) == 0
+    rt.subnet_id
+    if length(trimspace(join("", rt.routes.*.gateway_id))) == 0
+    && contains(local.selected_availability_zones, data.aws_subnet.selected[rt.subnet_id].availability_zone)
   ])
 
   public_subnet_ids = sort([
     for rt in data.aws_route_table.subnets_route_tables :
-    rt.subnet_id if length(trimspace(join("", rt.routes.*.gateway_id))) > 0
+    rt.subnet_id
+    if length(trimspace(join("", rt.routes.*.gateway_id))) > 0
+    && contains(local.selected_availability_zones, data.aws_subnet.selected[rt.subnet_id].availability_zone)
   ])
-
-  availability_zones = sort(distinct([
-    for subnet in data.aws_subnet.selected : subnet.availability_zone
-  ]))
 
   default_pool = var.machine_pools[0]
   default_machine_pool_profile = lookup(
@@ -124,7 +130,7 @@ module "rosa_hcp_core" {
   pod_cidr                                  = var.pod_cidr
   service_cidr                              = var.service_cidr
   aws_subnet_ids                            = var.private_cluster ? local.private_subnet_ids : concat(local.private_subnet_ids, local.public_subnet_ids)
-  aws_availability_zones                    = local.availability_zones
+  aws_availability_zones                    = local.selected_availability_zones
   compute_machine_type                      = lookup(local.default_machine_pool_profile, "instance_type", "m7i.xlarge")
   replicas                                  = local.default_pool.replicas
   autoscaling_enabled                       = local.default_pool.autoscaling.enabled

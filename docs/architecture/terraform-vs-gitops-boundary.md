@@ -12,7 +12,7 @@ Use this simple rule:
 - ROSA HCP cluster
 - ROSA machine pools
 - machine pool autoscaling bounds
-- ACM registration
+- optional ACM registration
 - OpenShift GitOps bootstrap
 
 ## GitOps-Owned

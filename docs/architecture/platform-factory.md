@@ -10,7 +10,7 @@ Simple flow:
 4. Merge to `main` runs Terraform to:
    - prepare AWS items that are in scope
    - create the ROSA HCP cluster
-   - register the cluster to ACM
+   - optionally register the cluster to ACM
    - bootstrap OpenShift GitOps
 5. OpenShift GitOps applies the platform and workload apps.
 
@@ -24,7 +24,7 @@ Cluster class
   -> render effective config
   -> Terraform modules
      -> ROSA HCP cluster
-     -> ACM registration
+     -> optional ACM registration
      -> OpenShift GitOps bootstrap
         -> root app
            -> platform apps
@@ -39,7 +39,7 @@ Terraform only handles build and bootstrap work:
 - AWS items that are in scope
 - ROSA HCP cluster creation
 - base machine pools
-- ACM registration
+- optional ACM registration
 - OpenShift GitOps bootstrap
 
 ## GitOps Scope
