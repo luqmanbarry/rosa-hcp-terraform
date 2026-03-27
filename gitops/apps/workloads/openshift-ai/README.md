@@ -16,4 +16,4 @@ Default placement behavior is unconstrained:
 - if you do not provide AI-specific scheduling manifests, OpenShift AI workloads use the default worker pool
 - if you want AI workloads on dedicated worker pools, add machine-pool labels such as `workload.platform/ai=true` and supply corresponding manifests through `hardwareProfiles`
 
-The `hardwareProfiles` value is a raw-manifest extension point for version-specific `HardwareProfile` or related scheduling resources. This avoids hardcoding an unverified CRD schema into the factory while still letting you manage hardware-profile resources through GitOps.
+The `hardwareProfiles` value is a raw-manifest extension point for version-specific `HardwareProfile` or related scheduling resources. This avoids hardcoding an unverified CRD schema into the repo while still letting you manage hardware-profile resources through GitOps.

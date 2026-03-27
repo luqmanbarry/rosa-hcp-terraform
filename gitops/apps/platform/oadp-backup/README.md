@@ -1,6 +1,6 @@
 # OADP Backup
 
-This chart owns steady-state backup schedules.
+This chart manages normal backup schedules.
 
 Use it for:
 

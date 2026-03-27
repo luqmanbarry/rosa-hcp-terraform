@@ -1,0 +1,5 @@
+enabled: true
+namespace: openshift-adp
+backupMode: filesystem
+includeClusterResources: true
+schedules: []

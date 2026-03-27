@@ -1,6 +1,6 @@
 # Namespace Onboarding
 
-Creates OpenShift projects for onboarding teams or workloads and applies common namespace guardrails.
+Creates OpenShift projects and applies common namespace guardrails.
 
 ## What It Manages
 
@@ -26,7 +26,7 @@ Creates OpenShift projects for onboarding teams or workloads and applies common 
 - `networkPolicies`: optional namespace network policy defaults
 - `roleBindings`: optional list of namespace role bindings
 
-The chart also supports a top-level `projectRequestTemplate` block for self-service project creation. Use that together with the `self-provisioner` chart when you want new user-created projects to inherit quotas, limit ranges, and network policies.
+The chart also supports a top-level `projectRequestTemplate` block for self-service project creation. Use that with the `self-provisioner` chart when you want new user-created projects to inherit quotas, limit ranges, and network policies.
 
 ## Example
 
@@ -70,7 +70,7 @@ namespaces:
 ## Notes
 
 - If `namespaces` is empty, the chart renders no resources.
-- Namespace quota and limit range values are passed through directly so teams can use the standard Kubernetes schema.
+- Quota and limit range values are passed through directly, so teams can use the normal Kubernetes schema.
 - This chart is intended for tenant and workload onboarding, not cluster-scoped RBAC. Use `groups-rbac` for cluster-wide role bindings.
 - `roleBindings` supports three patterns:
   - `group` for a single group binding

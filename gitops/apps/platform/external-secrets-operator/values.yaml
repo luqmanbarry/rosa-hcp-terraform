@@ -1,0 +1,11 @@
+namespace: external-secrets-operator
+subscription:
+  name: external-secrets-operator
+  packageName: external-secrets-operator
+  channel: stable
+  installPlanApproval: Automatic
+  source: community-operators
+  sourceNamespace: openshift-marketplace
+operatorGroup:
+  name: external-secrets-operator
+  targetNamespaces: []

@@ -10,4 +10,4 @@ Controls trusted CAs and allowed image registries for the cluster.
 
 ## Use
 
-Add only approved registries and trusted CA bundles through stack values.
+Add only approved registries and trusted CA bundles through the cluster values files.

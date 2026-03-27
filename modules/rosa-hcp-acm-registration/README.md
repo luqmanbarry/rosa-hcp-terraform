@@ -1,8 +1,8 @@
 # rosa-hcp-acm-registration
 
-Registers the managed cluster to ACM by creating hub-side resources and applying the import manifests to the managed cluster.
+This module registers the cluster to ACM.
 
-## Responsibilities
+It does these jobs:
 
 - creates `ManagedCluster`
 - creates `KlusterletAddonConfig`
@@ -18,4 +18,4 @@ Registers the managed cluster to ACM by creating hub-side resources and applying
 ## Notes
 
 - the module is idempotent across re-applies by hashing the applied manifest content
-- this remains a bootstrap-oriented integration point and is a candidate for future ACM-native refinement
+- this is still a bootstrap-style integration point

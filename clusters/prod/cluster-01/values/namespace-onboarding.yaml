@@ -1,0 +1,37 @@
+namespaces:
+  - name: team-a-prod
+    displayName: Team A Production
+    description: Shared production namespace for Team A
+    labels:
+      tenant: team-a
+      environment: prod
+      compliance-tier: regulated
+    resourceQuota:
+      name: team-a-quota
+      hard:
+        requests.cpu: "24"
+        requests.memory: 64Gi
+        limits.cpu: "48"
+        limits.memory: 128Gi
+        persistentvolumeclaims: "20"
+        services.loadbalancers: "2"
+    limitRange:
+      name: team-a-defaults
+      limits:
+        - type: Container
+          default:
+            cpu: "2"
+            memory: 4Gi
+          defaultRequest:
+            cpu: 250m
+            memory: 512Mi
+    networkPolicies:
+      defaultDenyIngress: true
+      defaultDenyEgress: true
+      allowSameNamespaceIngress: true
+      allowClusterDNS: true
+    roleBindings:
+      - group: team-a-operators
+        role: admin
+      - group: team-a-developers
+        role: view

@@ -11,5 +11,5 @@ Configures OpenShift monitoring for user workloads.
 ## Default Behavior
 
 - enabled
-- uses persistent storage values from chart inputs
+- uses persistent storage values from the chart inputs
 - remote write remains disabled unless explicitly configured

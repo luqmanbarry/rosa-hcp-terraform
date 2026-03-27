@@ -1,6 +1,6 @@
 # rosa-hcp-machine-pools
 
-Creates additional ROSA HCP machine pools after the core cluster exists.
+This module creates extra ROSA HCP machine pools after the cluster exists.
 
 ## Responsibilities
 

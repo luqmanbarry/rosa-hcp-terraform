@@ -1,6 +1,6 @@
 # CP4BA Operator
 
-This chart installs the IBM Cloud Pak for Business Automation operator with namespace-scoped defaults intended for production use.
+This chart installs the IBM Cloud Pak for Business Automation operator with namespace-scoped defaults for production use.
 
 Default behavior:
 
@@ -10,7 +10,7 @@ Default behavior:
 - installs with a namespace-scoped `OperatorGroup`
 - references the IBM `ibm-cp4a-operator-catalog` in `openshift-marketplace`
 
-These defaults follow IBM guidance to prefer a specific namespace on the cluster for CP4BA production deployments and to avoid cluster-scoped foundational services for new production installs.
+These defaults follow IBM guidance to use a dedicated namespace for CP4BA production deployments and to avoid cluster-scoped foundational services for new production installs.
 
 Before enabling this chart, make sure:
 

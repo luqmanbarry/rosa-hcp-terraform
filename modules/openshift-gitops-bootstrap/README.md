@@ -1,6 +1,6 @@
 # openshift-gitops-bootstrap
 
-Bootstraps OpenShift GitOps and seeds the root `Application`.
+This module installs OpenShift GitOps and creates the root Argo CD application.
 
 ## Responsibilities
 
@@ -17,13 +17,13 @@ Bootstraps OpenShift GitOps and seeds the root `Application`.
 
 ## Root App Contract
 
-The root app points to an environment overlay under `gitops/overlays/` and injects:
+The root app points to `gitops/overlays/cluster-applications/` and passes in:
 
 - Git repository URL
 - target revision
-- stack-owned values object from `gitops.yaml`
+- cluster-owned values from `gitops.yaml`
 
 ## Notes
 
-- readiness is handled with `oc wait`, not fixed sleeps
-- if no private repo credentials are supplied, the module assumes the repo is reachable without them
+- readiness uses `oc wait`
+- if no private repo credentials are supplied, the module assumes the repo is public or otherwise reachable

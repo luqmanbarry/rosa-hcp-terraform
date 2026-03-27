@@ -1,0 +1,10 @@
+registriesCertsConfigMap: registries-config-certs
+additionalTrustedCAs: {}
+allowList:
+  - cp.icr.io
+  - icr.io
+  - quay.io
+  - registry.redhat.io
+  - registry.connect.redhat.com
+  - image-registry.openshift-image-registry.svc:5000
+  - ghcr.io

@@ -144,11 +144,71 @@ resource "null_resource" "wait_for_argocd_ready" {
   }
 }
 
+resource "kubernetes_manifest" "platform_project" {
+  depends_on = [null_resource.wait_for_argocd_ready]
+
+  manifest = {
+    apiVersion = "argoproj.io/v1alpha1"
+    kind       = "AppProject"
+    metadata = {
+      name      = "platform"
+      namespace = var.gitops_namespace
+    }
+    spec = {
+      description = "Platform-owned GitOps applications"
+      sourceRepos = [var.gitops_git_repo_url]
+      destinations = [{
+        namespace = "*"
+        server    = "https://kubernetes.default.svc"
+      }]
+      clusterResourceWhitelist = [{
+        group = "*"
+        kind  = "*"
+      }]
+      namespaceResourceWhitelist = [{
+        group = "*"
+        kind  = "*"
+      }]
+    }
+  }
+}
+
+resource "kubernetes_manifest" "workloads_project" {
+  depends_on = [null_resource.wait_for_argocd_ready]
+
+  manifest = {
+    apiVersion = "argoproj.io/v1alpha1"
+    kind       = "AppProject"
+    metadata = {
+      name      = "workloads"
+      namespace = var.gitops_namespace
+    }
+    spec = {
+      description = "Workload-owned GitOps applications"
+      sourceRepos = ["*"]
+      destinations = [{
+        namespace = "*"
+        server    = "https://kubernetes.default.svc"
+      }]
+      clusterResourceWhitelist = [{
+        group = "*"
+        kind  = "*"
+      }]
+      namespaceResourceWhitelist = [{
+        group = "*"
+        kind  = "*"
+      }]
+    }
+  }
+}
+
 resource "kubernetes_manifest" "root_application" {
   depends_on = [
     kubernetes_manifest.gitops_namespace,
     null_resource.wait_for_argocd_ready,
     kubernetes_manifest.repo_secret,
+    kubernetes_manifest.platform_project,
+    kubernetes_manifest.workloads_project,
   ]
 
   manifest = {
@@ -163,7 +223,7 @@ resource "kubernetes_manifest" "root_application" {
         namespace = var.gitops_namespace
         server    = "https://kubernetes.default.svc"
       }
-      project = "default"
+      project = "platform"
       source = {
         repoURL        = var.gitops_git_repo_url
         targetRevision = var.gitops_target_revision

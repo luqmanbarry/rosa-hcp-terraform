@@ -1,0 +1,11 @@
+namespace: openshift-adp
+channel: stable-1.4
+enableDataProtectionApplication: false
+backupLocation:
+  provider: aws
+  bucket: rosa-hcp-backups-prod
+  region: us-east-2
+  credentialSecret: cloud-credentials
+snapshotLocation:
+  provider: aws
+  region: us-east-2

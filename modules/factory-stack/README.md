@@ -1,11 +1,11 @@
 # factory-stack
 
-Composes the Terraform modules used by each environment stack root.
+This is the main Terraform module for one cluster.
 
-## Responsibilities
+It does these jobs:
 
 - discovers the target VPC, subnets, and Route53 zone
-- derives private and public subnet sets
+- figures out which subnets are private and public
 - creates the ROSA HCP cluster
 - creates additional machine pools
 - optionally registers the cluster to ACM
@@ -13,11 +13,11 @@ Composes the Terraform modules used by each environment stack root.
 
 ## Key Inputs
 
-- cluster identity and environment metadata
+- cluster name and environment data
 - AWS region and network lookup inputs
 - machine pools
-- ACM bootstrap kubeconfigs
-- GitOps repository and overlay inputs
+- ACM kubeconfigs
+- GitOps repo and overlay inputs
 
 ## Key Outputs
 
@@ -30,5 +30,5 @@ Composes the Terraform modules used by each environment stack root.
 ## Notes
 
 - machine pools can define autoscaling bounds and labels
-- additional machine pools inherit profile defaults and can override labels and instance type
+- extra machine pools inherit profile defaults and can override labels and instance type
 - if workload modules do not set selectors, workloads land on the default worker pool

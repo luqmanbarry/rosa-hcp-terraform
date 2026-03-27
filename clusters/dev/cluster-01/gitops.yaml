@@ -1,122 +1,115 @@
 applications:
   - name: self-provisioner
+    enabled: false
     namespace: openshift-config
     path: gitops/apps/platform/self-provisioner
     syncWave: "10"
-    helmValues: |
-      disableSelfProvisioner: true
-      clusterAdminEmail: cluster-admins@example.com
+    valueFiles:
+      - clusters/dev/cluster-01/values/self-provisioner.yaml
+  - name: external-secrets-operator
+    enabled: true
+    namespace: external-secrets-operator
+    path: gitops/apps/platform/external-secrets-operator
+    syncWave: "15"
+    valueFiles:
+      - clusters/dev/cluster-01/values/external-secrets-operator.yaml
+  - name: cert-manager-operator
+    enabled: false
+    namespace: cert-manager-operator
+    path: gitops/apps/platform/cert-manager-operator
+    syncWave: "18"
+    valueFiles:
+      - clusters/dev/cluster-01/values/cert-manager-operator.yaml
   - name: user-workload-monitoring
+    enabled: false
     namespace: openshift-monitoring
     path: gitops/apps/platform/user-workload-monitoring
     syncWave: "20"
-    helmValues: |
-      clusterMonitoring:
-        enableUserWorkload: true
-        alertmanagerMain:
-          enableUserAlertmanagerConfig: true
-      userWorkloadMonitoring:
-        prometheus:
-          retention: 7d
-          storageClassName: gp3-csi
-          volumeMode: Filesystem
-          storageCapacity: 100Gi
-        alertmanager:
-          enabled: true
-          enableAlertmanagerConfig: true
-        thanosRuler:
-          retention: 7d
-          storageClassName: gp3-csi
-          volumeMode: Filesystem
-          storageCapacity: 50Gi
-        prometheusOperator: {}
-        remoteWrite:
-          enabled: false
-          url: https://metrics.example.com/api/v1/write
-          secretName: prometheus-remote-write
+    valueFiles:
+      - clusters/dev/cluster-01/values/user-workload-monitoring.yaml
   - name: internal-image-registry
+    enabled: false
     namespace: openshift-image-registry
     path: gitops/apps/platform/internal-image-registry
     syncWave: "30"
+    valueFiles:
+      - clusters/dev/cluster-01/values/internal-image-registry.yaml
   - name: image-registry-allow-deny
+    enabled: false
     namespace: openshift-config
     path: gitops/apps/platform/image-registry-allow-deny
     syncWave: "40"
+    valueFiles:
+      - clusters/dev/cluster-01/values/image-registry-allow-deny.yaml
   - name: cluster-logging
+    enabled: false
     namespace: openshift-logging
     path: gitops/apps/platform/cluster-logging
     syncWave: "50"
+    valueFiles:
+      - clusters/dev/cluster-01/values/cluster-logging.yaml
   - name: namespace-onboarding
+    enabled: false
     namespace: openshift-config
     path: gitops/apps/platform/namespace-onboarding
     syncWave: "55"
-    helmValues: |
-      namespaces:
-        - name: team-a-dev
-          displayName: Team A Development
-          description: Shared development namespace for Team A
-          labels:
-            tenant: team-a
-            environment: dev
-          resourceQuota:
-            name: team-a-quota
-            hard:
-              requests.cpu: "8"
-              requests.memory: 16Gi
-              limits.cpu: "16"
-              limits.memory: 32Gi
-              persistentvolumeclaims: "10"
-          limitRange:
-            name: team-a-defaults
-            limits:
-              - type: Container
-                default:
-                  cpu: 500m
-                  memory: 1Gi
-                defaultRequest:
-                  cpu: 100m
-                  memory: 256Mi
-          networkPolicies:
-            defaultDenyIngress: true
-            allowSameNamespaceIngress: true
-            allowClusterDNS: true
-          roleBindings:
-            - group: team-a-developers
-              role: edit
-            - group: team-a-operators
-              role: admin
+    valueFiles:
+      - clusters/dev/cluster-01/values/namespace-onboarding.yaml
+  - name: compliance-operator
+    enabled: false
+    namespace: openshift-compliance
+    path: gitops/apps/platform/compliance-operator
+    syncWave: "58"
+    valueFiles:
+      - clusters/dev/cluster-01/values/compliance-operator.yaml
   - name: identity-providers
+    enabled: false
     namespace: openshift-config
     path: gitops/apps/platform/identity-providers
     syncWave: "60"
+    valueFiles:
+      - clusters/dev/cluster-01/values/identity-providers.yaml
   - name: groups-rbac
+    enabled: false
     namespace: openshift-config
     path: gitops/apps/platform/groups-rbac
     syncWave: "70"
+    valueFiles:
+      - clusters/dev/cluster-01/values/groups-rbac.yaml
   - name: vault-k8s-auth
+    enabled: false
     namespace: vault-auth
     path: gitops/apps/platform/vault-k8s-auth
     syncWave: "80"
+    valueFiles:
+      - clusters/dev/cluster-01/values/vault-k8s-auth.yaml
   - name: oadp-operator
+    enabled: false
     namespace: openshift-adp
     path: gitops/apps/platform/oadp-operator
     syncWave: "90"
+    valueFiles:
+      - clusters/dev/cluster-01/values/oadp-operator.yaml
   - name: oadp-backup
+    enabled: false
     namespace: openshift-adp
     path: gitops/apps/platform/oadp-backup
     syncWave: "100"
-    helmValues: |
-      enabled: false
-      namespace: openshift-adp
-      backupMode: filesystem
-      includeClusterResources: true
-      schedules: []
+    valueFiles:
+      - clusters/dev/cluster-01/values/oadp-backup.yaml
   - name: oadp-restore
+    enabled: false
     namespace: openshift-adp
     path: gitops/apps/platform/oadp-restore
     syncWave: "110"
-    helmValues: |
-      enabled: false
-      namespace: openshift-adp
-      storageClassMapping: {}
-      restores: []
+    valueFiles:
+      - clusters/dev/cluster-01/values/oadp-restore.yaml
+  - name: twistlock-defender-helm
+    enabled: false
+    namespace: twistlock
+    chart: twistlock-defender
+    repoURL: https://paloaltonetworks.github.io/twistlock-defender-helm/
+    targetRevision: "0.1.0"
+    syncWave: "190"
+    valueFiles:
+      - clusters/dev/cluster-01/values/twistlock-defender-helm.yaml

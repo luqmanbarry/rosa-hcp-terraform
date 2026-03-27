@@ -14,4 +14,4 @@ Provide:
 - bucket
 - credential secret
 - region
-- plugin and node-agent settings appropriate to the environment
+- plugin and node-agent settings for your environment

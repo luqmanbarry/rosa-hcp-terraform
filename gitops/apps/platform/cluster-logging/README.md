@@ -1,6 +1,6 @@
 # cluster-logging
 
-Installs the logging operator and configures log forwarding with the Logging 6 API model.
+Installs the logging operator and can configure log forwarding.
 
 ## Responsibilities
 

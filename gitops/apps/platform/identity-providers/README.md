@@ -13,4 +13,4 @@ The chart renders nothing unless `oauth.identityProviders` is populated.
 
 ## Use
 
-Supply real provider definitions and referenced secrets through stack-owned GitOps values.
+Supply real provider definitions and referenced secrets through the cluster values files.

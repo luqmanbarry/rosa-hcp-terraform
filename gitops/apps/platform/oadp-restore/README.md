@@ -1,8 +1,8 @@
 # OADP Restore
 
-This chart owns restore actions.
+This chart manages restore actions.
 
-Keep it separate from backup schedules because restore is an operational event, not a steady-state baseline behavior.
+Keep it separate from backup schedules because restore is an operational event, not a normal always-on policy.
 
 ## Recommended Usage
 

@@ -1,25 +1,37 @@
 # GitOps
 
-OpenShift GitOps owns day-2 cluster configuration in this repository.
+OpenShift GitOps owns normal cluster configuration after Terraform finishes bootstrap.
 
-The intended model is:
+Simple flow:
 
 1. Terraform bootstraps the OpenShift GitOps operator and seeds a root `Application`.
-2. The root application points to an environment overlay under `gitops/overlays/`.
-3. The overlay deploys a curated set of platform applications using an App-of-Apps pattern.
+2. The root application points to the shared overlay under `gitops/overlays/cluster-applications/`.
+3. The shared overlay creates child Argo CD applications.
+4. Those child applications deploy platform and workload modules.
 
-Reusable platform applications should generally be packaged as Helm charts. Environment-specific composition and small patches should use Kustomize overlays.
+Most reusable apps in this repo are Helm charts.
 
-The environment overlays under `gitops/overlays/` are implemented as Helm charts so the root application can inject the actual Git repository URL and target revision at bootstrap time.
+The shared overlay is a Helm chart. Terraform injects the real Git repository URL and Git revision into it during bootstrap.
 
-The initial platform baseline implemented here includes:
+How to configure GitOps for one cluster:
+
+- choose apps in `clusters/<environment>/<cluster>/gitops.yaml`
+- set `enabled: true` only for the apps you want to run now
+- put each app's values in `clusters/<environment>/<cluster>/values/<app>.yaml`
+
+The sample clusters keep only `external-secrets-operator` enabled by default. All other modules are disabled until a user turns them on.
+
+Platform modules in this repo include:
 
 - self-provisioner
+- external-secrets operator
+- cert-manager operator
 - user workload monitoring
 - internal image registry
 - image registry allow/deny
 - cluster logging
 - namespace onboarding
+- compliance operator
 - OADP operator
 - OADP backup
 - OADP restore
@@ -27,22 +39,32 @@ The initial platform baseline implemented here includes:
 - groups and RBAC
 - Vault Kubernetes auth bootstrap
 
-Workload-specific charts can live under `gitops/apps/workloads/`. The initial workload examples are:
+Workload modules in this repo include:
 
-- `cp4ba-operator`, which installs the IBM CP4BA operator with namespace-scoped `v24.0` defaults aligned to IBM production guidance
-- `aap`, which installs Red Hat Ansible Automation Platform 2.6 using the `AnsibleAutomationPlatform` CR with controller-focused production defaults
-- `openshift-ai`, which installs Red Hat OpenShift AI Self-Managed with `DSCInitialization`, `DataScienceCluster`, and dashboard settings that expose hardware profiles for AI node targeting
+- `cp4ba-operator`
+- `aap`
+- `openshift-ai`
+- `twistlock-defender-helm`
 
-`oadp-backup` and `oadp-restore` remain separate by design:
+`twistlock-defender-helm` is an external Helm chart. Its values still live under `clusters/<environment>/<cluster>/values/`.
+
+`oadp-backup` and `oadp-restore` stay separate on purpose:
 
 - `oadp-backup` is steady-state policy
 - `oadp-restore` is an operational recovery action
 
-They should not share ownership because their risk profile and lifecycle are different.
+They are different kinds of operations, so they should not share the same module.
 
 The `user-workload-monitoring` chart owns both:
 
 - `cluster-monitoring-config` in `openshift-monitoring`
 - `user-workload-monitoring-config` in `openshift-user-workload-monitoring`
 
-This matches the current OpenShift monitoring model more closely and avoids Argo CD ownership conflicts.
+This avoids Argo CD ownership conflicts.
+
+`external-secrets-operator` and `cert-manager-operator` should run early:
+
+- `external-secrets-operator` should come before modules that expect secrets sourced from an external backend
+- `cert-manager-operator` should come before modules that rely on declarative certificate issuance
+
+`compliance-operator` installs only the operator by default. No compliance profile is enabled until you add it.

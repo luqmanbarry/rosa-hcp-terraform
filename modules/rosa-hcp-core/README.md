@@ -1,8 +1,8 @@
 # rosa-hcp-core
 
-Creates the ROSA HCP cluster by wrapping the upstream `terraform-redhat/rosa-hcp/rhcs` module.
+This module creates the ROSA HCP cluster.
 
-## Responsibilities
+It does these jobs:
 
 - configures RHCS and AWS providers
 - provisions the ROSA HCP cluster
@@ -13,4 +13,4 @@ Creates the ROSA HCP cluster by wrapping the upstream `terraform-redhat/rosa-hcp
 
 - the default worker pool is created here
 - cluster-level autoscaler settings are intentionally disabled until upstream support is fully validated
-- default worker sizing still supports autoscaling-like intent through machine-pool inputs and follow-on pools
+- worker sizing is mainly controlled through machine pool inputs and extra pools

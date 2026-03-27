@@ -1,0 +1,5 @@
+twistlock:
+  console:
+    enabled: false
+  defender:
+    enabled: false

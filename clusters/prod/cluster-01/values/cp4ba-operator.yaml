@@ -1,0 +1,8 @@
+namespace: cp4ba
+channel: v24.0
+subscriptionName: ibm-cp4a-operator
+packageName: ibm-cp4a-operator
+catalogSource:
+  name: ibm-cp4a-operator-catalog
+  namespace: openshift-marketplace
+installPlanApproval: Automatic

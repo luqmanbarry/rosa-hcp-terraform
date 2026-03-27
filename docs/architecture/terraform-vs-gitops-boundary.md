@@ -1,14 +1,14 @@
 # Terraform vs GitOps Boundary
 
-Use this rule consistently:
+Use this simple rule:
 
-- If the resource exists primarily in AWS, OCM, RHCS, or outside the cluster, use Terraform.
-- If the resource is Kubernetes-native and should be continuously reconciled from Git, use OpenShift GitOps.
+- If the resource lives outside the cluster, use Terraform.
+- If the resource lives inside the cluster and should stay in sync from Git, use OpenShift GitOps.
 
 ## Terraform-Owned
 
 - S3 remote state
-- VPC, subnets, Route53, IAM roles in scope
+- VPC, subnets, Route53, and IAM roles that this repo manages
 - ROSA HCP cluster
 - ROSA machine pools
 - machine pool autoscaling bounds
@@ -31,15 +31,19 @@ Use this rule consistently:
 
 ## Exception Handling
 
-If a Kubernetes resource must exist before GitOps can bootstrap, keep only that minimum bootstrap path in Terraform and move steady-state ownership to GitOps afterward.
+If something inside the cluster must exist before GitOps can start, keep only that small bootstrap step in Terraform. After that, move ownership to GitOps.
 
 ## Practical Examples
 
-| Concern | Owner | Reason |
-| --- | --- | --- |
-| ROSA HCP cluster | Terraform | external RHCS/OCM resource |
-| worker pools and autoscaling bounds | Terraform | capacity and node lifecycle |
-| OpenShift GitOps operator bootstrap | Terraform | required before GitOps can reconcile |
-| cluster OAuth and RBAC | GitOps | in-cluster, continuously reconciled |
-| OADP schedules and restores | GitOps | day-2 operational policy |
-| AAP / CP4BA / OpenShift AI | GitOps | workload lifecycle and configuration |
+- ROSA HCP cluster: Terraform
+  Reason: the cluster is created through RHCS/OCM, not as a normal Kubernetes object
+- worker pools and autoscaling bounds: Terraform
+  Reason: this is cluster capacity and node lifecycle
+- OpenShift GitOps bootstrap: Terraform
+  Reason: GitOps must exist before GitOps can manage anything
+- cluster OAuth and RBAC: GitOps
+  Reason: these are in-cluster settings that should stay in sync from Git
+- OADP schedules and restores: GitOps
+  Reason: these are day-2 operations and policies
+- AAP, CP4BA, and OpenShift AI: GitOps
+  Reason: these are workloads that run on the cluster

@@ -38,6 +38,6 @@ acm:
     environment: prod
     provider: rosa-hcp
 gitops:
-  overlay: prod
+  overlay: cluster-applications
   repository_url: https://github.com/your-org/rosa-hcp-factory.git
   target_revision: main

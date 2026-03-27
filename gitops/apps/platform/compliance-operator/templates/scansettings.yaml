@@ -1,0 +1,25 @@
+{{- range .Values.scanSettings }}
+---
+apiVersion: compliance.openshift.io/v1alpha1
+kind: ScanSetting
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.namespace }}
+rawResultStorage:
+  size: {{ default "1Gi" .rawResultStorageSize }}
+roles:
+{{ toYaml .roles | indent 2 }}
+schedule: {{ default "0 1 * * *" .schedule | quote }}
+strictNodeScan: {{ default true .strictNodeScan }}
+timeout: {{ default "30m" .timeout | quote }}
+{{- if hasKey . "autoApplyRemediations" }}
+autoApplyRemediations: {{ .autoApplyRemediations }}
+{{- end }}
+{{- if hasKey . "autoUpdateRemediations" }}
+autoUpdateRemediations: {{ .autoUpdateRemediations }}
+{{- end }}
+{{- if .scanTolerations }}
+scanTolerations:
+{{ toYaml .scanTolerations | indent 2 }}
+{{- end }}
+{{- end }}

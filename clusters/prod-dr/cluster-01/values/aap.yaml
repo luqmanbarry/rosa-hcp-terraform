@@ -1,0 +1,37 @@
+namespace: ansible-automation-platform
+subscription:
+  name: ansible-automation-platform
+  packageName: ansible-automation-platform-operator
+  channel: stable-2.6
+  installPlanApproval: Manual
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+aap:
+  enabled: true
+  name: aap
+  no_log: true
+  image_pull_policy: IfNotPresent
+  controller:
+    disabled: false
+    replicas: 2
+    create_preload_data: true
+    route_tls_termination_mechanism: Edge
+    ingress_type: Route
+    auto_upgrade: true
+    task_privileged: false
+    projects_persistence: false
+    admin_user: admin
+    node_selector: |
+      workload.platform/aap: "true"
+    postgres_selector: |
+      workload.platform/aap: "true"
+    tolerations: []
+    postgres_tolerations: []
+    topology_spread_constraints: ""
+    ee_extra_env:
+      - name: RECEPTOR_KUBE_SUPPORT_RECONNECT
+        value: enabled
+  hub:
+    disabled: true
+  eda:
+    disabled: true

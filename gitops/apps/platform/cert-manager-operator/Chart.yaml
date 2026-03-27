@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cert-manager-operator
+description: Install the cert-manager Operator for Red Hat OpenShift for automatic certificate lifecycle management.
+type: application
+version: 0.1.0
+appVersion: "1.18"

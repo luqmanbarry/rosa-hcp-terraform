@@ -3,4 +3,4 @@ argoNamespace: openshift-gitops
 git:
   repoURL: https://github.com/your-org/your-gitops-repo.git
   targetRevision: main
-overlayPath: gitops/overlays/dev
+overlayPath: gitops/overlays/cluster-applications

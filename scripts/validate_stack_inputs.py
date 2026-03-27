@@ -330,6 +330,13 @@ def validate_self_provisioner_values(values, context):
         )
 
 
+def validate_app_values(app_path, values, context):
+    if app_path == "gitops/apps/platform/namespace-onboarding":
+        validate_namespace_onboarding_values(values, context)
+    if app_path == "gitops/apps/platform/self-provisioner":
+        validate_self_provisioner_values(values, context)
+
+
 def validate_cluster(cluster, overlays_root):
     expect_keys(
         cluster,
@@ -406,28 +413,70 @@ def validate_gitops(gitops, repo_root):
     for index, app in enumerate(gitops["applications"]):
         context = f"gitops.yaml.applications[{index}]"
         expect_type(app, dict, context)
-        expect_keys(app, ["name", "namespace", "path", "syncWave"], context)
+        expect_keys(app, ["name", "namespace", "syncWave"], context)
 
-        for key in ["name", "namespace", "path", "syncWave"]:
+        for key in ["name", "namespace", "syncWave"]:
             expect_non_empty_string(app[key], f"{context}.{key}")
+        if "enabled" in app:
+            expect_bool(app["enabled"], f"{context}.enabled")
 
         if app["name"] in seen_names:
             raise ValueError(f"{context}.name duplicates another application")
         seen_names.add(app["name"])
 
-        if not app["path"].startswith("gitops/apps/"):
-            raise ValueError(f"{context}.path must start with gitops/apps/: {app['path']}")
+        has_path = "path" in app
+        has_chart = "chart" in app
+        if has_path == has_chart:
+            raise ValueError(f"{context} must define exactly one of path or chart")
+
+        if has_path:
+            expect_non_empty_string(app["path"], f"{context}.path")
+            if not app["path"].startswith("gitops/apps/"):
+                raise ValueError(f"{context}.path must start with gitops/apps/: {app['path']}")
+
+            chart_path = repo_root / app["path"]
+            if not chart_path.exists():
+                raise ValueError(f"{context}.path does not exist: {app['path']}")
+            if not (chart_path / "Chart.yaml").exists():
+                raise ValueError(f"{context}.path is missing Chart.yaml: {app['path']}")
+            if "valueFiles" in app:
+                expect_type(app["valueFiles"], list, f"{context}.valueFiles")
+                if not app["valueFiles"]:
+                    raise ValueError(f"{context}.valueFiles must not be empty when set")
+                for value_file_index, value_file in enumerate(app["valueFiles"]):
+                    value_file_context = f"{context}.valueFiles[{value_file_index}]"
+                    expect_non_empty_string(value_file, value_file_context)
+                    value_file_path = repo_root / value_file
+                    if not value_file_path.exists():
+                        raise ValueError(f"{value_file_context} does not exist: {value_file}")
+                    parsed_file_values = load_yaml(value_file_path)
+                    validate_app_values(app["path"], parsed_file_values, value_file_context)
+        else:
+            expect_non_empty_string(app["chart"], f"{context}.chart")
+            expect_non_empty_string(app.get("repoURL", ""), f"{context}.repoURL")
+            expect_non_empty_string(app.get("targetRevision", ""), f"{context}.targetRevision")
+            if not re.match(r"^https://", app["repoURL"]):
+                raise ValueError(f"{context}.repoURL must be an HTTPS URL")
+            if "valueFiles" in app:
+                expect_type(app["valueFiles"], list, f"{context}.valueFiles")
+                if not app["valueFiles"]:
+                    raise ValueError(f"{context}.valueFiles must not be empty when set")
+                for value_file_index, value_file in enumerate(app["valueFiles"]):
+                    value_file_context = f"{context}.valueFiles[{value_file_index}]"
+                    expect_non_empty_string(value_file, value_file_context)
+                    value_file_path = repo_root / value_file
+                    if not value_file_path.exists():
+                        raise ValueError(f"{value_file_context} does not exist: {value_file}")
+                    parsed_file_values = load_yaml(value_file_path)
+                    if not isinstance(parsed_file_values, dict):
+                        raise ValueError(
+                            f"{value_file_context} must contain a YAML mapping at the top level"
+                        )
 
         try:
             int(app["syncWave"])
         except ValueError as exc:
             raise ValueError(f"{context}.syncWave must be numeric text") from exc
-
-        chart_path = repo_root / app["path"]
-        if not chart_path.exists():
-            raise ValueError(f"{context}.path does not exist: {app['path']}")
-        if not (chart_path / "Chart.yaml").exists():
-            raise ValueError(f"{context}.path is missing Chart.yaml: {app['path']}")
 
         if "helmValues" in app:
             if not isinstance(app["helmValues"], str):
@@ -437,10 +486,8 @@ def validate_gitops(gitops, repo_root):
                 parsed_values = {}
             if not isinstance(parsed_values, dict):
                 raise ValueError(f"{context}.helmValues must decode to a YAML mapping")
-            if app["path"] == "gitops/apps/platform/namespace-onboarding":
-                validate_namespace_onboarding_values(parsed_values, f"{context}.helmValues")
-            if app["path"] == "gitops/apps/platform/self-provisioner":
-                validate_self_provisioner_values(parsed_values, f"{context}.helmValues")
+            app_path = app.get("path", "")
+            validate_app_values(app_path, parsed_values, f"{context}.helmValues")
 
 
 def main():
@@ -455,7 +502,7 @@ def main():
     parser.add_argument(
         "--overlays-root",
         default="gitops/overlays",
-        help="Path to GitOps environment overlays",
+        help="Path to GitOps overlay charts",
     )
     args = parser.parse_args()
 

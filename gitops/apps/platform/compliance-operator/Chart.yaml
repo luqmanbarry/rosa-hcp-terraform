@@ -1,0 +1,6 @@
+apiVersion: v2
+name: compliance-operator
+description: Install the OpenShift Compliance Operator and optionally seed scan settings without enabling any compliance profile by default.
+type: application
+version: 0.1.0
+appVersion: "1.7"

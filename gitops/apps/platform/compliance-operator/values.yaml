@@ -1,0 +1,13 @@
+namespace: openshift-compliance
+subscription:
+  name: compliance-operator
+  packageName: compliance-operator
+  channel: release-0.1
+  installPlanApproval: Automatic
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+operatorGroup:
+  name: compliance-operator
+  targetNamespaces: []
+scanSettings: []
+scanSettingBindings: []

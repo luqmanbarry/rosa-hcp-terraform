@@ -4,7 +4,7 @@ Creates cluster role bindings for enterprise groups.
 
 ## Use
 
-Provide explicit assignments in stack values:
+Provide assignments in the cluster values file:
 
 - group name
 - OpenShift cluster role

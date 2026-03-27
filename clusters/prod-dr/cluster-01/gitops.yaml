@@ -1,197 +1,129 @@
 applications:
   - name: self-provisioner
+    enabled: false
     namespace: openshift-config
     path: gitops/apps/platform/self-provisioner
     syncWave: "10"
-    helmValues: |
-      disableSelfProvisioner: true
-      clusterAdminEmail: cluster-admins@example.com
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/self-provisioner.yaml
+  - name: external-secrets-operator
+    enabled: true
+    namespace: external-secrets-operator
+    path: gitops/apps/platform/external-secrets-operator
+    syncWave: "15"
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/external-secrets-operator.yaml
+  - name: cert-manager-operator
+    enabled: false
+    namespace: cert-manager-operator
+    path: gitops/apps/platform/cert-manager-operator
+    syncWave: "18"
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/cert-manager-operator.yaml
   - name: user-workload-monitoring
+    enabled: false
     namespace: openshift-monitoring
     path: gitops/apps/platform/user-workload-monitoring
     syncWave: "20"
-    helmValues: |
-      clusterMonitoring:
-        enableUserWorkload: true
-        alertmanagerMain:
-          enableUserAlertmanagerConfig: true
-      userWorkloadMonitoring:
-        prometheus:
-          retention: 15d
-          storageClassName: gp3-csi
-          volumeMode: Filesystem
-          storageCapacity: 200Gi
-        alertmanager:
-          enabled: true
-          enableAlertmanagerConfig: true
-        thanosRuler:
-          retention: 15d
-          storageClassName: gp3-csi
-          volumeMode: Filesystem
-          storageCapacity: 100Gi
-        prometheusOperator: {}
-        remoteWrite:
-          enabled: false
-          url: https://metrics.example.com/api/v1/write
-          secretName: prometheus-remote-write
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/user-workload-monitoring.yaml
   - name: internal-image-registry
+    enabled: false
     namespace: openshift-image-registry
     path: gitops/apps/platform/internal-image-registry
     syncWave: "30"
-    helmValues: |
-      defaultRoute: false
-      disableRedirect: true
-      replicas: 2
-      samplesRegistry: registry.redhat.io
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/internal-image-registry.yaml
   - name: image-registry-allow-deny
+    enabled: false
     namespace: openshift-config
     path: gitops/apps/platform/image-registry-allow-deny
     syncWave: "40"
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/image-registry-allow-deny.yaml
   - name: cluster-logging
+    enabled: false
     namespace: openshift-logging
     path: gitops/apps/platform/cluster-logging
     syncWave: "50"
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/cluster-logging.yaml
   - name: namespace-onboarding
+    enabled: false
     namespace: openshift-config
     path: gitops/apps/platform/namespace-onboarding
     syncWave: "55"
-    helmValues: |
-      namespaces:
-        - name: team-a-prod-dr
-          displayName: Team A Production DR
-          description: Shared disaster recovery namespace for Team A
-          labels:
-            tenant: team-a
-            environment: prod-dr
-            compliance-tier: regulated
-          resourceQuota:
-            name: team-a-quota
-            hard:
-              requests.cpu: "24"
-              requests.memory: 64Gi
-              limits.cpu: "48"
-              limits.memory: 128Gi
-              persistentvolumeclaims: "20"
-              services.loadbalancers: "2"
-          limitRange:
-            name: team-a-defaults
-            limits:
-              - type: Container
-                default:
-                  cpu: "2"
-                  memory: 4Gi
-                defaultRequest:
-                  cpu: 250m
-                  memory: 512Mi
-          networkPolicies:
-            defaultDenyIngress: true
-            defaultDenyEgress: true
-            allowSameNamespaceIngress: true
-            allowClusterDNS: true
-          roleBindings:
-            - group: team-a-operators
-              role: admin
-            - group: team-a-developers
-              role: view
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/namespace-onboarding.yaml
+  - name: compliance-operator
+    enabled: false
+    namespace: openshift-compliance
+    path: gitops/apps/platform/compliance-operator
+    syncWave: "58"
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/compliance-operator.yaml
   - name: identity-providers
+    enabled: false
     namespace: openshift-config
     path: gitops/apps/platform/identity-providers
     syncWave: "60"
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/identity-providers.yaml
   - name: groups-rbac
+    enabled: false
     namespace: openshift-config
     path: gitops/apps/platform/groups-rbac
     syncWave: "70"
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/groups-rbac.yaml
   - name: vault-k8s-auth
+    enabled: false
     namespace: vault-auth
     path: gitops/apps/platform/vault-k8s-auth
     syncWave: "80"
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/vault-k8s-auth.yaml
   - name: oadp-operator
+    enabled: false
     namespace: openshift-adp
     path: gitops/apps/platform/oadp-operator
     syncWave: "90"
-    helmValues: |
-      namespace: openshift-adp
-      channel: stable-1.4
-      enableDataProtectionApplication: false
-      backupLocation:
-        provider: aws
-        bucket: rosa-hcp-backups-prod-dr
-        region: us-east-2
-        credentialSecret: cloud-credentials
-      snapshotLocation:
-        provider: aws
-        region: us-east-2
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/oadp-operator.yaml
   - name: oadp-backup
+    enabled: false
     namespace: openshift-adp
     path: gitops/apps/platform/oadp-backup
     syncWave: "100"
-    helmValues: |
-      enabled: true
-      namespace: openshift-adp
-      backupMode: filesystem
-      includeClusterResources: true
-      schedules: []
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/oadp-backup.yaml
   - name: oadp-restore
+    enabled: false
     namespace: openshift-adp
     path: gitops/apps/platform/oadp-restore
     syncWave: "110"
-    helmValues: |
-      enabled: false
-      namespace: openshift-adp
-      storageClassMapping: {}
-      restores: []
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/oadp-restore.yaml
+  - name: twistlock-defender-helm
+    enabled: false
+    namespace: twistlock
+    chart: twistlock-defender
+    repoURL: https://paloaltonetworks.github.io/twistlock-defender-helm/
+    targetRevision: "0.1.0"
+    syncWave: "190"
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/twistlock-defender-helm.yaml
   - name: cp4ba-operator
+    enabled: false
     namespace: cp4ba
     path: gitops/apps/workloads/cp4ba-operator
     syncWave: "200"
-    helmValues: |
-      namespace: cp4ba
-      channel: v24.0
-      subscriptionName: ibm-cp4a-operator
-      packageName: ibm-cp4a-operator
-      catalogSource:
-        name: ibm-cp4a-operator-catalog
-        namespace: openshift-marketplace
-      installPlanApproval: Automatic
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/cp4ba-operator.yaml
   - name: aap
+    enabled: false
     namespace: ansible-automation-platform
     path: gitops/apps/workloads/aap
     syncWave: "210"
-    helmValues: |
-      namespace: ansible-automation-platform
-      subscription:
-        name: ansible-automation-platform
-        packageName: ansible-automation-platform-operator
-        channel: stable-2.6
-        installPlanApproval: Manual
-        source: redhat-operators
-        sourceNamespace: openshift-marketplace
-      aap:
-        enabled: true
-        name: aap
-        no_log: true
-        image_pull_policy: IfNotPresent
-        controller:
-          disabled: false
-          replicas: 2
-          create_preload_data: true
-          route_tls_termination_mechanism: Edge
-          ingress_type: Route
-          auto_upgrade: true
-          task_privileged: false
-          projects_persistence: false
-          admin_user: admin
-          node_selector: |
-            workload.platform/aap: "true"
-          postgres_selector: |
-            workload.platform/aap: "true"
-          tolerations: []
-          postgres_tolerations: []
-          topology_spread_constraints: ""
-          ee_extra_env:
-            - name: RECEPTOR_KUBE_SUPPORT_RECONNECT
-              value: enabled
-        hub:
-          disabled: true
-        eda:
-          disabled: true
+    valueFiles:
+      - clusters/prod-dr/cluster-01/values/aap.yaml

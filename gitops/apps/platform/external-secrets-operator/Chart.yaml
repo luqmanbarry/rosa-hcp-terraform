@@ -1,0 +1,6 @@
+apiVersion: v2
+name: external-secrets-operator
+description: Install the External Secrets Operator so other platform modules can consume externally managed secrets.
+type: application
+version: 0.1.0
+appVersion: "0.11"

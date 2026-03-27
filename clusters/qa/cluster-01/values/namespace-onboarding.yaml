@@ -1,0 +1,35 @@
+namespaces:
+  - name: team-a-qa
+    displayName: Team A QA
+    description: Shared QA namespace for Team A
+    labels:
+      tenant: team-a
+      environment: qa
+    resourceQuota:
+      name: team-a-quota
+      hard:
+        requests.cpu: "12"
+        requests.memory: 24Gi
+        limits.cpu: "24"
+        limits.memory: 48Gi
+        persistentvolumeclaims: "15"
+    limitRange:
+      name: team-a-defaults
+      limits:
+        - type: Container
+          default:
+            cpu: "1"
+            memory: 2Gi
+          defaultRequest:
+            cpu: 250m
+            memory: 512Mi
+    networkPolicies:
+      defaultDenyIngress: true
+      defaultDenyEgress: true
+      allowSameNamespaceIngress: true
+      allowClusterDNS: true
+    roleBindings:
+      - group: team-a-developers
+        role: edit
+      - group: team-a-operators
+        role: admin

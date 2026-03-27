@@ -1,8 +1,8 @@
 # ROSA HCP Factory
 
-Reusable factory for building production-grade ROSA HCP clusters from Git-driven inputs.
+This repo builds ROSA HCP clusters from files stored in Git.
 
-The operating model is:
+High-level flow:
 
 1. Engineers add or update cluster inputs under `clusters/`.
 2. They open a pull request.
@@ -21,27 +21,63 @@ The operating model is:
 
 ## Repository Layout
 
-- `catalog/`: reusable cluster classes and machine-pool classes
-- `clusters/`: per-environment cluster instances and workload enablement
-- `modules/`: reusable Terraform modules for cluster build and bootstrap
-- `gitops/`: root app, platform apps, and workload apps
-- `scripts/`: CI render, validation, and tool-check helpers
+- `catalog/`: shared defaults, such as cluster classes and machine pool classes
+- `clusters/`: one folder per cluster, including GitOps app choices and values files
+- `modules/`: Terraform modules that build the cluster and bootstrap GitOps
+- `gitops/`: GitOps bootstrap, shared overlay, platform apps, and workload apps
+- `scripts/`: validation and helper scripts used by CI
 - `.github/workflows/`: CI/CD pipeline example
 
 ## Core Principles
 
-- Terraform builds infrastructure and cluster bootstrap only.
-- OpenShift GitOps owns steady-state day-2 configuration.
+- Terraform only builds the cluster and bootstraps GitOps.
+- OpenShift GitOps owns normal day-2 cluster configuration.
 - Inputs are human-authored YAML.
 - Rendered artifacts are machine-authored JSON.
-- Cluster and workload differences are parameterized in Git, not hidden in scripts.
+- Cluster differences live in Git, not in hidden shell logic.
 
-## Build Flow
+## Prerequisites
+
+Prepare these items before you start:
+
+- Red Hat and ROSA access:
+  - a Red Hat organization with ROSA HCP entitlement
+  - an OCM offline token for the automation identity
+- AWS access and baseline:
+  - target AWS account and region
+  - VPC and subnets ready, or discoverable by the tags used in `cluster.yaml`
+  - Route53 zone ready for the cluster base domain
+  - enough AWS quota for the machine pools you plan to use
+  - AWS credentials or role assumption available to CI
+- GitOps target repo:
+  - reachable Git repository URL
+  - target branch or revision
+  - credentials if the repo is private
+- CI/CD secrets and runtime inputs:
+  - `OCM_TOKEN`
+  - AWS authentication for Terraform
+  - GitOps repo credentials if needed
+  - access that lets Terraform install OpenShift GitOps on the cluster
+  - ACM hub kubeconfig if you still enable ACM registration
+- Cluster design inputs:
+  - a cluster class exists under `catalog/cluster-classes/`
+  - `clusters/<env>/<cluster-name>/cluster.yaml` is filled in
+  - `clusters/<env>/<cluster-name>/gitops.yaml` is filled in
+  - values files exist for the GitOps apps you want to enable
+  - machine pool sizes, autoscaling settings, and labels are agreed before merge
+- Optional integrations, if enabled in GitOps:
+  - OADP bucket and credentials
+  - identity provider details
+  - RBAC group mappings
+  - logging/monitoring endpoints and secrets
+  - Vault integration inputs
+
+## How A Build Works
 
 ```text
-Engineer edits cluster YAML
+Engineer edits files in clusters/
   -> Pull request
-  -> CI validate and render
+  -> CI validates and renders config
   -> Review and approval
   -> Merge to main
   -> Terraform apply
@@ -53,11 +89,11 @@ Engineer edits cluster YAML
            -> Workload apps
 ```
 
-## Terraform to GitOps Boundary
+## What Terraform Does And What GitOps Does
 
 ```text
 Terraform
-  - AWS discovery and prerequisites
+  - AWS discovery and bootstrap prerequisites
   - ROSA HCP cluster
   - machine pools
   - ACM registration
@@ -72,7 +108,7 @@ OpenShift GitOps
 
 Boundary
   Terraform stops after GitOps bootstrap.
-  OpenShift GitOps owns steady-state cluster configuration after that point.
+  OpenShift GitOps owns cluster configuration after that point.
 ```
 
 ## Quick Start
@@ -80,8 +116,9 @@ Boundary
 1. Choose or create a cluster class under `catalog/cluster-classes/`.
 2. Add a cluster instance under `clusters/<env>/<cluster-name>/`.
 3. Define:
-   - `cluster.yaml` for cluster and machine-pool inputs
-   - `gitops.yaml` for platform and workload apps
+   - `cluster.yaml` for cluster and machine pool inputs
+   - `gitops.yaml` for GitOps app selection
+   - values files under `values/` for the apps you enable
 4. Open a PR.
 5. Review rendered config and Terraform validation in CI.
 6. Merge to `main`.
@@ -97,7 +134,7 @@ You can:
 - attach identifying labels
 - target those pools from workload modules with selectors
 
-Default behavior is safe:
+Default behavior:
 
 - if a workload module does not set selectors, it lands on the default worker pool
 - dedicated pools are only used when a workload explicitly opts into them
@@ -117,9 +154,11 @@ The example pipeline checks for these tools before proceeding:
 
 See [factory.yml](./.github/workflows/factory.yml) and [check_required_ci_tools.sh](./scripts/check_required_ci_tools.sh).
 
+Users still need to prepare the environment before opening a PR. CI checks file structure and rendering, but it does not create missing AWS, ROSA, DNS, or external service prerequisites for you.
+
 ## Audit Model
 
-Git is the source of truth for human inputs.
+Git is the source of truth for user-managed input files.
 
 CI should archive:
 
@@ -133,7 +172,7 @@ These should be stored as CI artifacts or in immutable object storage.
 
 ## Current Status
 
-This repository now uses the factory path only:
+This repository now uses only the factory layout:
 
 - `catalog/`
 - `clusters/`
