@@ -29,6 +29,11 @@ What each file does:
 Use `enabled: true` or `enabled: false` in `gitops.yaml` to control whether an app is active.
 In the sample clusters, only `external-secrets-operator` is enabled by default. Everything else is opt-in.
 
+Important secret rule:
+
+- if an app needs a Kubernetes `Secret`, define the matching `ExternalSecret` in that app's values file before you set `enabled: true`
+- do not enable a secret-consuming app first and plan to add the secret later
+
 The sample files use neutral example values such as `apps.example.internal` and `cluster-admins@example.com`.
 Replace those values before you merge your PR.
 
@@ -42,6 +47,8 @@ Before you open a deployment PR, make sure these items are ready:
 - complete `cluster.yaml` for the cluster instance
 - complete `gitops.yaml` for the cluster instance
 - values files for any GitOps apps you enable
+- `SecretStore` or `ClusterSecretStore` ready for any app that uses External Secrets Operator
+- `externalSecrets` entries added to the values files of any enabled apps that need Kubernetes `Secret` objects
 - GitOps repository URL, revision, and credentials if private
 - any required OADP, identity, RBAC, logging, monitoring, or Vault inputs for enabled applications
 - CI secrets and access paths needed by the workflow
@@ -58,6 +65,7 @@ PR validation fails if:
 - business, network, ACM, or machine pool objects do not match the expected shape
 - GitOps application paths do not exist or are missing `Chart.yaml`
 - external Helm `valueFiles` entries do not exist or do not decode to YAML mappings
+- an enabled secret-consuming module references a `Secret` name that is not created by its own `externalSecrets` entries
 
 Keep shared defaults in `catalog/cluster-classes/`.
 Keep cluster-specific values in `clusters/<environment>/<cluster>/`.

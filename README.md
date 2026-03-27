@@ -71,6 +71,8 @@ Prepare these items before you start:
   - RBAC group mappings
   - logging/monitoring endpoints and secrets
   - Vault integration inputs
+  - `SecretStore` or `ClusterSecretStore` for any module that uses External Secrets Operator
+  - matching `ExternalSecret` entries in the enabled module values files for any Kubernetes `Secret` that module needs
 
 ## How A Build Works
 
@@ -119,6 +121,7 @@ Boundary
    - `cluster.yaml` for cluster and machine pool inputs
    - `gitops.yaml` for GitOps app selection
    - values files under `values/` for the apps you enable
+   - if an enabled app needs a Kubernetes `Secret`, define its `externalSecrets` entries in that same values file before merge
 4. Open a PR.
 5. Review rendered config and Terraform validation in CI.
 6. Merge to `main`.

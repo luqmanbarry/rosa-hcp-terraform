@@ -18,6 +18,7 @@ How to configure GitOps for one cluster:
 - choose apps in `clusters/<environment>/<cluster>/gitops.yaml`
 - set `enabled: true` only for the apps you want to run now
 - put each app's values in `clusters/<environment>/<cluster>/values/<app>.yaml`
+- if an app needs a Kubernetes `Secret`, define its `externalSecrets` entries in that same values file before you enable the app
 
 The sample clusters keep only `external-secrets-operator` enabled by default. All other modules are disabled until a user turns them on.
 
@@ -52,6 +53,12 @@ Workload modules in this repo include:
 Secrets should follow one simple rule:
 
 - the module that needs a Kubernetes `Secret` should define the matching `ExternalSecret` in its own values file
+
+Engineers should treat this as a deployment prerequisite:
+
+- before enabling a module that needs secrets, make sure the right `SecretStore` or `ClusterSecretStore` already exists
+- before enabling that module, add the matching `externalSecrets` entries to the same values file
+- do not rely on a separate generic secrets chart to create those `Secret` objects later
 
 Example:
 

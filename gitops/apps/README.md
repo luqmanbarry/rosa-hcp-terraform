@@ -2,6 +2,12 @@
 
 This directory contains the Helm charts used by OpenShift GitOps.
 
+Secret pattern:
+
+- `external-secrets-operator` installs only the operator
+- modules that need Kubernetes `Secret` objects must define the matching `ExternalSecret` resources in their own per-cluster values files
+- engineers should add those `externalSecrets` entries before they enable the module in `gitops.yaml`
+
 ## Layout
 
 - `platform/`: shared cluster services and policies

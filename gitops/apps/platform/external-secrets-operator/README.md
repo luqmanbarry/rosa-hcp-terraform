@@ -15,4 +15,5 @@ Installs the External Secrets Operator early in the GitOps sync order.
 - This chart installs only the operator lifecycle resources.
 - Define `SecretStore` or `ClusterSecretStore` centrally.
 - Let the modules that consume secrets define the `ExternalSecret` resources they need in their own values files.
+- Before enabling a module that needs secrets, make sure the store exists and the module values file includes the matching `externalSecrets` entries.
 - The default catalog settings are configurable because operator catalogs can vary by environment.
