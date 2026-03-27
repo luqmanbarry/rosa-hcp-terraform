@@ -1,4 +1,5 @@
 namespace: external-secrets-operator
+globalClusterSecretStoreName: platform-secrets
 subscription:
   name: external-secrets-operator
   packageName: external-secrets-operator

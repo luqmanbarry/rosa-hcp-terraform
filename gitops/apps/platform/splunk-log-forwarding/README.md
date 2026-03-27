@@ -14,6 +14,13 @@ Important:
 - enable `cluster-logging` before you enable this chart
 - define the matching `ExternalSecret` in the same values file if the Splunk token `Secret` must be created by External Secrets Operator
 
+Examples:
+
+- [`examples/secret-integration.values.example.yaml`](./examples/secret-integration.values.example.yaml)
+- [`examples/externalsecrets.manifests.example.yaml`](./examples/externalsecrets.manifests.example.yaml)
+
+HashiCorp Vault is the active default example. Other providers are included as commented alternatives.
+
 Main inputs:
 
 - `namespace`

@@ -16,3 +16,10 @@ The chart renders nothing unless `oauth.identityProviders` is populated.
 Supply real provider definitions through the cluster values file.
 
 If a provider needs a Kubernetes `Secret`, define the matching `ExternalSecret` in the same values file under `externalSecrets`.
+
+Examples:
+
+- [`examples/secret-integration.values.example.yaml`](./examples/secret-integration.values.example.yaml)
+- [`examples/externalsecrets.manifests.example.yaml`](./examples/externalsecrets.manifests.example.yaml)
+
+HashiCorp Vault is the active default example. Other providers are included as commented alternatives.

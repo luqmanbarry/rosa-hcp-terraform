@@ -3,6 +3,9 @@ clusterMonitoring:
   alertmanagerMain:
     enableUserAlertmanagerConfig: true
 
+globalSecretStoreRef:
+  name: platform-secrets
+  kind: ClusterSecretStore
 externalSecrets: []
 
 userWorkloadMonitoring:

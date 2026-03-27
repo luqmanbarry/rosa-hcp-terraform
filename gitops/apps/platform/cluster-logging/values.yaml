@@ -1,5 +1,8 @@
 namespace: openshift-logging
 channel: stable-6.0
+globalSecretStoreRef:
+  name: platform-secrets
+  kind: ClusterSecretStore
 externalSecrets: []
 collector:
   serviceAccountName: logcollector

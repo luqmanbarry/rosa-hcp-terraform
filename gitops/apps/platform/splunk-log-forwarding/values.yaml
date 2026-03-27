@@ -1,6 +1,9 @@
 namespace: openshift-logging
 clusterLogForwarderName: splunk
 serviceAccountName: logcollector
+globalSecretStoreRef:
+  name: platform-secrets
+  kind: ClusterSecretStore
 externalSecrets: []
 output:
   name: splunk-hec

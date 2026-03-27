@@ -1,5 +1,8 @@
 oauth:
   identityProviders: []
+globalSecretStoreRef:
+  name: platform-secrets
+  kind: ClusterSecretStore
 externalSecrets: []
 trustedCA:
   configMapName: oauth-trusted-ca

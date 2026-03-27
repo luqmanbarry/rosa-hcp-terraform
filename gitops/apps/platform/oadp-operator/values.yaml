@@ -1,5 +1,8 @@
 namespace: openshift-adp
 channel: stable-1.4
+globalSecretStoreRef:
+  name: platform-secrets
+  kind: ClusterSecretStore
 externalSecrets: []
 enableDataProtectionApplication: false
 dpaName: oadp

@@ -333,6 +333,18 @@ def validate_self_provisioner_values(values, context):
 def validate_external_secrets(values, context):
     external_secrets = values.get("externalSecrets", [])
     expect_type(external_secrets, list, f"{context}.externalSecrets")
+    global_store_ref = values.get("globalSecretStoreRef", {})
+    if global_store_ref:
+        expect_type(global_store_ref, dict, f"{context}.globalSecretStoreRef")
+        expect_non_empty_string(
+            global_store_ref.get("name", ""),
+            f"{context}.globalSecretStoreRef.name",
+        )
+        if "kind" in global_store_ref:
+            expect_non_empty_string(
+                global_store_ref["kind"],
+                f"{context}.globalSecretStoreRef.kind",
+            )
     seen_names = set()
     target_names = set()
     for index, item in enumerate(external_secrets):
@@ -342,14 +354,16 @@ def validate_external_secrets(values, context):
         if item["name"] in seen_names:
             raise ValueError(f"{item_context}.name duplicates another ExternalSecret")
         seen_names.add(item["name"])
-        expect_type(item.get("secretStoreRef", {}), dict, f"{item_context}.secretStoreRef")
-        expect_non_empty_string(
-            item["secretStoreRef"].get("name", ""),
-            f"{item_context}.secretStoreRef.name",
-        )
-        if "kind" in item["secretStoreRef"]:
+        store_ref = item.get("secretStoreRef", {})
+        expect_type(store_ref, dict, f"{item_context}.secretStoreRef")
+        store_name = store_ref.get("name", "") or global_store_ref.get("name", "")
+        if not store_name:
+            raise ValueError(
+                f"{item_context}.secretStoreRef.name must be set or {context}.globalSecretStoreRef.name must be defined"
+            )
+        if "kind" in store_ref:
             expect_non_empty_string(
-                item["secretStoreRef"]["kind"],
+                store_ref["kind"],
                 f"{item_context}.secretStoreRef.kind",
             )
         expect_type(item.get("target", {}), dict, f"{item_context}.target")

@@ -56,7 +56,7 @@ Secrets should follow one simple rule:
 
 Engineers should treat this as a deployment prerequisite:
 
-- before enabling a module that needs secrets, make sure the right `SecretStore` or `ClusterSecretStore` already exists
+- before enabling a module that needs secrets, make sure the shared `ClusterSecretStore` exists
 - before enabling that module, add the matching `externalSecrets` entries to the same values file
 - do not rely on a separate generic secrets chart to create those `Secret` objects later
 
@@ -68,6 +68,8 @@ Example:
 - `oadp-operator` should define the `ExternalSecret` for backup credential secrets
 
 This keeps the secret contract close to the module that uses it.
+
+The default shared store name is `platform-secrets`.
 
 `oadp-backup` and `oadp-restore` stay separate on purpose:
 
@@ -87,5 +89,18 @@ This avoids Argo CD ownership conflicts.
 
 - `external-secrets-operator` should come before modules that expect secrets sourced from an external backend
 - `cert-manager-operator` should come before modules that rely on declarative certificate issuance
+
+The External Secrets Operator module includes provider examples for:
+
+- AWS Secrets Manager
+- Azure Key Vault
+- Google Secret Manager
+- HashiCorp Vault
+- IBM Cloud Secrets Manager
+- CyberArk Conjur
+
+The CyberArk example uses the ESO `conjur` provider name.
+
+Those examples are for central `SecretStore` or `ClusterSecretStore` resources. Consumer modules should still define their own `ExternalSecret` resources in their per-cluster values files.
 
 `compliance-operator` installs only the operator by default. No compliance profile is enabled until you add it.
