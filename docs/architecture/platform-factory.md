@@ -2,13 +2,15 @@
 
 This repo is a reusable way to build ROSA HCP clusters from files stored in Git.
 
+It does not create the whole AWS foundation from zero. The customer is expected to provide the VPC, subnets, Route53 zone, and other shared network prerequisites first.
+
 Simple flow:
 
 1. Users propose cluster inputs in Git.
 2. A pull request is reviewed and approved.
 3. CI validates and renders the effective configuration.
 4. Merge to `main` runs Terraform to:
-   - prepare AWS items that are in scope
+   - discover the customer-provided AWS foundation
    - create the ROSA HCP cluster
    - optionally register the cluster to ACM
    - bootstrap OpenShift GitOps
@@ -38,7 +40,7 @@ Cluster class
 Terraform only handles build and bootstrap work:
 
 - remote state
-- AWS items that are in scope
+- discovery of the customer-provided AWS network and DNS baseline
 - ROSA HCP cluster creation
 - base machine pools
 - optional ACM registration

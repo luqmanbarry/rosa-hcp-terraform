@@ -50,7 +50,8 @@ You must replace that value with a real supported channel before you set `enable
 
 Before you open a deployment PR, make sure these items are ready:
 
-- target AWS account, region, VPC, and Route53 base domain
+- target AWS account, region, VPC, subnets, and Route53 base domain
+- customer AWS foundation already provisioned before this repo runs
 - ROSA/OCM access for the automation identity
 - cluster class selected or created in `catalog/cluster-classes/`
 - complete `cluster.yaml` for the cluster instance
@@ -63,7 +64,7 @@ Before you open a deployment PR, make sure these items are ready:
 - any required OADP, identity, RBAC, logging, monitoring, or secret backend inputs for enabled applications
 - CI secrets and access paths needed by the workflow
 
-Do not expect CI to find every missing prerequisite. CI checks file structure and rendering, but your cloud, ROSA, DNS, and external service dependencies still need to be ready before merge.
+Do not expect CI to find every missing prerequisite. CI checks file structure and rendering, but your AWS foundation, ROSA, DNS, and external service dependencies still need to be ready before merge.
 
 ## Validation
 

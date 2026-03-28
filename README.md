@@ -2,6 +2,8 @@
 
 This repo builds ROSA HCP clusters from files stored in Git.
 
+It expects the customer to provision the AWS foundation first, including the VPC, subnets, Route53 zone, and any shared network prerequisites.
+
 High-level flow:
 
 1. Engineers add or update cluster inputs under `clusters/`.
@@ -37,6 +39,7 @@ If ACM registration is enabled, ACM is used for cluster inventory and optional g
 ## Core Principles
 
 - Terraform only builds the cluster and bootstraps GitOps.
+- The customer provides the AWS foundation. This repo consumes it.
 - OpenShift GitOps owns normal day-2 cluster configuration.
 - Inputs are human-authored YAML.
 - Rendered artifacts are machine-authored JSON.
@@ -51,8 +54,8 @@ Prepare these items before you start:
   - an OCM offline token for the automation identity
 - AWS access and baseline:
   - target AWS account and region
-  - VPC and subnets ready, or discoverable by the tags used in `cluster.yaml`
-  - Route53 zone ready for the cluster base domain
+  - VPC and subnets already provisioned, or discoverable by the tags used in `cluster.yaml`
+  - Route53 zone already provisioned for the cluster base domain
   - enough AWS quota for the machine pools you plan to use
   - AWS credentials or role assumption available to CI
 - GitOps target repo:
@@ -168,6 +171,7 @@ See [factory.yml](./.github/workflows/factory.yml) and [check_required_ci_tools.
 For step-by-step execution examples, see [Execution Models](./docs/operations/execution-models.md).
 
 Users still need to prepare the environment before opening a PR. CI checks file structure and rendering, but it does not create missing AWS, ROSA, DNS, or external service prerequisites for you.
+This includes the AWS foundation itself.
 
 ## Audit Model
 

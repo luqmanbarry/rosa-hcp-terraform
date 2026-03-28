@@ -8,7 +8,7 @@ Use this simple rule:
 ## Terraform-Owned
 
 - S3 remote state
-- VPC, subnets, Route53, and IAM roles that this repo manages
+- discovery and use of the customer-provided VPC, subnets, and Route53 zone
 - ROSA HCP cluster
 - ROSA machine pools
 - machine pool autoscaling bounds

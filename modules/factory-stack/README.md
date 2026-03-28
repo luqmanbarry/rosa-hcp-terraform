@@ -2,9 +2,11 @@
 
 This is the main Terraform module for one cluster.
 
+It expects the customer AWS foundation to already exist.
+
 It does these jobs:
 
-- discovers the target VPC, subnets, and Route53 zone
+- discovers the customer-provided VPC, subnets, and Route53 zone
 - figures out which subnets are private and public
 - creates the ROSA HCP cluster
 - creates additional machine pools
