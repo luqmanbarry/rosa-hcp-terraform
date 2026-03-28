@@ -87,6 +87,12 @@ This keeps the secret contract close to the module that uses it.
 
 The default shared store name is `platform-secrets`.
 
+For ROSA clusters, the default secret backend pattern in this repo is AWS Secrets Manager.
+
+- use AWS Secrets Manager unless you have a clear reason to use a different provider
+- keep the shared `ClusterSecretStore` name as `platform-secrets`
+- let each secret-consuming module define its own `ExternalSecret` objects
+
 `oadp-backup` and `oadp-restore` stay separate on purpose:
 
 - `oadp-backup` is steady-state policy

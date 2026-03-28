@@ -11,4 +11,4 @@ Use:
 
 This chart keeps its `ExternalSecret` manifests in `templates/external-secrets.yaml`.
 
-That file includes a default HashiCorp Vault example and notes for the other supported provider patterns.
+That file includes a default AWS Secrets Manager example and notes for the other supported provider patterns.

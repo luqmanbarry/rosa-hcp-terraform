@@ -24,7 +24,7 @@ Use this simple rule:
 - user workload monitoring
 - image registry allow/deny policy
 - cluster logging and monitoring config
-- Vault or secret operator integration
+- AWS Secrets Manager or other secret operator integration
 - OADP operator, backups, and restores
 - OpenShift Virtualization and MTV
 - AAP, CP4BA, AI workloads

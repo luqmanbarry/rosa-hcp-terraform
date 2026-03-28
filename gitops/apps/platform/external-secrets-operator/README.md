@@ -18,6 +18,7 @@ Installs the External Secrets Operator early in the GitOps sync order.
 - Let the modules that consume secrets define the `ExternalSecret` resources they need in their own values files.
 - Before enabling a module that needs secrets, make sure the store exists and the module values file includes the matching `externalSecrets` entries.
 - The default catalog settings are configurable because operator catalogs can vary by environment.
+- For ROSA, the default shared secret backend example is AWS Secrets Manager through `external-secrets-config`.
 
 ## Provider Examples
 

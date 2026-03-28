@@ -78,7 +78,7 @@ Rules:
 
 - use `ExternalSecret`
 - do not store plaintext credentials in Git
-- keep HashiCorp Vault as the default example pattern
+- use AWS Secrets Manager as the default ROSA example pattern
 - other providers are examples only
 - every repo credential must match an approved repo URL for that tenant
 - repo credentials can use HTTPS username/password or SSH private key, based on the approved repo access method

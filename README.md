@@ -76,7 +76,8 @@ Prepare these items before you start:
   - identity provider details
   - RBAC group mappings
   - logging/monitoring endpoints and secrets
-  - Vault integration inputs
+  - AWS Secrets Manager inputs if you use the default ROSA secret pattern
+  - another secret backend only if you intentionally choose something other than the default
   - `SecretStore` or `ClusterSecretStore` for any module that uses External Secrets Operator
   - matching `ExternalSecret` entries in the enabled module values files for any Kubernetes `Secret` that module needs
 

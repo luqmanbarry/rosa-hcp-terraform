@@ -16,17 +16,17 @@ Normal app secrets should stay with the app that uses them.
 
 Provider example snippets are in:
 
-- [examples/README.md](./examples/README.md)
-- [examples/ibm-cloud-secrets-manager.yaml](./examples/ibm-cloud-secrets-manager.yaml)
-- [examples/hashicorp-vault.yaml](./examples/hashicorp-vault.yaml)
 - [examples/aws-secrets-manager.yaml](./examples/aws-secrets-manager.yaml)
 - [examples/azure-key-vault.yaml](./examples/azure-key-vault.yaml)
 - [examples/google-secret-manager.yaml](./examples/google-secret-manager.yaml)
+- [examples/README.md](./examples/README.md)
+- [examples/hashicorp-vault.yaml](./examples/hashicorp-vault.yaml)
+- [examples/ibm-cloud-secrets-manager.yaml](./examples/ibm-cloud-secrets-manager.yaml)
 - [examples/cyberark-conjur.yaml](./examples/cyberark-conjur.yaml)
 
 Copy one example into `clusters/<env>/<cluster>/values/external-secrets-config.yaml` and replace the placeholder values.
 
-HashiCorp Vault is the default example pattern used in the sample app values files.
+AWS Secrets Manager is the default example pattern used in the sample app values files for ROSA.
 
 The other provider examples are optional references you can copy if your platform uses a different backend.
 

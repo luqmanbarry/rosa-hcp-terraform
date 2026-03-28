@@ -22,4 +22,4 @@ Examples:
 - [`examples/secret-integration.values.example.yaml`](./examples/secret-integration.values.example.yaml)
 - [`examples/externalsecrets.manifests.example.yaml`](./examples/externalsecrets.manifests.example.yaml)
 
-HashiCorp Vault is the active default example. Other providers are included as commented alternatives.
+AWS Secrets Manager is the active default example for ROSA. Other providers are included as commented alternatives.

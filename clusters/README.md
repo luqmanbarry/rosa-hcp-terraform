@@ -37,6 +37,7 @@ Important secret rule:
 
 - if an app needs a Kubernetes `Secret`, define the matching `ExternalSecret` in that app's values file before you set `enabled: true`
 - do not enable a secret-consuming app first and plan to add the secret later
+- for ROSA, use AWS Secrets Manager as the default backend unless you have a clear reason to use a different provider
 
 The sample files use neutral example values such as `apps.example.internal` and `cluster-admins@example.com`.
 Replace those values before you merge your PR.
@@ -56,9 +57,10 @@ Before you open a deployment PR, make sure these items are ready:
 - complete `gitops.yaml` for the cluster instance
 - values files for any GitOps apps you enable
 - `SecretStore` or `ClusterSecretStore` ready for any app that uses External Secrets Operator
+- AWS Secrets Manager access and ESO auth secret ready if you use the default ROSA secret pattern
 - `externalSecrets` entries added to the values files of any enabled apps that need Kubernetes `Secret` objects
 - GitOps repository URL, revision, and credentials if private
-- any required OADP, identity, RBAC, logging, monitoring, or Vault inputs for enabled applications
+- any required OADP, identity, RBAC, logging, monitoring, or secret backend inputs for enabled applications
 - CI secrets and access paths needed by the workflow
 
 Do not expect CI to find every missing prerequisite. CI checks file structure and rendering, but your cloud, ROSA, DNS, and external service dependencies still need to be ready before merge.
