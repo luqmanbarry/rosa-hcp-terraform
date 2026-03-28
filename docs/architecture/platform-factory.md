@@ -14,6 +14,8 @@ Simple flow:
    - bootstrap OpenShift GitOps
 5. OpenShift GitOps applies the platform and workload apps.
 
+If ACM registration is enabled, the cluster is added to ACM for fleet visibility and optional policy use. GitOps still stays on the HCP cluster itself.
+
 This repo is customer-neutral. Product names such as `cp4ba`, `aap`, `oadp`, and `mtv` are used only when they describe real reusable modules.
 
 ## End-to-End Flow
@@ -41,6 +43,8 @@ Terraform only handles build and bootstrap work:
 - base machine pools
 - optional ACM registration
 - OpenShift GitOps bootstrap
+
+ACM does not replace the cluster-local GitOps model in this repo.
 
 ## GitOps Scope
 

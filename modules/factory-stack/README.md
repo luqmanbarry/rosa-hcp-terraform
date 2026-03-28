@@ -32,3 +32,13 @@ It does these jobs:
 - machine pools can define autoscaling bounds and labels
 - extra machine pools inherit profile defaults and can override labels and instance type
 - if workload modules do not set selectors, workloads land on the default worker pool
+
+## ACM And GitOps
+
+If ACM registration is enabled, the cluster is registered to ACM as part of bootstrap.
+
+That does not change the day-2 ownership model:
+
+- ACM is optional and used for registration, visibility, and optional governance
+- OpenShift GitOps still runs on the HCP cluster
+- platform and workload apps still come from the HCP cluster's own Argo CD instance

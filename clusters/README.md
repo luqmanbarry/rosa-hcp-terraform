@@ -26,6 +26,8 @@ What each file does:
 - `gitops.yaml`: list of GitOps apps for this cluster, including enablement and optional sync policy
 - `values/*.yaml`: one values file per GitOps app
 
+If the selected cluster class enables ACM registration, `cluster.yaml` should also include the `acm` block. That registration is optional bootstrap only. It does not move GitOps ownership to ACM.
+
 Use `enabled: true` or `enabled: false` in `gitops.yaml` to control whether an app is active.
 In the sample clusters, only `external-secrets-operator` is enabled by default. Everything else is opt-in.
 

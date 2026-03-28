@@ -41,9 +41,13 @@ If something inside the cluster must exist before GitOps can start, keep only th
   Reason: this is cluster capacity and node lifecycle
 - OpenShift GitOps bootstrap: Terraform
   Reason: GitOps must exist before GitOps can manage anything
+- ACM registration: Terraform
+  Reason: registration is bootstrap work and should happen before any optional hub-side governance
 - cluster OAuth and RBAC: GitOps
   Reason: these are in-cluster settings that should stay in sync from Git
 - OADP schedules and restores: GitOps
   Reason: these are day-2 operations and policies
 - AAP, CP4BA, and OpenShift AI: GitOps
   Reason: these are workloads that run on the cluster
+
+Even when ACM registration is enabled, this repo keeps OpenShift GitOps local to the HCP cluster. ACM is not the normal app delivery path here.

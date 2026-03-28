@@ -10,6 +10,8 @@ High-level flow:
 4. Merge to `main` runs Terraform to create or update the cluster, optionally register it to ACM, and bootstrap OpenShift GitOps.
 5. OpenShift GitOps reconciles platform and workload configuration from Git.
 
+If ACM registration is enabled, ACM is used for cluster inventory and optional governance. The HCP cluster still keeps its own OpenShift GitOps instance and manages its own day-2 configuration locally.
+
 ## Start Here
 
 - [Architecture Overview](./docs/architecture/platform-factory.md)
@@ -113,6 +115,7 @@ OpenShift GitOps
 Boundary
   Terraform stops after GitOps bootstrap.
   OpenShift GitOps owns cluster configuration after that point.
+  ACM registration, if enabled, does not change GitOps ownership.
 ```
 
 ## Quick Start
