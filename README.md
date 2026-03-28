@@ -31,6 +31,8 @@ If ACM registration is enabled, ACM is used for cluster inventory and optional g
 - `gitops/`: GitOps bootstrap, shared overlay, platform apps, and workload apps
 - `scripts/`: validation and helper scripts used by CI
 - `.github/workflows/`: CI/CD pipeline example
+- `playbooks/`: example AAP execution playbooks
+- `azure-pipelines.yml`: Azure Pipelines example
 
 ## Core Principles
 

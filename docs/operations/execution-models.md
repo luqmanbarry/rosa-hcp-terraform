@@ -14,6 +14,14 @@ All five patterns use the same Git input files:
 - `clusters/<env>/<cluster>/gitops.yaml`
 - `clusters/<env>/<cluster>/values/*.yaml`
 
+Reusable execution files in this repo:
+
+- [run_cluster_workflow.sh](../../scripts/run_cluster_workflow.sh)
+- [factory.yml](../../.github/workflows/factory.yml)
+- [azure-pipelines.yml](../../azure-pipelines.yml)
+- [aap-run-factory.yml](../../playbooks/aap-run-factory.yml)
+- [aap-execution.example.yml](./aap-execution.example.yml)
+
 ## Shared Requirements
 
 These items must be ready no matter where you run the code:
@@ -103,6 +111,16 @@ Important note:
 6. Save the plan and rendered artifacts.
 7. After approval, run `terraform apply`.
 
+Use the shared runner script in custom GitHub jobs:
+
+```bash
+scripts/run_cluster_workflow.sh \
+  --cluster-dir clusters/dev/cluster-01 \
+  --artifact-dir .artifacts/github/dev-cluster-01 \
+  --mode plan \
+  --backend false
+```
+
 ## Pattern 2: Azure Pipelines
 
 Use this pattern when Azure DevOps is your source control or approved enterprise runner.
@@ -130,6 +148,8 @@ Use this pattern when Azure DevOps is your source control or approved enterprise
 7. Publish plan and render artifacts.
 8. Run `terraform apply` only after approval.
 
+This repo includes an Azure Pipelines example at [azure-pipelines.yml](../../azure-pipelines.yml).
+
 ### Command Sequence
 
 ```bash
@@ -147,9 +167,11 @@ python3 scripts/render_effective_config.py \
 cp "$ARTIFACT_DIR/terraform.auto.tfvars.json" \
   "$CLUSTER_DIR/terraform.auto.tfvars.json"
 
-terraform -chdir="$CLUSTER_DIR" init
-terraform -chdir="$CLUSTER_DIR" plan
-terraform -chdir="$CLUSTER_DIR" apply
+scripts/run_cluster_workflow.sh \
+  --cluster-dir "$CLUSTER_DIR" \
+  --artifact-dir "$ARTIFACT_DIR" \
+  --mode apply \
+  --backend true
 ```
 
 ## Pattern 3: Bastion Host
@@ -167,24 +189,16 @@ Use this pattern for manual admin execution and debugging.
 ### Command Sequence
 
 ```bash
+chmod +x scripts/run_cluster_workflow.sh
+
 export TF_VAR_ocm_token='your-ocm-token'
 export AWS_PROFILE='your-aws-profile'
 
-python3 scripts/validate_stack_inputs.py \
-  --cluster clusters/dev/cluster-01/cluster.yaml \
-  --gitops-values clusters/dev/cluster-01/gitops.yaml
-
-python3 scripts/render_effective_config.py \
-  --cluster clusters/dev/cluster-01/cluster.yaml \
-  --gitops-values clusters/dev/cluster-01/gitops.yaml \
-  --output-dir .artifacts/dev-cluster-01
-
-cp .artifacts/dev-cluster-01/terraform.auto.tfvars.json \
-  clusters/dev/cluster-01/terraform.auto.tfvars.json
-
-terraform -chdir=clusters/dev/cluster-01 init
-terraform -chdir=clusters/dev/cluster-01 plan
-terraform -chdir=clusters/dev/cluster-01 apply
+scripts/run_cluster_workflow.sh \
+  --cluster-dir clusters/dev/cluster-01 \
+  --artifact-dir .artifacts/dev-cluster-01 \
+  --mode apply \
+  --backend true
 ```
 
 Use this when:
@@ -219,26 +233,17 @@ Use this pattern when your ops team wants approvals, RBAC, and controlled creden
 7. Add approval if needed.
 8. Run `terraform apply`.
 
+This repo includes an AAP playbook example at [aap-run-factory.yml](../../playbooks/aap-run-factory.yml).
+
 ### Command Sequence
 
 ```bash
-scripts/check_required_ci_tools.sh bash git jq python3 terraform helm rg oc
-
-python3 scripts/validate_stack_inputs.py \
-  --cluster "$CLUSTER_DIR/cluster.yaml" \
-  --gitops-values "$CLUSTER_DIR/gitops.yaml"
-
-python3 scripts/render_effective_config.py \
-  --cluster "$CLUSTER_DIR/cluster.yaml" \
-  --gitops-values "$CLUSTER_DIR/gitops.yaml" \
-  --output-dir "$ARTIFACT_DIR"
-
-cp "$ARTIFACT_DIR/terraform.auto.tfvars.json" \
-  "$CLUSTER_DIR/terraform.auto.tfvars.json"
-
-terraform -chdir="$CLUSTER_DIR" init
-terraform -chdir="$CLUSTER_DIR" plan
-terraform -chdir="$CLUSTER_DIR" apply
+ansible-playbook playbooks/aap-run-factory.yml \
+  -e @docs/operations/aap-execution.example.yml \
+  -e cluster_dir="$CLUSTER_DIR" \
+  -e artifact_dir="$ARTIFACT_DIR" \
+  -e workflow_mode=apply \
+  -e terraform_backend=true
 ```
 
 Useful AAP extra vars:
@@ -246,6 +251,8 @@ Useful AAP extra vars:
 ```yaml
 cluster_dir: clusters/dev/cluster-01
 artifact_dir: /runner/artifacts/dev-cluster-01
+workflow_mode: plan
+terraform_backend: false
 ```
 
 ## Pattern 5: Terraform CLI
@@ -262,24 +269,16 @@ Use this pattern when you want to run the repo directly with Terraform from any 
 ### Command Sequence
 
 ```bash
+chmod +x scripts/run_cluster_workflow.sh
+
 export TF_VAR_ocm_token='your-ocm-token'
 export AWS_PROFILE='your-aws-profile'
 
-python3 scripts/validate_stack_inputs.py \
-  --cluster clusters/dev/cluster-01/cluster.yaml \
-  --gitops-values clusters/dev/cluster-01/gitops.yaml
-
-python3 scripts/render_effective_config.py \
-  --cluster clusters/dev/cluster-01/cluster.yaml \
-  --gitops-values clusters/dev/cluster-01/gitops.yaml \
-  --output-dir .artifacts/dev-cluster-01
-
-cp .artifacts/dev-cluster-01/terraform.auto.tfvars.json \
-  clusters/dev/cluster-01/terraform.auto.tfvars.json
-
-terraform -chdir=clusters/dev/cluster-01 init
-terraform -chdir=clusters/dev/cluster-01 plan
-terraform -chdir=clusters/dev/cluster-01 apply
+scripts/run_cluster_workflow.sh \
+  --cluster-dir clusters/dev/cluster-01 \
+  --artifact-dir .artifacts/dev-cluster-01 \
+  --mode apply \
+  --backend true
 ```
 
 ## Which Pattern Should You Choose

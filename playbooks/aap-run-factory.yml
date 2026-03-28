@@ -1,0 +1,21 @@
+---
+- name: Run ROSA HCP factory workflow
+  hosts: localhost
+  gather_facts: false
+  vars:
+    cluster_dir: clusters/dev/cluster-01
+    artifact_dir: .artifacts/aap
+    workflow_mode: plan
+    terraform_backend: false
+  tasks:
+    - name: Run shared cluster workflow
+      ansible.builtin.command:
+        cmd: >
+          scripts/run_cluster_workflow.sh
+          --cluster-dir {{ cluster_dir }}
+          --artifact-dir {{ artifact_dir }}
+          --mode {{ workflow_mode }}
+          --backend {{ terraform_backend | ternary('true', 'false') }}
+      environment:
+        TF_VAR_ocm_token: "{{ lookup('ansible.builtin.env', 'TF_VAR_ocm_token', default='') }}"
+      changed_when: workflow_mode in ['plan', 'apply']

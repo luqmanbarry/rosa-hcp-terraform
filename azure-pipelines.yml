@@ -1,0 +1,102 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  TF_VERSION: '1.8.5'
+  PYTHON_VERSION: '3.12'
+
+stages:
+  - stage: Validate
+    jobs:
+      - job: ValidateChangedClusters
+        steps:
+          - checkout: self
+            fetchDepth: 0
+
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(PYTHON_VERSION)'
+
+          - script: |
+              curl -fsSL https://releases.hashicorp.com/terraform/$(TF_VERSION)/terraform_$(TF_VERSION)_linux_amd64.zip -o terraform.zip
+              unzip -o terraform.zip
+              sudo mv terraform /usr/local/bin/terraform
+            displayName: Install Terraform
+
+          - script: |
+              python3 -m pip install --upgrade pip pyyaml
+            displayName: Install Python Dependencies
+
+          - script: |
+              chmod +x scripts/check_required_ci_tools.sh scripts/detect_changed_clusters.sh scripts/run_cluster_workflow.sh
+              CHANGED="$(scripts/detect_changed_clusters.sh origin/main HEAD)"
+              mkdir -p .artifacts/azure-pr
+              while IFS= read -r cluster; do
+                [ -z "$cluster" ] && continue
+                scripts/run_cluster_workflow.sh \
+                  --cluster-dir "$cluster" \
+                  --artifact-dir ".artifacts/azure-pr/${cluster//\//_}" \
+                  --mode validate \
+                  --backend false
+              done <<< "$CHANGED"
+            displayName: Validate Changed Clusters
+            env:
+              TF_VAR_ocm_token: dummy
+
+          - publish: .artifacts/azure-pr
+            artifact: azure-pr-rendered-configs
+
+  - stage: Apply
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+    jobs:
+      - deployment: ApplyChangedClusters
+        environment: rosa-hcp-production
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                  fetchDepth: 0
+
+                - task: UsePythonVersion@0
+                  inputs:
+                    versionSpec: '$(PYTHON_VERSION)'
+
+                - script: |
+                    curl -fsSL https://releases.hashicorp.com/terraform/$(TF_VERSION)/terraform_$(TF_VERSION)_linux_amd64.zip -o terraform.zip
+                    unzip -o terraform.zip
+                    sudo mv terraform /usr/local/bin/terraform
+                  displayName: Install Terraform
+
+                - script: |
+                    python3 -m pip install --upgrade pip pyyaml
+                  displayName: Install Python Dependencies
+
+                - script: |
+                    chmod +x scripts/check_required_ci_tools.sh scripts/detect_changed_clusters.sh scripts/run_cluster_workflow.sh
+                    CHANGED="$(scripts/detect_changed_clusters.sh HEAD~1 HEAD)"
+                    mkdir -p .artifacts/azure-apply
+                    while IFS= read -r cluster; do
+                      [ -z "$cluster" ] && continue
+                      scripts/run_cluster_workflow.sh \
+                        --cluster-dir "$cluster" \
+                        --artifact-dir ".artifacts/azure-apply/${cluster//\//_}" \
+                        --mode apply \
+                        --backend true
+                    done <<< "$CHANGED"
+                  displayName: Apply Changed Clusters
+                  env:
+                    TF_VAR_ocm_token: $(OCM_TOKEN)
+
+                - publish: .artifacts/azure-apply
+                  artifact: azure-apply-rendered-configs
