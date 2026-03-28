@@ -41,6 +41,10 @@ Important secret rule:
 The sample files use neutral example values such as `apps.example.internal` and `cluster-admins@example.com`.
 Replace those values before you merge your PR.
 
+Some optional operator modules also ship with `subscription_channel: set-before-enable`.
+That is intentional.
+You must replace that value with a real supported channel before you set `enabled: true`.
+
 ## Prepare Before Deployment
 
 Before you open a deployment PR, make sure these items are ready:

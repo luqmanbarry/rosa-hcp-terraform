@@ -1,4 +1,5 @@
 enabled: false
+# Replace subscription_channel before enabling this module.
 operator:
   namespace: rhacs-operator
   operator_group_name: rhacs-operator

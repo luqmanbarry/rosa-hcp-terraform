@@ -1,4 +1,5 @@
 enabled: false
+# Replace subscription_channel before enabling this module.
 operator:
   namespace: openshift-storage
   operator_group_name: openshift-storage
