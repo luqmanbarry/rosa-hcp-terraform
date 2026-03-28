@@ -1,25 +1,27 @@
 # Execution Models
 
-This document explains how to run this repo in three common ways:
+This document explains five common ways to run this ROSA HCP repo:
 
-- from a bastion host
-- from Ansible Automation Platform (AAP)
-- from Terraform CLI in a CI runner
+- GitHub Actions
+- Azure Pipelines
+- bastion host
+- Ansible Automation Platform (AAP)
+- Terraform CLI
 
-Use the same Git inputs in all cases:
+All five patterns use the same Git input files:
 
 - `clusters/<env>/<cluster>/cluster.yaml`
 - `clusters/<env>/<cluster>/gitops.yaml`
 - `clusters/<env>/<cluster>/values/*.yaml`
 
-## Before You Run Anything
+## Shared Requirements
 
-Make sure these items are ready:
+These items must be ready no matter where you run the code:
 
 - the cluster files are complete
-- the needed values files exist for enabled GitOps apps
-- required `ExternalSecret` entries are defined before you enable secret-consuming modules
-- the runner has the required tools:
+- values files exist for every GitOps app you enable
+- required `externalSecrets` entries are defined before you enable secret-consuming modules
+- the execution environment has these tools:
   - `bash`
   - `git`
   - `jq`
@@ -32,15 +34,13 @@ Make sure these items are ready:
 - you have a valid ROSA/OCM token
 - you have access to the GitOps repo if it is private
 
-You can check the local tools with:
+Tool check:
 
 ```bash
 scripts/check_required_ci_tools.sh bash git jq python3 terraform helm rg oc
 ```
 
-## Shared Flow
-
-No matter where you run it, the normal flow is:
+Common execution flow:
 
 ```text
 Validate cluster files
@@ -57,17 +57,114 @@ Example cluster path used below:
 clusters/dev/cluster-01
 ```
 
-## Option 1: Run From A Bastion Host
+## Pattern 1: GitHub Actions
 
-This is the simplest manual way to run the repo.
+Use this pattern when GitHub is your source control and deployment runner.
 
-1. Clone the repo to the bastion host.
-2. Install the required tools.
-3. Export the required credentials.
-4. Validate and render the cluster inputs.
-5. Run Terraform from the cluster directory.
+### Setup Prerequisites
 
-Example:
+- GitHub repository with Actions enabled
+- GitHub Actions runners with network access to AWS, ROSA, and Git
+- required repository secrets such as:
+  - `OCM_TOKEN`
+  - AWS credentials or role assumption inputs
+  - private GitOps repo credentials if needed
+- backend configuration and apply gates added to the workflow
+
+### How It Works
+
+This repo already includes a GitHub Actions example in [factory.yml](../../.github/workflows/factory.yml).
+
+Current behavior:
+
+- pull request:
+  - detects changed clusters
+  - validates inputs
+  - renders effective config
+  - runs `terraform validate`
+- merge to `main`:
+  - detects changed clusters
+  - validates inputs
+  - renders effective config
+  - prepares stack roots for `plan` and `apply`
+
+Important note:
+
+- the current apply stage is still a placeholder
+- you still need to wire the backend, plan storage, approval gates, and `terraform apply`
+
+### Recommended Flow
+
+1. Detect changed cluster directories.
+2. Validate each changed cluster.
+3. Render `terraform.auto.tfvars.json`.
+4. Run `terraform init`.
+5. Run `terraform plan`.
+6. Save the plan and rendered artifacts.
+7. After approval, run `terraform apply`.
+
+## Pattern 2: Azure Pipelines
+
+Use this pattern when Azure DevOps is your source control or approved enterprise runner.
+
+### Setup Prerequisites
+
+- Azure DevOps project and pipeline
+- Microsoft-hosted or self-hosted agents with network access to AWS, ROSA, and Git
+- secure pipeline variables or variable groups for:
+  - `OCM_TOKEN`
+  - AWS credentials
+  - private GitOps repo credentials if needed
+- a pipeline stage for validation
+- a pipeline stage for plan
+- a pipeline approval gate before apply
+
+### Recommended Flow
+
+1. Checkout the repo.
+2. Install or verify the required tools.
+3. Run input validation.
+4. Render `terraform.auto.tfvars.json`.
+5. Run `terraform init`.
+6. Run `terraform plan`.
+7. Publish plan and render artifacts.
+8. Run `terraform apply` only after approval.
+
+### Command Sequence
+
+```bash
+scripts/check_required_ci_tools.sh bash git jq python3 terraform helm rg oc
+
+python3 scripts/validate_stack_inputs.py \
+  --cluster "$CLUSTER_DIR/cluster.yaml" \
+  --gitops-values "$CLUSTER_DIR/gitops.yaml"
+
+python3 scripts/render_effective_config.py \
+  --cluster "$CLUSTER_DIR/cluster.yaml" \
+  --gitops-values "$CLUSTER_DIR/gitops.yaml" \
+  --output-dir "$ARTIFACT_DIR"
+
+cp "$ARTIFACT_DIR/terraform.auto.tfvars.json" \
+  "$CLUSTER_DIR/terraform.auto.tfvars.json"
+
+terraform -chdir="$CLUSTER_DIR" init
+terraform -chdir="$CLUSTER_DIR" plan
+terraform -chdir="$CLUSTER_DIR" apply
+```
+
+## Pattern 3: Bastion Host
+
+Use this pattern for manual admin execution and debugging.
+
+### Setup Prerequisites
+
+- bastion host with network access to AWS, ROSA, and Git
+- repo cloned on the bastion host
+- required tools installed
+- ROSA and AWS credentials exported or available through the local auth model
+- filesystem access to store temporary artifacts such as `.artifacts/`
+
+### Command Sequence
 
 ```bash
 export TF_VAR_ocm_token='your-ocm-token'
@@ -90,35 +187,39 @@ terraform -chdir=clusters/dev/cluster-01 plan
 terraform -chdir=clusters/dev/cluster-01 apply
 ```
 
-Use this model when:
+Use this when:
 
 - you want a controlled manual run
-- the bastion host already has network access to AWS, ROSA, and Git
-- you want to debug a single cluster build directly
+- you want to debug one cluster directly
 
-## Option 2: Run From AAP
+## Pattern 4: AAP
 
-Use AAP as the orchestration layer, and run the same repo commands inside a job template or workflow template.
+Use this pattern when your ops team wants approvals, RBAC, and controlled credentials in AAP.
 
-Best practice:
+### Setup Prerequisites
 
-- keep Git as the source of truth
-- let AAP clone the repo at the approved commit or branch
-- pass secrets as AAP credentials or extra vars
-- call the same validation, render, and Terraform steps used by CI
+- AAP controller and execution environment
+- execution environment image with the required tools installed
+- repository access from AAP
+- AAP credentials for:
+  - Git
+  - AWS
+  - `OCM_TOKEN`
+- job template or workflow template
+- optional approval node before apply
 
-Recommended AAP job flow:
+### Recommended AAP Job Flow
 
-1. Checkout repo.
-2. Install or verify required tools in the execution environment.
+1. Checkout the repo.
+2. Check the required tools.
 3. Validate cluster files.
 4. Render `terraform.auto.tfvars.json`.
 5. Run `terraform init`.
 6. Run `terraform plan`.
-7. Add an approval step if needed.
+7. Add approval if needed.
 8. Run `terraform apply`.
 
-Simple command sequence for an AAP job:
+### Command Sequence
 
 ```bash
 scripts/check_required_ci_tools.sh bash git jq python3 terraform helm rg oc
@@ -147,60 +248,57 @@ cluster_dir: clusters/dev/cluster-01
 artifact_dir: /runner/artifacts/dev-cluster-01
 ```
 
-Use this model when:
+## Pattern 5: Terraform CLI
 
-- you want approvals in AAP
-- you want RBAC and credential control in AAP
-- you want a standard execution path for ops teams
+Use this pattern when you want to run the repo directly with Terraform from any approved shell environment.
 
-## Option 3: Run From Terraform In CI
+### Setup Prerequisites
 
-This repo already includes a GitHub Actions example in [factory.yml](../../.github/workflows/factory.yml).
+- local or remote shell with the required tools
+- Terraform backend settings ready if you use a remote backend
+- required environment variables exported
+- network access to AWS, ROSA, and Git
 
-The current example does this:
+### Command Sequence
 
-- PR:
-  - validates changed clusters
-  - renders effective config
-  - runs `terraform validate`
-- merge to `main`:
-  - validates changed clusters
-  - renders effective config
-  - prepares the stack for `plan` and `apply`
+```bash
+export TF_VAR_ocm_token='your-ocm-token'
+export AWS_PROFILE='your-aws-profile'
 
-The example apply stage is still a placeholder, so you must finish the backend and apply steps for your environment.
+python3 scripts/validate_stack_inputs.py \
+  --cluster clusters/dev/cluster-01/cluster.yaml \
+  --gitops-values clusters/dev/cluster-01/gitops.yaml
 
-The normal CI pattern should be:
+python3 scripts/render_effective_config.py \
+  --cluster clusters/dev/cluster-01/cluster.yaml \
+  --gitops-values clusters/dev/cluster-01/gitops.yaml \
+  --output-dir .artifacts/dev-cluster-01
 
-1. detect changed cluster directories
-2. validate each changed cluster
-3. render `terraform.auto.tfvars.json`
-4. run `terraform init`
-5. run `terraform plan`
-6. store plan and render artifacts
-7. after approval, run `terraform apply`
+cp .artifacts/dev-cluster-01/terraform.auto.tfvars.json \
+  clusters/dev/cluster-01/terraform.auto.tfvars.json
 
-Use this model when:
+terraform -chdir=clusters/dev/cluster-01 init
+terraform -chdir=clusters/dev/cluster-01 plan
+terraform -chdir=clusters/dev/cluster-01 apply
+```
 
-- you want PR-driven delivery
-- you want audit artifacts for every run
-- you want merge-to-main to be the deployment trigger
-
-## Which Model Should You Choose
+## Which Pattern Should You Choose
 
 Use:
 
+- GitHub Actions for GitHub-native PR and merge workflows
+- Azure Pipelines for Azure DevOps-native enterprise pipelines
 - bastion host for manual testing and debugging
 - AAP for controlled operations with approvals
-- CI for the normal production workflow
+- Terraform CLI for direct shell execution
 
-For most teams, the best long-term pattern is:
+For most teams, the long-term production pattern should be:
 
 ```text
 Engineers change Git
-  -> PR validation in CI
+  -> PR validation in GitHub Actions or Azure Pipelines
   -> approval
-  -> apply from CI or AAP
+  -> apply from CI, AAP, or an approved admin-run path
 ```
 
 ## Notes
