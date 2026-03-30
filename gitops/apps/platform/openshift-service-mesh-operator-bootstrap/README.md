@@ -4,7 +4,6 @@ Installs the OpenShift Service Mesh operator.
 
 Use this module when you want GitOps to create the operator `OperatorGroup` and `Subscription`.
 
-Keep it disabled until you set a real operator channel and have an approved service mesh design.
+Default channel: `stable`
 
-The sample values use `subscription_channel: set-before-enable` on purpose.
-Replace it before you enable the module.
+Keep it disabled until you have an approved service mesh design.

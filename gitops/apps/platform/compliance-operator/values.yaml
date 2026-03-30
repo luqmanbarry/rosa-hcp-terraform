@@ -2,10 +2,16 @@ namespace: openshift-compliance
 subscription:
   name: compliance-operator
   packageName: compliance-operator
-  channel: release-0.1
+  channel: stable
   installPlanApproval: Automatic
   source: redhat-operators
   sourceNamespace: openshift-marketplace
+  config:
+    nodeSelector:
+      node-role.kubernetes.io/worker: ""
+    env:
+      - name: PLATFORM
+        value: HyperShift
 operatorGroup:
   name: compliance-operator
   targetNamespaces: []

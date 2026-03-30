@@ -135,3 +135,15 @@ Tenant app CD uses a different pattern:
 - `ApplicationSet` is disabled unless the admin enables it for that tenant
 
 `compliance-operator` installs only the operator by default. No compliance profile is enabled until you add it.
+
+For ROSA HCP:
+
+- `compliance-operator` uses the HyperShift subscription config by default
+- `file-integrity-operator-bootstrap` should stay disabled because Red Hat documents File Integrity Operator as unsupported on HCP clusters
+- modules that still use `set-before-enable` must have a real channel set before validation will allow them
+- current source-backed defaults in this repo include:
+  - RHACS: `stable`
+  - ODF: `stable-4.20`
+  - OpenShift Pipelines: `latest`
+  - OpenShift Service Mesh: `stable`
+  - OpenShift Virtualization: `stable`

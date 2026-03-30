@@ -1,10 +1,9 @@
 enabled: false
-# Replace subscription_channel before enabling this module.
 operator:
   namespace: rhacs-operator
   operator_group_name: rhacs-operator
   subscription_name: rhacs-operator
-  subscription_channel: set-before-enable
+  subscription_channel: stable
   subscription_source: redhat-operators
   subscription_source_namespace: openshift-marketplace
   install_plan_approval: Automatic

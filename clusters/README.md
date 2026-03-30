@@ -46,6 +46,9 @@ Some optional operator modules also ship with `subscription_channel: set-before-
 That is intentional.
 You must replace that value with a real supported channel before you set `enabled: true`.
 
+For ROSA HCP, keep `file-integrity-operator-bootstrap` disabled.
+That operator is not supported on HCP clusters.
+
 ## Prepare Before Deployment
 
 Before you open a deployment PR, make sure these items are ready:

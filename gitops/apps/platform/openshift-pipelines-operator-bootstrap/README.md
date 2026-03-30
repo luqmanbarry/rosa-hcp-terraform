@@ -4,7 +4,6 @@ Installs the OpenShift Pipelines operator.
 
 Use this module when you want GitOps to create the operator `OperatorGroup` and `Subscription`.
 
-Keep it disabled until you set a real operator channel in the cluster values file.
+Default channel: `latest`
 
-The sample values use `subscription_channel: set-before-enable` on purpose.
-Replace it before you enable the module.
+Keep it disabled until you have approved the pipelines design for the cluster.

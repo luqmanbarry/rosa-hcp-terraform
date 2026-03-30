@@ -9,3 +9,7 @@ spec:
   name: {{ .Values.subscription.packageName }}
   source: {{ .Values.subscription.source }}
   sourceNamespace: {{ .Values.subscription.sourceNamespace }}
+{{- with .Values.subscription.config }}
+  config:
+{{ toYaml . | indent 4 }}
+{{- end }}

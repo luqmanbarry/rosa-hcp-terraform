@@ -1,10 +1,9 @@
 enabled: false
-# Replace subscription_channel before enabling this module.
 operator:
   namespace: openshift-storage
   operator_group_name: openshift-storage
   subscription_name: odf-operator
-  subscription_channel: set-before-enable
+  subscription_channel: stable-4.20
   subscription_source: redhat-operators
   subscription_source_namespace: openshift-marketplace
   install_plan_approval: Automatic

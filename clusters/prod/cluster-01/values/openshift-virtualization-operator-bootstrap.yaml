@@ -3,7 +3,7 @@ operator:
   namespace: openshift-cnv
   operator_group_name: kubevirt-hyperconverged-group
   subscription_name: kubevirt-hyperconverged
-  subscription_channel: set-before-enable
+  subscription_channel: stable
   subscription_source: redhat-operators
   subscription_source_namespace: openshift-marketplace
   install_plan_approval: Automatic

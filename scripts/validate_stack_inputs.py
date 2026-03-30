@@ -596,6 +596,25 @@ def validate_external_secrets(values, context):
 
 def validate_app_values(app_path, values, context, enabled=False):
     target_secret_names = validate_external_secrets(values, context) if "externalSecrets" in values else set()
+    placeholder_channel_paths = {
+        "gitops/apps/platform/advanced-cluster-security-operator-bootstrap": ("operator", "subscription_channel"),
+        "gitops/apps/platform/file-integrity-operator-bootstrap": ("operator", "subscription_channel"),
+        "gitops/apps/platform/openshift-data-foundation-operator-bootstrap": ("operator", "subscription_channel"),
+        "gitops/apps/platform/openshift-pipelines-operator-bootstrap": ("operator", "subscription_channel"),
+        "gitops/apps/platform/openshift-service-mesh-operator-bootstrap": ("operator", "subscription_channel"),
+        "gitops/apps/platform/openshift-virtualization-operator-bootstrap": ("operator", "subscription_channel"),
+    }
+    if enabled and app_path in placeholder_channel_paths:
+        parent_key, field_name = placeholder_channel_paths[app_path]
+        field_value = values.get(parent_key, {}).get(field_name, "")
+        if field_value == "set-before-enable":
+            raise ValueError(
+                f"{context}.{parent_key}.{field_name} must be set to a real supported channel before this app can be enabled"
+            )
+    if enabled and app_path == "gitops/apps/platform/file-integrity-operator-bootstrap":
+        raise ValueError(
+            f"{context} cannot be enabled on ROSA HCP because File Integrity Operator is not supported on HCP clusters"
+        )
     if app_path == "gitops/apps/platform/namespace-onboarding":
         validate_namespace_onboarding_values(values, context)
     if app_path == "gitops/apps/platform/self-provisioner":
