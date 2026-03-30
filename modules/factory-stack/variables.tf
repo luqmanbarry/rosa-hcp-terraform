@@ -59,6 +59,7 @@ variable "acm" {
     labels           = map(string)
   })
   description = "ACM-related inputs."
+  default     = null
 }
 
 variable "gitops" {
@@ -145,7 +146,7 @@ variable "aws_additional_compute_security_group_ids" {
 variable "enable_acm_registration" {
   type        = bool
   description = "Whether to register the cluster to ACM."
-  default     = true
+  default     = false
 }
 
 variable "enable_gitops_bootstrap" {

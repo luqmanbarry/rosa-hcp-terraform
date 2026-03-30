@@ -9,10 +9,10 @@ High-level flow:
 1. Engineers add or update cluster inputs under `clusters/`.
 2. They open a pull request.
 3. CI validates inputs, renders effective config, and validates Terraform.
-4. Merge to `main` runs Terraform to create or update the cluster, optionally register it to ACM, and bootstrap OpenShift GitOps.
+4. Merge to `main` runs Terraform to create or update the cluster, optionally register it to ACM if you enable that path, and bootstrap OpenShift GitOps.
 5. OpenShift GitOps reconciles platform and workload configuration from Git.
 
-If ACM registration is enabled, ACM is used for cluster inventory and optional governance. The HCP cluster still keeps its own OpenShift GitOps instance and manages its own day-2 configuration locally.
+If ACM registration is enabled, ACM is used for cluster inventory and optional governance. The HCP cluster still keeps its own OpenShift GitOps instance and manages its own day-2 configuration locally. ACM registration is opt-in and does not run by default.
 
 ## Start Here
 

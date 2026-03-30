@@ -8,11 +8,6 @@ business_metadata:
 network:
   vpc_lookup_tag: cluster-01
   base_dns_domain: apps.example.internal
-acm:
-  hub_cluster_name: hub-01
-  labels:
-    environment: dev
-    provider: rosa-hcp
 gitops:
   overlay: cluster-applications
   repository_url: https://github.com/your-org/rosa-hcp-factory.git

@@ -26,7 +26,7 @@ What each file does:
 - `gitops.yaml`: list of GitOps apps for this cluster, including enablement and optional sync policy
 - `values/*.yaml`: one values file per GitOps app
 
-If the selected cluster class enables ACM registration, `cluster.yaml` should also include the `acm` block. That registration is optional bootstrap only. It does not move GitOps ownership to ACM.
+If you enable ACM registration in the selected cluster class, `cluster.yaml` should also include the `acm` block. That registration is optional bootstrap only. It does not move GitOps ownership to ACM.
 
 Use `enabled: true` or `enabled: false` in `gitops.yaml` to control whether an app is active.
 In the sample clusters, only `external-secrets-operator` is enabled by default. Everything else is opt-in.
@@ -42,9 +42,8 @@ Important secret rule:
 The sample files use neutral example values such as `apps.example.internal` and `cluster-admins@example.com`.
 Replace those values before you merge your PR.
 
-Some optional operator modules also ship with `subscription_channel: set-before-enable`.
-That is intentional.
-You must replace that value with a real supported channel before you set `enabled: true`.
+Only `file-integrity-operator-bootstrap` still ships with `subscription_channel: set-before-enable`.
+That is intentional because the operator is not supported on ROSA HCP.
 
 For ROSA HCP, keep `file-integrity-operator-bootstrap` disabled.
 That operator is not supported on HCP clusters.

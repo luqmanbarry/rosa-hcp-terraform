@@ -46,6 +46,7 @@ variable "acm" {
     hub_cluster_name = string
     labels           = map(string)
   })
+  default = null
 }
 
 variable "gitops" {

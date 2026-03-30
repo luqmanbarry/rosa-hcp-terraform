@@ -2,6 +2,8 @@
 
 This module registers the cluster to ACM.
 
+It is opt-in. The factory does not execute this module unless ACM registration is enabled and both kubeconfig paths are provided.
+
 It does these jobs:
 
 - creates `ManagedCluster`
@@ -28,4 +30,5 @@ Use ACM here for registration, visibility, and optional governance. Do not treat
 ## Notes
 
 - the module is idempotent across re-applies by hashing the applied manifest content
+- the module waits for the ACM import secret from the hub instead of using a fixed sleep
 - this is still a bootstrap-style integration point

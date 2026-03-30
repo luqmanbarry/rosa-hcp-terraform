@@ -81,13 +81,37 @@ resource "kubernetes_manifest" "hub_klusterletaddonconfig_cr" {
   }
 }
 
-resource "time_sleep" "wait_for_import_secret" {
-  depends_on      = [kubernetes_manifest.hub_klusterletaddonconfig_cr]
-  create_duration = "30s"
+resource "null_resource" "wait_for_import_secret" {
+  depends_on = [kubernetes_manifest.hub_klusterletaddonconfig_cr]
+
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command     = <<-EOT
+      set -euo pipefail
+      for attempt in $(seq 1 60); do
+        if oc --kubeconfig="$KUBECONFIG" -n "$NAMESPACE" get secret "$SECRET_NAME" >/dev/null 2>&1; then
+          exit 0
+        fi
+        sleep 5
+      done
+      echo "timed out waiting for ACM import secret ${SECRET_NAME} in namespace ${NAMESPACE}" >&2
+      exit 1
+    EOT
+    environment = {
+      KUBECONFIG  = var.acmhub_kubeconfig_filename
+      NAMESPACE   = var.cluster_name
+      SECRET_NAME = format("%s-import", var.cluster_name)
+    }
+  }
+
+  triggers = {
+    cluster_name = var.cluster_name
+    hubconfig    = var.acmhub_kubeconfig_filename
+  }
 }
 
 data "kubernetes_secret" "import_manifests" {
-  depends_on = [time_sleep.wait_for_import_secret]
+  depends_on = [null_resource.wait_for_import_secret]
   provider   = kubernetes.acmhub_cluster
 
   metadata {

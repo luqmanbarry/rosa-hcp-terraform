@@ -3,7 +3,7 @@ environment: prod
 openshift_version: "4.20"
 private_cluster: true
 multi_az: true
-enable_acm_registration: true
+enable_acm_registration: false
 enable_gitops_bootstrap: true
 machine_pools:
   - name: system

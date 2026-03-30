@@ -140,7 +140,7 @@ For ROSA HCP:
 
 - `compliance-operator` uses the HyperShift subscription config by default
 - `file-integrity-operator-bootstrap` should stay disabled because Red Hat documents File Integrity Operator as unsupported on HCP clusters
-- modules that still use `set-before-enable` must have a real channel set before validation will allow them
+- `file-integrity-operator-bootstrap` is the only module that still uses `set-before-enable`, and it should remain disabled on ROSA HCP
 - current source-backed defaults in this repo include:
   - RHACS: `stable`
   - ODF: `stable-4.20`

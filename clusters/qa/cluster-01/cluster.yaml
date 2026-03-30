@@ -32,11 +32,6 @@ machine_pools:
       enabled: true
       min_replicas: 2
       max_replicas: 4
-acm:
-  hub_cluster_name: hub-01
-  labels:
-    environment: qa
-    provider: rosa-hcp
 gitops:
   overlay: cluster-applications
   repository_url: https://github.com/your-org/rosa-hcp-factory.git
