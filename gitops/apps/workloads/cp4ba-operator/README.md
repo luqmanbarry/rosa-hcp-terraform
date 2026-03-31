@@ -6,7 +6,7 @@ Default behavior:
 
 - installs into a dedicated namespace
 - uses the `v24.0` channel for CP4BA 24.x
-- uses `Automatic` install plan approval
+- uses `Manual` install plan approval
 - installs with a namespace-scoped `OperatorGroup`
 - references the IBM `ibm-cp4a-operator-catalog` in `openshift-marketplace`
 

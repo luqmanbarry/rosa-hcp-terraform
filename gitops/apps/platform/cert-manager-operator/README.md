@@ -8,10 +8,10 @@ Installs the cert-manager Operator for Red Hat OpenShift.
 - package: `openshift-cert-manager-operator`
 - source: `redhat-operators`
 - channel: `stable-v1`
-- install plan approval: `Automatic`
+- install plan approval: `Manual`
 
 ## Notes
 
 - This chart installs only the operator lifecycle resources.
 - Issuers, ClusterIssuers, and Certificates should live in other GitOps modules.
-- The defaults match the current OpenShift 4.20 operator guidance.
+- The defaults match the current OpenShift 4.20 operator guidance and keep operator upgrades under admin control.

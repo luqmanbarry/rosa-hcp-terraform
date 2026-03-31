@@ -32,6 +32,15 @@ namespaces:
         role: edit
       - group: team-a-operators
         role: admin
+    features:
+      serviceMesh:
+        enabled: false
+      openshiftAI:
+        enabled: false
+      cp4ba:
+        enabled: false
+      aap:
+        enabled: false
 tenantGitOps:
   enabled: false
   namespace: openshift-gitops-tenants

@@ -5,6 +5,7 @@ Installs the OADP operator and can create a `DataProtectionApplication`.
 ## Default
 
 - operator installed
+- install plan approval set to `Manual`
 - `DataProtectionApplication` disabled until real backup settings are supplied
 
 ## When Enabling the DPA

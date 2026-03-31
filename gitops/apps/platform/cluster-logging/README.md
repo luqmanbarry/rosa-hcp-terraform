@@ -11,6 +11,7 @@ Installs the logging operator and can configure log forwarding.
 ## Default
 
 - operator installed
+- install plan approval set to `Manual`
 - forwarding disabled until a real destination is configured
 
 ## Required Inputs When Enabling Forwarding

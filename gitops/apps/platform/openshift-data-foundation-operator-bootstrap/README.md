@@ -5,6 +5,7 @@ Installs the OpenShift Data Foundation operator.
 Use this module when you want GitOps to create the operator namespace, `OperatorGroup`, and `Subscription`.
 
 Default channel: `stable-4.20`
+Default install plan approval: `Manual`
 
 Keep it disabled until you have a storage design for the cluster.
 

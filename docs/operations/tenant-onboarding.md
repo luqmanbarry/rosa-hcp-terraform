@@ -20,6 +20,7 @@ Tenant-owned after approval:
 - optional `ApplicationSet` objects when the admin enables them for that tenant
 - app-of-apps patterns inside the tenant's approved repositories
 - Kubernetes `Role` and `RoleBinding` access in their approved namespaces for those Argo CD custom resources
+- approved namespace enrollment for shared capabilities such as Service Mesh, AAP, CP4BA, or OpenShift AI when the platform team enables those shared services
 
 ## Argo CD Layout
 
@@ -49,6 +50,7 @@ This repo uses two Argo CD layers:
    - approved groups
    - optional `ApplicationSet` approval
    - repo credential `ExternalSecret` definitions
+   - optional namespace feature enrollment such as `serviceMesh`, `aap`, `cp4ba`, or `openshiftAI`
 5. Admin merges the change.
 6. Tenant users can then use the shared tenant Argo CD instance.
 
@@ -59,6 +61,7 @@ After approval:
 - tenant users can use app-of-apps in their approved repos
 - tenant users can create `ApplicationSet` objects only if `allowApplicationSets: true`
 - tenant users do not get access to the central admin Argo CD instance
+- shared capability enrollment does not install operators for the tenant; it only records approved namespace use
 
 ## Namespace Guardrails
 
@@ -69,6 +72,27 @@ Guardrails are optional and can be set per namespace:
 - baseline `NetworkPolicy`
 
 They are not forced on unless the admin adds them.
+
+## Shared Capability Enrollment
+
+The onboarding chart can also record namespace-level opt-in for shared capabilities:
+
+- `serviceMesh`
+- `openshiftAI`
+- `cp4ba`
+- `aap`
+
+Use this when:
+
+- the platform team already owns the operator lifecycle
+- only some tenant namespaces should consume the shared capability
+- onboarding should record the approved namespace intent in Git
+
+This does not let tenants install operators. It only:
+
+- adds labels and annotations to the namespace
+- optionally creates feature-specific namespace `RoleBinding` objects
+- gives platform automation a clear namespace-level source of truth
 
 ## Repo Credentials
 

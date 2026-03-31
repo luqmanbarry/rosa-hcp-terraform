@@ -1,0 +1,17 @@
+{{- if .Values.app.enabled }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.app.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+---
+apiVersion: operator.redhat.com/v1
+kind: CostManagement
+metadata:
+  name: cost-management
+  namespace: {{ .Values.app.namespace }}
+spec:
+{{ toYaml .Values.app.config | indent 2 }}
+{{- end }}

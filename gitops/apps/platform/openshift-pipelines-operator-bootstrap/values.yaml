@@ -6,5 +6,5 @@ operator:
   subscription_channel: latest
   subscription_source: redhat-operators
   subscription_source_namespace: openshift-marketplace
-  install_plan_approval: Automatic
+  install_plan_approval: Manual
   package_name: openshift-pipelines-operator-rh

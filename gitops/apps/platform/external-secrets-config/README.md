@@ -24,7 +24,7 @@ Provider example snippets are in:
 - [examples/ibm-cloud-secrets-manager.yaml](./examples/ibm-cloud-secrets-manager.yaml)
 - [examples/cyberark-conjur.yaml](./examples/cyberark-conjur.yaml)
 
-Copy one example into `clusters/<env>/<cluster>/values/external-secrets-config.yaml` and replace the placeholder values.
+Copy one example into `clusters/<group-path>/<cluster>/values/external-secrets-config.yaml` and replace the placeholder values.
 
 AWS Secrets Manager is the default example pattern used in the sample app values files for ROSA.
 

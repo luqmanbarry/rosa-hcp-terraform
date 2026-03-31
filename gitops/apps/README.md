@@ -16,6 +16,12 @@ Secret pattern:
 - `platform/`: shared cluster services and policies
 - `workloads/`: product or business workloads
 
+## Namespace Policy
+
+- no chart should use the `default` namespace
+- if a chart creates namespaced resources, the namespace should come from values or from the app definition
+- cluster-wide admin apps should use a real admin namespace such as `openshift-config`, `openshift-operators`, or another explicit target namespace
+
 ## Platform Apps
 
 - [self-provisioner](./platform/self-provisioner/README.md)
@@ -32,6 +38,7 @@ Secret pattern:
 - [namespace-onboarding](./platform/namespace-onboarding/README.md)
 - [identity-providers](./platform/identity-providers/README.md)
 - [groups-rbac](./platform/groups-rbac/README.md)
+- [cost-management](./platform/cost-management/README.md)
 - [workload-identity-serviceaccounts](./platform/workload-identity-serviceaccounts/README.md)
 - [vault-k8s-auth](./platform/vault-k8s-auth/README.md)
 - [advanced-cluster-security-operator-bootstrap](./platform/advanced-cluster-security-operator-bootstrap/README.md)

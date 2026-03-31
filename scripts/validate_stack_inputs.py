@@ -379,6 +379,21 @@ def validate_role_binding(binding, context):
 
 def validate_namespace_onboarding_values(values, context):
     expect_type(values, dict, context)
+    feature_catalog = values.get("featureCatalog", {})
+    expect_type(feature_catalog, dict, f"{context}.featureCatalog")
+    for feature_name, feature_config in feature_catalog.items():
+        feature_context = f"{context}.featureCatalog.{feature_name}"
+        expect_type(feature_config, dict, feature_context)
+        if "namespaceLabelKey" in feature_config:
+            expect_non_empty_string(
+                feature_config["namespaceLabelKey"],
+                f"{feature_context}.namespaceLabelKey",
+            )
+        if "namespaceLabelValue" in feature_config:
+            expect_non_empty_string(
+                feature_config["namespaceLabelValue"],
+                f"{feature_context}.namespaceLabelValue",
+            )
     defined_namespace_names = set()
     if "namespaces" in values:
         expect_type(values["namespaces"], list, f"{context}.namespaces")
@@ -413,6 +428,28 @@ def validate_namespace_onboarding_values(values, context):
                         binding,
                         f"{ns_context}.roleBindings[{binding_index}]",
                     )
+            if "features" in namespace:
+                expect_type(namespace["features"], dict, f"{ns_context}.features")
+                for feature_name, feature_values in namespace["features"].items():
+                    feature_context = f"{ns_context}.features.{feature_name}"
+                    if feature_catalog and feature_name not in feature_catalog:
+                        raise ValueError(
+                            f"{feature_context} is not defined in {context}.featureCatalog"
+                        )
+                    expect_type(feature_values, dict, feature_context)
+                    if "enabled" in feature_values:
+                        expect_bool(feature_values["enabled"], f"{feature_context}.enabled")
+                    if "roleBindings" in feature_values:
+                        expect_type(
+                            feature_values["roleBindings"],
+                            list,
+                            f"{feature_context}.roleBindings",
+                        )
+                        for binding_index, binding in enumerate(feature_values["roleBindings"]):
+                            validate_role_binding(
+                                binding,
+                                f"{feature_context}.roleBindings[{binding_index}]",
+                            )
 
     if "projectRequestTemplate" in values:
         template = values["projectRequestTemplate"]
@@ -833,6 +870,15 @@ def validate_cluster(cluster, overlays_root, cluster_class):
         validate_workload_identity(cluster["workload_identity"], "cluster.yaml.workload_identity")
 
 
+def validate_cluster_directory(cluster_path, cluster, context):
+    directory_name = cluster_path.parent.name
+    cluster_name = cluster.get("cluster_name", "")
+    if cluster_name and cluster_name != directory_name:
+        raise ValueError(
+            f"{context}.cluster_name must match the cluster directory name {directory_name}"
+        )
+
+
 def validate_cluster_class(cluster_class, class_path, overlays_root):
     context = class_path.name
     expect_keys(
@@ -1008,6 +1054,7 @@ def main():
 
     validate_cluster_class(cluster_class, class_path, overlays_root)
     validate_cluster(cluster, overlays_root, cluster_class)
+    validate_cluster_directory(cluster_path, cluster, "cluster.yaml")
     validate_gitops(gitops, repo_root)
     return 0
 

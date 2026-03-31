@@ -3,7 +3,7 @@ subscription:
   name: compliance-operator
   packageName: compliance-operator
   channel: stable
-  installPlanApproval: Automatic
+  installPlanApproval: Manual
   source: redhat-operators
   sourceNamespace: openshift-marketplace
   config:

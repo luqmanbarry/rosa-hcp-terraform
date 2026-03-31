@@ -15,9 +15,9 @@ The shared overlay is a Helm chart. Terraform injects the real Git repository UR
 
 How to configure GitOps for one cluster:
 
-- choose apps in `clusters/<environment>/<cluster>/gitops.yaml`
+- choose apps in `clusters/<group-path>/<cluster>/gitops.yaml`
 - set `enabled: true` only for the apps you want to run now
-- put each app's values in `clusters/<environment>/<cluster>/values/<app>.yaml`
+- put each app's values in `clusters/<group-path>/<cluster>/values/<app>.yaml`
 - if an app needs a Kubernetes `Secret`, define its `externalSecrets` entries in that same values file before you enable the app
 
 The sample clusters keep only `external-secrets-operator` enabled by default. All other modules are disabled until a user turns them on.
@@ -49,6 +49,7 @@ Platform modules in this repo include:
 - OADP restore
 - identity providers
 - groups and RBAC
+- cost management
 - workload identity service accounts
 - Vault Kubernetes auth bootstrap
 
@@ -58,6 +59,12 @@ The central admin Argo CD in this repo is admin-only.
 - it should deploy only admin-approved content from this repo
 - tenant teams should use the shared tenant Argo CD path only after onboarding approval
 
+Namespace rule:
+
+- no chart should target the `default` namespace
+- use an explicit platform namespace for admin apps
+- let tenant-facing namespaces come from values or onboarding inputs
+
 Workload modules in this repo include:
 
 - `cp4ba-operator`
@@ -65,7 +72,7 @@ Workload modules in this repo include:
 - `openshift-ai`
 - `twistlock-defender-helm`
 
-`twistlock-defender-helm` is an external Helm chart. Its values still live under `clusters/<environment>/<cluster>/values/`.
+`twistlock-defender-helm` is an external Helm chart. Its values still live under `clusters/<group-path>/<cluster>/values/`.
 
 Secrets should follow one simple rule:
 
@@ -148,6 +155,7 @@ For ROSA HCP:
 - `compliance-operator` uses the HyperShift subscription config by default
 - `file-integrity-operator-bootstrap` should stay disabled because Red Hat documents File Integrity Operator as unsupported on HCP clusters
 - `file-integrity-operator-bootstrap` is the only module that still uses `set-before-enable`, and it should remain disabled on ROSA HCP
+- operator modules default to `Manual` install plan approval so upgrades stay under admin control
 - current source-backed defaults in this repo include:
   - RHACS: `stable`
   - ODF: `stable-4.20`

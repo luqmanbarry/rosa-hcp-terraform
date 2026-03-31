@@ -1,4 +1,17 @@
 namespaces: []
+featureCatalog:
+  serviceMesh:
+    namespaceLabelKey: factory.gitops/service-mesh
+    namespaceLabelValue: enabled
+  openshiftAI:
+    namespaceLabelKey: factory.gitops/openshift-ai
+    namespaceLabelValue: enabled
+  cp4ba:
+    namespaceLabelKey: factory.gitops/cp4ba
+    namespaceLabelValue: enabled
+  aap:
+    namespaceLabelKey: factory.gitops/aap
+    namespaceLabelValue: enabled
 tenantGitOps:
   enabled: false
   namespace: openshift-gitops-tenants

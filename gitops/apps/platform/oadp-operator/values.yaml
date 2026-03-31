@@ -1,5 +1,6 @@
 namespace: openshift-adp
 channel: stable-1.4
+installPlanApproval: Manual
 globalSecretStoreRef:
   name: platform-secrets
   kind: ClusterSecretStore

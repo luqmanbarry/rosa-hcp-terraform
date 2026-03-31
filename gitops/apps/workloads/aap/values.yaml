@@ -51,7 +51,7 @@ aap:
     create_preload_data: true
     route_tls_termination_mechanism: Edge
     ingress_type: Route
-    auto_upgrade: true
+    auto_upgrade: false
     task_privileged: false
     projects_persistence: false
     admin_user: admin

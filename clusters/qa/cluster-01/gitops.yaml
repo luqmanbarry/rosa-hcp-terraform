@@ -83,9 +83,16 @@ applications:
   syncWave: '70'
   valueFiles:
   - clusters/qa/cluster-01/values/groups-rbac.yaml
+- name: cost-management
+  enabled: false
+  namespace: cost-management
+  path: gitops/apps/platform/cost-management
+  syncWave: '72'
+  valueFiles:
+  - clusters/qa/cluster-01/values/cost-management.yaml
 - name: workload-identity-serviceaccounts
   enabled: false
-  namespace: default
+  namespace: openshift-config
   path: gitops/apps/platform/workload-identity-serviceaccounts
   syncWave: '75'
   valueFiles:

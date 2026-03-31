@@ -10,13 +10,14 @@ This document explains five common ways to run this ROSA HCP repo:
 
 All five patterns use the same Git input files:
 
-- `clusters/<env>/<cluster>/cluster.yaml`
-- `clusters/<env>/<cluster>/gitops.yaml`
-- `clusters/<env>/<cluster>/values/*.yaml`
+- `clusters/<group-path>/<cluster>/cluster.yaml`
+- `clusters/<group-path>/<cluster>/gitops.yaml`
+- `clusters/<group-path>/<cluster>/values/*.yaml`
 
 Reusable execution files in this repo:
 
 - [run_cluster_workflow.sh](../../scripts/run_cluster_workflow.sh)
+- [run_cluster_workflow_bastion.sh](../../scripts/run_cluster_workflow_bastion.sh)
 - [factory.yml](../../.github/workflows/factory.yml)
 - [azure-pipelines.yml](../../azure-pipelines.yml)
 - [aap-run-factory.yml](../../playbooks/aap-run-factory.yml)
@@ -189,16 +190,16 @@ Use this pattern for manual admin execution and debugging.
 ### Command Sequence
 
 ```bash
-chmod +x scripts/run_cluster_workflow.sh
+chmod +x scripts/run_cluster_workflow_bastion.sh
 
 export TF_VAR_ocm_token='your-ocm-token'
 export AWS_PROFILE='your-aws-profile'
 
-scripts/run_cluster_workflow.sh \
+scripts/run_cluster_workflow_bastion.sh \
   --cluster-dir clusters/dev/cluster-01 \
   --artifact-dir .artifacts/dev-cluster-01 \
   --mode apply \
-  --backend true
+  --backend-false
 ```
 
 Use this when:

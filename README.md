@@ -24,11 +24,13 @@ If ACM registration is enabled, ACM is used for cluster inventory and optional g
 - [GitOps Apps](./gitops/apps/README.md)
 - [Tenant Onboarding](./docs/operations/tenant-onboarding.md)
 - [Execution Models](./docs/operations/execution-models.md)
+- [Implementation Plan](./docs/operations/implementation-plan.md)
+- [AAP Playbooks](./playbooks/README.md)
 
 ## Repository Layout
 
 - `catalog/`: shared defaults, such as cluster classes and machine pool classes
-- `clusters/`: one folder per cluster, including GitOps app choices and values files
+- `clusters/`: one folder per cluster under `clusters/<group-path>/<name>/`, including GitOps app choices and values files
 - `modules/`: Terraform modules that build the cluster and bootstrap GitOps
 - `gitops/`: GitOps bootstrap, shared overlay, platform apps, and workload apps
 - `scripts/`: validation and helper scripts used by CI
@@ -71,8 +73,8 @@ Prepare these items before you start:
   - ACM hub kubeconfig if you still enable ACM registration
 - Cluster design inputs:
   - a cluster class exists under `catalog/cluster-classes/`
-  - `clusters/<env>/<cluster-name>/cluster.yaml` is filled in
-  - `clusters/<env>/<cluster-name>/gitops.yaml` is filled in
+  - `clusters/<group-path>/<cluster-name>/cluster.yaml` is filled in
+  - `clusters/<group-path>/<cluster-name>/gitops.yaml` is filled in
   - values files exist for the GitOps apps you want to enable
   - machine pool sizes, autoscaling settings, and labels are agreed before merge
 - Optional integrations, if enabled in GitOps:
@@ -130,7 +132,7 @@ Boundary
 ## Quick Start
 
 1. Choose or create a cluster class under `catalog/cluster-classes/`.
-2. Add a cluster instance under `clusters/<env>/<cluster-name>/`.
+2. Add a cluster instance under `clusters/<group-path>/<cluster-name>/`.
 3. Define:
    - `cluster.yaml` for cluster and machine pool inputs
    - `gitops.yaml` for GitOps app selection
@@ -190,13 +192,4 @@ CI should archive:
 
 These should be stored as CI artifacts or in immutable object storage.
 
-## Current Status
-
-This repository now uses only the factory layout:
-
-- `catalog/`
-- `clusters/`
-- `modules/`
-- `gitops/`
-
-The old stage-based Terraform pipeline and helper scripts have been removed.
+---

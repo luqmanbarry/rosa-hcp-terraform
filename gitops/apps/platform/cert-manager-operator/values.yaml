@@ -3,7 +3,7 @@ subscription:
   name: openshift-cert-manager-operator
   packageName: openshift-cert-manager-operator
   channel: stable-v1
-  installPlanApproval: Automatic
+  installPlanApproval: Manual
   source: redhat-operators
   sourceNamespace: openshift-marketplace
 operatorGroup:

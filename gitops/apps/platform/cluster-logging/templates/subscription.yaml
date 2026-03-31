@@ -5,8 +5,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   channel: {{ .Values.channel }}
-  installPlanApproval: Automatic
+  installPlanApproval: {{ .Values.installPlanApproval }}
   name: cluster-logging
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-

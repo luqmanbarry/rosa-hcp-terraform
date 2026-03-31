@@ -1,4 +1,6 @@
 {{- range $ns := .Values.namespaces }}
+{{- $featureAnnotations := include "namespace-onboarding.featureAnnotations" (dict "root" $ "namespace" $ns) | fromYaml }}
+{{- $featureLabels := include "namespace-onboarding.featureLabels" (dict "root" $ "namespace" $ns) | fromYaml }}
 ---
 apiVersion: project.openshift.io/v1
 kind: Project
@@ -6,10 +8,14 @@ metadata:
   name: {{ $ns.name }}
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    {{- with $featureAnnotations }}
+{{ toYaml . | indent 4 }}
+    {{- end }}
     {{- with $ns.annotations }}
 {{ toYaml . | indent 4 }}
     {{- end }}
-  {{- with $ns.labels }}
+  {{- $labels := merge (default dict $featureLabels) (default dict $ns.labels) }}
+  {{- with $labels }}
   labels:
 {{ toYaml . | indent 4 }}
   {{- end }}

@@ -1,6 +1,8 @@
 # Clusters
 
-Each directory under `clusters/` represents one cluster in one environment.
+Each cluster gets its own folder under:
+
+`clusters/<group-path>/<cluster-name>/`
 
 Users make changes here and open a pull request. CI validates the files, renders the final configuration, and saves audit artifacts. After approval and merge, CI runs Terraform and bootstraps OpenShift GitOps.
 
@@ -20,11 +22,28 @@ clusters/
         twistlock-defender-helm.yaml
 ```
 
+`<group-path>` is flexible. It can be one level or many levels. It can represent:
+
+- an environment such as `dev`, `qa`, or `prod`
+- a region with environment under it such as `us-east-1/dev`
+- a business unit with environment under it such as `bu-retail/prod`
+- a failure domain with environment under it such as `fd1/prod-dr`
+- any other approved grouping that fits your operating model
+
+Examples:
+
+- `clusters/dev/cluster-01/`
+- `clusters/us-east-1/qa/cluster-01/`
+- `clusters/bu-retail/prod/cluster-01/`
+- `clusters/fd1/prod-dr/cluster-01/`
+
 What each file does:
 
 - `cluster.yaml`: cluster settings such as region, networking, and machine pools
 - `gitops.yaml`: list of GitOps apps for this cluster, including enablement and optional sync policy
 - `values/*.yaml`: one values file per GitOps app
+
+Validation checks that `cluster.yaml.cluster_name` matches the cluster directory name.
 
 If you opt into workload identity, put the AWS IAM role definitions in `cluster.yaml` and the Kubernetes service account annotations in `values/workload-identity-serviceaccounts.yaml`.
 
@@ -83,5 +102,5 @@ PR validation fails if:
 - an enabled secret-consuming module references a `Secret` name that is not created by its own `externalSecrets` entries
 
 Keep shared defaults in `catalog/cluster-classes/`.
-Keep cluster-specific values in `clusters/<environment>/<cluster>/`.
+Keep cluster-specific values in `clusters/<group-path>/<cluster>/`.
 Set `enabled: true` only when you are ready to activate that module in the cluster.

@@ -7,6 +7,7 @@ Installs the OpenShift Compliance Operator.
 - installs the Operator in `openshift-compliance`
 - uses the OLM `Subscription` and `OperatorGroup` APIs that current OpenShift uses
 - uses the `stable` channel by default
+- uses `Manual` install plan approval by default
 - sets `PLATFORM=HyperShift` in the subscription config for ROSA HCP
 - does not enable any compliance profile or scan by default
 - optional `ScanSetting` and `ScanSettingBinding` objects can be supplied later through values
