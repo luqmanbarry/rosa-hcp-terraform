@@ -5,7 +5,7 @@ Installs the OADP operator and can create a `DataProtectionApplication`.
 ## Default
 
 - operator installed
-- install plan approval set to `Manual`
+- install plan approval set to `Automatic`
 - `DataProtectionApplication` disabled until real backup settings are supplied
 
 ## When Enabling the DPA
@@ -18,6 +18,8 @@ Provide:
 - plugin and node-agent settings for your environment
 
 If the credential `Secret` should be managed by External Secrets Operator, define the matching `ExternalSecret` in the same values file.
+
+The operator uses automatic approval by default because `oadp-backup` and `oadp-restore` depend on the OADP APIs.
 
 Examples:
 

@@ -155,7 +155,8 @@ For ROSA HCP:
 - `compliance-operator` uses the HyperShift subscription config by default
 - `file-integrity-operator-bootstrap` should stay disabled because Red Hat documents File Integrity Operator as unsupported on HCP clusters
 - `file-integrity-operator-bootstrap` is the only module that still uses `set-before-enable`, and it should remain disabled on ROSA HCP
-- operator modules default to `Manual` install plan approval so upgrades stay under admin control
+- foundational operator modules that other charts depend on use `Automatic` install plan approval so their CRDs are available early
+- optional operator modules that do not act as shared prerequisites keep `Manual` approval by default
 - current source-backed defaults in this repo include:
   - RHACS: `stable`
   - ODF: `stable-4.20`

@@ -9,7 +9,7 @@ Installs the External Secrets Operator early in the GitOps sync order.
 - package: `external-secrets-operator`
 - source: `community-operators`
 - channel: `stable`
-- install plan approval: `Manual`
+- install plan approval: `Automatic`
 
 ## Notes
 
@@ -19,7 +19,7 @@ Installs the External Secrets Operator early in the GitOps sync order.
 - Before enabling a module that needs secrets, make sure the store exists and the module values file includes the matching `externalSecrets` entries.
 - The default catalog settings are configurable because operator catalogs can vary by environment.
 - For ROSA, the default shared secret backend example is AWS Secrets Manager through `external-secrets-config`.
-- Keep the default manual approval unless you already have an operator upgrade approval process.
+- This chart is a foundational dependency, so it defaults to automatic approval to make the ESO CRDs available early.
 
 ## Provider Examples
 

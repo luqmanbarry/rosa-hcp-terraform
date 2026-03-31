@@ -1,6 +1,6 @@
 namespace: openshift-logging
 channel: stable-6.0
-installPlanApproval: Manual
+installPlanApproval: Automatic
 globalSecretStoreRef:
   name: platform-secrets
   kind: ClusterSecretStore
