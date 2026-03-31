@@ -168,6 +168,16 @@ module "acm_registration" {
   temp_dir                            = "${var.temp_dir}/acm/${var.cluster_name}"
 }
 
+module "workload_identity" {
+  count  = var.workload_identity != null && var.workload_identity.enabled && length(var.workload_identity.roles) > 0 ? 1 : 0
+  source = "../rosa-hcp-workload-identity"
+
+  oidc_provider_arn = var.workload_identity.oidc_provider_arn
+  oidc_provider_url = var.workload_identity.oidc_provider_url
+  roles             = var.workload_identity.roles
+  default_tags      = local.additional_tags
+}
+
 module "gitops_bootstrap" {
   count  = var.enable_gitops_bootstrap && length(trimspace(var.managed_cluster_kubeconfig_filename)) > 0 ? 1 : 0
   source = "../openshift-gitops-bootstrap"

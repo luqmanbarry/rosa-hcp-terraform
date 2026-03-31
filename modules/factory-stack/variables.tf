@@ -73,6 +73,27 @@ variable "gitops" {
   description = "GitOps bootstrap inputs."
 }
 
+variable "workload_identity" {
+  type = object({
+    enabled           = bool
+    oidc_provider_arn = string
+    oidc_provider_url = string
+    roles = list(object({
+      name                 = string
+      namespace            = string
+      service_account_name = string
+      description          = optional(string)
+      managed_policy_arns  = optional(list(string), [])
+      inline_policy_json   = optional(string, "")
+      max_session_duration = optional(number, 3600)
+      path                 = optional(string, "/")
+      tags                 = optional(map(string), {})
+    }))
+  })
+  description = "Optional workload identity IAM role definitions."
+  default     = null
+}
+
 variable "machine_pools" {
   type = list(object({
     name          = string

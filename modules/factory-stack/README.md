@@ -11,6 +11,7 @@ It does these jobs:
 - creates the ROSA HCP cluster
 - creates additional machine pools
 - optionally registers the cluster to ACM
+- optionally creates workload identity IAM roles
 - optionally bootstraps OpenShift GitOps
 
 ## Key Inputs
@@ -19,6 +20,7 @@ It does these jobs:
 - AWS region and network lookup inputs
 - machine pools
 - ACM kubeconfigs
+- optional workload identity OIDC inputs and role definitions
 - GitOps repo and overlay inputs
 
 ## Key Outputs
@@ -34,6 +36,7 @@ It does these jobs:
 - machine pools can define autoscaling bounds and labels
 - extra machine pools inherit profile defaults and can override labels and instance type
 - if workload modules do not set selectors, workloads land on the default worker pool
+- if you enable workload identity, Terraform owns the AWS IAM roles and GitOps owns the service accounts
 
 ## ACM And GitOps
 

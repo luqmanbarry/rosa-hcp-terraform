@@ -26,6 +26,8 @@ What each file does:
 - `gitops.yaml`: list of GitOps apps for this cluster, including enablement and optional sync policy
 - `values/*.yaml`: one values file per GitOps app
 
+If you opt into workload identity, put the AWS IAM role definitions in `cluster.yaml` and the Kubernetes service account annotations in `values/workload-identity-serviceaccounts.yaml`.
+
 If you enable ACM registration in the selected cluster class, `cluster.yaml` should also include the `acm` block. That registration is optional bootstrap only. It does not move GitOps ownership to ACM.
 
 Use `enabled: true` or `enabled: false` in `gitops.yaml` to control whether an app is active.

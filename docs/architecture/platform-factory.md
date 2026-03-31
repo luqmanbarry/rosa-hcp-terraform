@@ -13,6 +13,7 @@ Simple flow:
    - discover the customer-provided AWS foundation
    - create the ROSA HCP cluster
    - optionally register the cluster to ACM
+   - optionally create workload identity IAM roles
    - bootstrap OpenShift GitOps
 5. OpenShift GitOps applies the platform and workload apps.
 
@@ -29,6 +30,7 @@ Cluster class
   -> Terraform modules
      -> ROSA HCP cluster
      -> optional ACM registration
+     -> optional workload identity IAM roles
      -> OpenShift GitOps bootstrap
         -> root app
            -> platform apps
@@ -44,6 +46,7 @@ Terraform only handles build and bootstrap work:
 - ROSA HCP cluster creation
 - base machine pools
 - optional ACM registration
+- optional workload identity IAM roles
 - OpenShift GitOps bootstrap
 
 ACM does not replace the cluster-local GitOps model in this repo.

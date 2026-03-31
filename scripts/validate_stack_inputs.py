@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import json
 from pathlib import Path
 import re
 import sys
@@ -82,6 +83,131 @@ def validate_acm(acm, context):
     expect_keys(acm, ["hub_cluster_name", "labels"], context)
     expect_non_empty_string(acm["hub_cluster_name"], f"{context}.hub_cluster_name")
     expect_string_map(acm["labels"], f"{context}.labels")
+
+
+def validate_workload_identity(workload_identity, context):
+    expect_type(workload_identity, dict, context)
+    if "enabled" in workload_identity:
+        expect_bool(workload_identity["enabled"], f"{context}.enabled")
+    else:
+        workload_identity["enabled"] = False
+
+    for key in ["oidc_provider_arn", "oidc_provider_url"]:
+        if key in workload_identity and workload_identity[key] != "":
+            expect_non_empty_string(workload_identity[key], f"{context}.{key}")
+
+    roles = workload_identity.get("roles", [])
+    expect_type(roles, list, f"{context}.roles")
+    seen_role_names = set()
+    service_account_bindings = set()
+    for index, role in enumerate(roles):
+        role_context = f"{context}.roles[{index}]"
+        expect_type(role, dict, role_context)
+        expect_keys(
+            role,
+            ["name", "namespace", "service_account_name"],
+            role_context,
+        )
+        expect_non_empty_string(role["name"], f"{role_context}.name")
+        expect_non_empty_string(role["namespace"], f"{role_context}.namespace")
+        expect_non_empty_string(
+            role["service_account_name"],
+            f"{role_context}.service_account_name",
+        )
+        if role["name"] in seen_role_names:
+            raise ValueError(f"{role_context}.name duplicates another workload identity role")
+        seen_role_names.add(role["name"])
+        binding = (role["namespace"], role["service_account_name"])
+        if binding in service_account_bindings:
+            raise ValueError(
+                f"{role_context} duplicates another namespace/service_account_name binding"
+            )
+        service_account_bindings.add(binding)
+        if "description" in role and role["description"] != "":
+            expect_non_empty_string(role["description"], f"{role_context}.description")
+        if "managed_policy_arns" in role:
+            expect_type(role["managed_policy_arns"], list, f"{role_context}.managed_policy_arns")
+            for policy_index, policy_arn in enumerate(role["managed_policy_arns"]):
+                expect_non_empty_string(
+                    policy_arn,
+                    f"{role_context}.managed_policy_arns[{policy_index}]",
+                )
+        if "inline_policy_json" in role and role["inline_policy_json"] != "":
+            expect_non_empty_string(role["inline_policy_json"], f"{role_context}.inline_policy_json")
+            try:
+                parsed_policy = json.loads(role["inline_policy_json"])
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"{role_context}.inline_policy_json must be valid JSON") from exc
+            if not isinstance(parsed_policy, dict):
+                raise ValueError(f"{role_context}.inline_policy_json must decode to a JSON object")
+        if "max_session_duration" in role:
+            if not isinstance(role["max_session_duration"], (int, float)):
+                raise ValueError(f"{role_context}.max_session_duration must be numeric")
+            if role["max_session_duration"] < 3600 or role["max_session_duration"] > 43200:
+                raise ValueError(
+                    f"{role_context}.max_session_duration must be between 3600 and 43200"
+                )
+        if "path" in role and role["path"] != "":
+            expect_non_empty_string(role["path"], f"{role_context}.path")
+        if "tags" in role:
+            expect_string_map(role["tags"], f"{role_context}.tags")
+
+    if workload_identity["enabled"]:
+        for key in ["oidc_provider_arn", "oidc_provider_url"]:
+            if not workload_identity.get(key, "").strip():
+                raise ValueError(f"{context}.{key} is required when workload identity is enabled")
+        if not roles:
+            raise ValueError(f"{context}.roles must not be empty when workload identity is enabled")
+
+
+def validate_workload_identity_serviceaccounts_values(values, context):
+    expect_type(values, dict, context)
+    service_accounts = values.get("serviceAccounts", [])
+    expect_type(service_accounts, list, f"{context}.serviceAccounts")
+    seen_bindings = set()
+    for index, service_account in enumerate(service_accounts):
+        service_account_context = f"{context}.serviceAccounts[{index}]"
+        expect_type(service_account, dict, service_account_context)
+        expect_keys(service_account, ["name", "namespace"], service_account_context)
+        expect_non_empty_string(service_account["name"], f"{service_account_context}.name")
+        expect_non_empty_string(
+            service_account["namespace"],
+            f"{service_account_context}.namespace",
+        )
+        binding = (service_account["namespace"], service_account["name"])
+        if binding in seen_bindings:
+            raise ValueError(
+                f"{service_account_context} duplicates another namespace/name combination"
+            )
+        seen_bindings.add(binding)
+        if "labels" in service_account:
+            expect_string_map(service_account["labels"], f"{service_account_context}.labels")
+        if "annotations" in service_account:
+            expect_string_map(
+                service_account["annotations"],
+                f"{service_account_context}.annotations",
+            )
+            role_arn = service_account["annotations"].get("eks.amazonaws.com/role-arn", "")
+            if role_arn != "":
+                expect_non_empty_string(
+                    role_arn,
+                    f"{service_account_context}.annotations[eks.amazonaws.com/role-arn]",
+                )
+        if "automountServiceAccountToken" in service_account:
+            expect_bool(
+                service_account["automountServiceAccountToken"],
+                f"{service_account_context}.automountServiceAccountToken",
+            )
+        if "imagePullSecrets" in service_account:
+            expect_type(
+                service_account["imagePullSecrets"],
+                list,
+                f"{service_account_context}.imagePullSecrets",
+            )
+            for secret_index, image_pull_secret in enumerate(service_account["imagePullSecrets"]):
+                secret_context = f"{service_account_context}.imagePullSecrets[{secret_index}]"
+                expect_type(image_pull_secret, dict, secret_context)
+                expect_non_empty_string(image_pull_secret.get("name", ""), f"{secret_context}.name")
 
 
 def validate_machine_pools(machine_pools, context):
@@ -666,6 +792,8 @@ def validate_app_values(app_path, values, context, enabled=False):
             ]:
                 if secret_name and secret_name not in target_secret_names:
                     raise ValueError(f"{context}.{field_name} must be created by externalSecrets")
+    if app_path == "gitops/apps/platform/workload-identity-serviceaccounts":
+        validate_workload_identity_serviceaccounts_values(values, context)
 
 
 def validate_cluster(cluster, overlays_root, cluster_class):
@@ -701,6 +829,8 @@ def validate_cluster(cluster, overlays_root, cluster_class):
         expect_bool(cluster["multi_az"], "cluster.yaml.multi_az")
     if "machine_pools" in cluster:
         validate_machine_pools(cluster["machine_pools"], "cluster.yaml.machine_pools")
+    if "workload_identity" in cluster:
+        validate_workload_identity(cluster["workload_identity"], "cluster.yaml.workload_identity")
 
 
 def validate_cluster_class(cluster_class, class_path, overlays_root):

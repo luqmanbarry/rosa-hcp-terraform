@@ -83,6 +83,13 @@ applications:
   syncWave: '70'
   valueFiles:
   - clusters/qa/cluster-01/values/groups-rbac.yaml
+- name: workload-identity-serviceaccounts
+  enabled: false
+  namespace: default
+  path: gitops/apps/platform/workload-identity-serviceaccounts
+  syncWave: '75'
+  valueFiles:
+  - clusters/qa/cluster-01/values/workload-identity-serviceaccounts.yaml
 - name: vault-k8s-auth
   enabled: false
   namespace: vault-auth

@@ -18,3 +18,6 @@ output "openshift_version" {
   value = module.rosa_hcp_core.current_version
 }
 
+output "workload_identity_role_arns" {
+  value = length(module.workload_identity) > 0 ? module.workload_identity[0].role_arns : {}
+}

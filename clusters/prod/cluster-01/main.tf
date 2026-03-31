@@ -12,6 +12,7 @@ module "factory_stack" {
   network                 = var.network
   acm                     = var.acm
   gitops                  = var.gitops
+  workload_identity       = var.workload_identity
   machine_pools           = var.machine_pools
   enable_acm_registration = var.enable_acm_registration
   enable_gitops_bootstrap = var.enable_gitops_bootstrap

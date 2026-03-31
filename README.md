@@ -38,8 +38,9 @@ If ACM registration is enabled, ACM is used for cluster inventory and optional g
 
 ## Core Principles
 
-- Terraform only builds the cluster and bootstraps GitOps.
+- Terraform handles cluster build plus optional bootstrap integrations such as ACM registration and workload identity IAM roles.
 - The customer provides the AWS foundation. This repo consumes it.
+- Optional workload identity uses a split model: Terraform owns AWS IAM and GitOps owns service accounts.
 - OpenShift GitOps owns normal day-2 cluster configuration.
 - Inputs are human-authored YAML.
 - Rendered artifacts are machine-authored JSON.
@@ -81,6 +82,7 @@ Prepare these items before you start:
   - logging/monitoring endpoints and secrets
   - AWS Secrets Manager inputs if you use the default ROSA secret pattern
   - another secret backend only if you intentionally choose something other than the default
+  - workload identity inputs if you opt into IAM roles for service accounts
   - `SecretStore` or `ClusterSecretStore` for any module that uses External Secrets Operator
   - matching `ExternalSecret` entries in the enabled module values files for any Kubernetes `Secret` that module needs
 
@@ -109,6 +111,7 @@ Terraform
   - ROSA HCP cluster
   - machine pools
   - optional ACM registration
+  - optional workload identity IAM roles
   - OpenShift GitOps bootstrap
 
 OpenShift GitOps

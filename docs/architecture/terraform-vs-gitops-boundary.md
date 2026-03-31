@@ -13,6 +13,7 @@ Use this simple rule:
 - ROSA machine pools
 - machine pool autoscaling bounds
 - optional ACM registration
+- optional workload identity IAM roles and trust policies
 - OpenShift GitOps bootstrap
 
 ## GitOps-Owned
@@ -43,6 +44,10 @@ If something inside the cluster must exist before GitOps can start, keep only th
   Reason: GitOps must exist before GitOps can manage anything
 - ACM registration: Terraform
   Reason: registration is bootstrap work and should happen before any optional hub-side governance
+- workload identity IAM roles: Terraform
+  Reason: AWS IAM resources and trust policies live outside the cluster
+- workload identity service accounts: GitOps
+  Reason: service accounts and annotations live inside the cluster and should stay in sync from Git
 - cluster OAuth and RBAC: GitOps
   Reason: these are in-cluster settings that should stay in sync from Git
 - OADP schedules and restores: GitOps

@@ -32,6 +32,7 @@ Secret pattern:
 - [namespace-onboarding](./platform/namespace-onboarding/README.md)
 - [identity-providers](./platform/identity-providers/README.md)
 - [groups-rbac](./platform/groups-rbac/README.md)
+- [workload-identity-serviceaccounts](./platform/workload-identity-serviceaccounts/README.md)
 - [vault-k8s-auth](./platform/vault-k8s-auth/README.md)
 - [advanced-cluster-security-operator-bootstrap](./platform/advanced-cluster-security-operator-bootstrap/README.md)
 - [compliance-operator](./platform/compliance-operator/README.md)

@@ -49,6 +49,7 @@ Platform modules in this repo include:
 - OADP restore
 - identity providers
 - groups and RBAC
+- workload identity service accounts
 - Vault Kubernetes auth bootstrap
 
 The central admin Argo CD in this repo is admin-only.
@@ -84,6 +85,12 @@ Example:
 - `oadp-operator` should define the `ExternalSecret` for backup credential secrets
 
 This keeps the secret contract close to the module that uses it.
+
+Workload identity follows a different split:
+
+- Terraform creates IAM roles and trust policies
+- GitOps creates service accounts with the `eks.amazonaws.com/role-arn` annotation
+- both parts are opt-in
 
 The default shared store name is `platform-secrets`.
 
