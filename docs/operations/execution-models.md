@@ -88,19 +88,16 @@ Current behavior:
 
 - pull request:
   - detects changed clusters
-  - validates inputs
-  - renders effective config
-  - runs `terraform validate`
+  - runs the shared validation workflow through `scripts/run_cluster_workflow.sh`
 - merge to `main`:
   - detects changed clusters
-  - validates inputs
-  - renders effective config
-  - prepares stack roots for `plan` and `apply`
+  - runs the shared apply workflow through `scripts/run_cluster_workflow.sh`
+  - uses repository secrets for OCM and AWS credentials
 
 Important note:
 
-- the current apply stage is still a placeholder
-- you still need to wire the backend, plan storage, approval gates, and `terraform apply`
+- you still need to set the GitHub repository secrets and any backend-specific settings your Terraform backend requires
+- if you want a separate human approval between plan and apply, add a protected environment or split the workflow further
 
 ### Recommended Flow
 
@@ -150,6 +147,14 @@ Use this pattern when Azure DevOps is your source control or approved enterprise
 8. Run `terraform apply` only after approval.
 
 This repo includes an Azure Pipelines example at [azure-pipelines.yml](../../azure-pipelines.yml).
+
+The pipeline installs:
+
+- Terraform
+- Helm
+- OpenShift CLI
+- `jq`
+- `rg`
 
 ### Command Sequence
 
@@ -254,6 +259,7 @@ cluster_dir: clusters/dev/cluster-01
 artifact_dir: /runner/artifacts/dev-cluster-01
 workflow_mode: plan
 terraform_backend: false
+aws_default_region: us-east-2
 ```
 
 ## Pattern 5: Terraform CLI

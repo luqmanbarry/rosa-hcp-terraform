@@ -28,10 +28,24 @@ stages:
               versionSpec: '$(PYTHON_VERSION)'
 
           - script: |
+              sudo apt-get update
+              sudo apt-get install -y jq ripgrep unzip tar gzip
               curl -fsSL https://releases.hashicorp.com/terraform/$(TF_VERSION)/terraform_$(TF_VERSION)_linux_amd64.zip -o terraform.zip
               unzip -o terraform.zip
               sudo mv terraform /usr/local/bin/terraform
             displayName: Install Terraform
+
+          - script: |
+              curl -fsSL https://get.helm.sh/helm-v3.15.4-linux-amd64.tar.gz -o helm.tgz
+              tar -xzf helm.tgz
+              sudo mv linux-amd64/helm /usr/local/bin/helm
+            displayName: Install Helm
+
+          - script: |
+              curl -fsSL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz -o oc.tgz
+              tar -xzf oc.tgz
+              sudo mv oc kubectl /usr/local/bin/
+            displayName: Install OpenShift CLI
 
           - script: |
               python3 -m pip install --upgrade pip pyyaml
@@ -73,10 +87,24 @@ stages:
                     versionSpec: '$(PYTHON_VERSION)'
 
                 - script: |
+                    sudo apt-get update
+                    sudo apt-get install -y jq ripgrep unzip tar gzip
                     curl -fsSL https://releases.hashicorp.com/terraform/$(TF_VERSION)/terraform_$(TF_VERSION)_linux_amd64.zip -o terraform.zip
                     unzip -o terraform.zip
                     sudo mv terraform /usr/local/bin/terraform
                   displayName: Install Terraform
+
+                - script: |
+                    curl -fsSL https://get.helm.sh/helm-v3.15.4-linux-amd64.tar.gz -o helm.tgz
+                    tar -xzf helm.tgz
+                    sudo mv linux-amd64/helm /usr/local/bin/helm
+                  displayName: Install Helm
+
+                - script: |
+                    curl -fsSL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz -o oc.tgz
+                    tar -xzf oc.tgz
+                    sudo mv oc kubectl /usr/local/bin/
+                  displayName: Install OpenShift CLI
 
                 - script: |
                     python3 -m pip install --upgrade pip pyyaml
@@ -97,6 +125,10 @@ stages:
                   displayName: Apply Changed Clusters
                   env:
                     TF_VAR_ocm_token: $(OCM_TOKEN)
+                    AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+                    AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+                    AWS_SESSION_TOKEN: $(AWS_SESSION_TOKEN)
+                    AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
 
                 - publish: .artifacts/azure-apply
                   artifact: azure-apply-rendered-configs

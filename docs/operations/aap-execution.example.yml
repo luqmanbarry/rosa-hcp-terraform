@@ -2,3 +2,4 @@ cluster_dir: clusters/dev/cluster-01
 artifact_dir: .artifacts/aap/dev-cluster-01
 workflow_mode: plan
 terraform_backend: false
+aws_default_region: us-east-2

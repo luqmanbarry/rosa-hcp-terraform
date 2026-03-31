@@ -39,10 +39,10 @@ jobs:
       - name: Install Python dependencies
         run: python3 -m pip install --upgrade pyyaml
 
-      - name: Check required CI tools
+      - name: Install runner dependencies
         run: |
-          chmod +x scripts/check_required_ci_tools.sh
-          scripts/check_required_ci_tools.sh bash git jq python3 terraform helm rg oc
+          sudo apt-get update
+          sudo apt-get install -y jq ripgrep
 
       - name: Detect changed clusters
         id: clusters
@@ -55,33 +55,22 @@ jobs:
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
 
-      - name: Render effective configs
-        run: |
-          mkdir -p .artifacts/pr
-          while IFS= read -r stack; do
-            [ -z "$stack" ] && continue
-            python3 scripts/validate_stack_inputs.py \
-              --cluster "$stack/cluster.yaml" \
-              --gitops-values "$stack/gitops.yaml"
-            out=".artifacts/pr/${stack//\//_}"
-            python3 scripts/render_effective_config.py \
-              --cluster "$stack/cluster.yaml" \
-              --gitops-values "$stack/gitops.yaml" \
-              --output-dir "$out"
-            cp "$out/terraform.auto.tfvars.json" "$stack/terraform.auto.tfvars.json"
-          done <<< "${{ steps.clusters.outputs.changed }}"
-
       - name: Terraform fmt
         run: terraform fmt -recursive -check
 
-      - name: Terraform validate changed clusters
+      - name: Validate changed clusters
         env:
           TF_VAR_ocm_token: dummy
         run: |
+          chmod +x scripts/run_cluster_workflow.sh
+          mkdir -p .artifacts/pr
           while IFS= read -r stack; do
             [ -z "$stack" ] && continue
-            terraform -chdir="$stack" init -backend=false
-            terraform -chdir="$stack" validate
+            scripts/run_cluster_workflow.sh \
+              --cluster-dir "$stack" \
+              --artifact-dir ".artifacts/pr/${stack//\//_}" \
+              --mode validate \
+              --backend false
           done <<< "${{ steps.clusters.outputs.changed }}"
 
       - name: Upload PR artifacts
@@ -122,10 +111,10 @@ jobs:
       - name: Install Python dependencies
         run: python3 -m pip install --upgrade pyyaml
 
-      - name: Check required CI tools
+      - name: Install runner dependencies
         run: |
-          chmod +x scripts/check_required_ci_tools.sh
-          scripts/check_required_ci_tools.sh bash git jq python3 terraform helm rg oc
+          sudo apt-get update
+          sudo apt-get install -y jq ripgrep
 
       - name: Detect changed clusters
         id: clusters
@@ -138,36 +127,24 @@ jobs:
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
 
-      - name: Render effective configs
+      - name: Apply changed clusters
+        env:
+          TF_VAR_ocm_token: ${{ secrets.OCM_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
         run: |
+          chmod +x scripts/run_cluster_workflow.sh
           mkdir -p .artifacts/apply
           while IFS= read -r stack; do
             [ -z "$stack" ] && continue
-            python3 scripts/validate_stack_inputs.py \
-              --cluster "$stack/cluster.yaml" \
-              --gitops-values "$stack/gitops.yaml"
-            out=".artifacts/apply/${stack//\//_}"
-            python3 scripts/render_effective_config.py \
-              --cluster "$stack/cluster.yaml" \
-              --gitops-values "$stack/gitops.yaml" \
-              --output-dir "$out"
-            cp "$out/terraform.auto.tfvars.json" "$stack/terraform.auto.tfvars.json"
+            scripts/run_cluster_workflow.sh \
+              --cluster-dir "$stack" \
+              --artifact-dir ".artifacts/apply/${stack//\//_}" \
+              --mode apply \
+              --backend true
           done <<< "${{ steps.clusters.outputs.changed }}"
-
-      - name: Terraform validate changed clusters
-        env:
-          TF_VAR_ocm_token: ${{ secrets.OCM_TOKEN }}
-        run: |
-          while IFS= read -r stack; do
-            [ -z "$stack" ] && continue
-            terraform -chdir="$stack" init -backend=false
-            terraform -chdir="$stack" validate
-          done <<< "${{ steps.clusters.outputs.changed }}"
-
-      - name: Placeholder plan and apply stage
-        run: |
-          echo "Wire backend config, cloud credentials, and apply gates here."
-          echo "Use the generated terraform.auto.tfvars.json in each changed stack root."
 
       - name: Upload apply artifacts
         uses: actions/upload-artifact@v4

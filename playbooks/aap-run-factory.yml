@@ -7,6 +7,7 @@
     artifact_dir: .artifacts/aap
     workflow_mode: plan
     terraform_backend: false
+    aws_default_region: "{{ lookup('ansible.builtin.env', 'AWS_DEFAULT_REGION', default='') }}"
   tasks:
     - name: Run shared cluster workflow
       ansible.builtin.command:
@@ -18,4 +19,9 @@
           --backend {{ terraform_backend | ternary('true', 'false') }}
       environment:
         TF_VAR_ocm_token: "{{ lookup('ansible.builtin.env', 'TF_VAR_ocm_token', default='') }}"
+        AWS_PROFILE: "{{ lookup('ansible.builtin.env', 'AWS_PROFILE', default='') }}"
+        AWS_ACCESS_KEY_ID: "{{ lookup('ansible.builtin.env', 'AWS_ACCESS_KEY_ID', default='') }}"
+        AWS_SECRET_ACCESS_KEY: "{{ lookup('ansible.builtin.env', 'AWS_SECRET_ACCESS_KEY', default='') }}"
+        AWS_SESSION_TOKEN: "{{ lookup('ansible.builtin.env', 'AWS_SESSION_TOKEN', default='') }}"
+        AWS_DEFAULT_REGION: "{{ aws_default_region }}"
       changed_when: workflow_mode in ['plan', 'apply']

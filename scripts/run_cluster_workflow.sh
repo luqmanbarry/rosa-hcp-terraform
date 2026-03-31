@@ -58,6 +58,9 @@ case "$MODE" in
 esac
 
 scripts/check_required_ci_tools.sh bash git jq python3 terraform helm rg oc
+if [[ "${ROSA_FACTORY_SKIP_TOOL_CHECK:-false}" != "true" ]]; then
+  scripts/check_required_ci_tools.sh bash git jq python3 terraform helm rg oc
+fi
 
 mkdir -p "$ARTIFACT_DIR"
 
